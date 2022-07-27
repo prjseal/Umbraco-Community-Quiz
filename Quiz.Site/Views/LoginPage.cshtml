@@ -4,3 +4,14 @@
 @{
 	Layout = null;
 }
+
+<main class="page contact-page">
+    <section class="portfolio-block contact">
+        <div class="container">
+            <div class="heading">
+                <h1 class="text-uppercase font-weight-bold">@Model.Name</h1>
+                @(await Component.InvokeAsync("Login"))    
+            </div>
+        </div>
+    </section>
+</main>

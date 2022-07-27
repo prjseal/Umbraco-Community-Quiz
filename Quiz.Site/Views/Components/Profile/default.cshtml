@@ -1,0 +1,23 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ProfileViewModel>
+
+@using Quiz.Site.Models
+
+@if (!User.Identity.IsAuthenticated)
+{
+    <div class="row">
+        <div class="col-12 text-center">
+            <p>You need to be logged in before you view your profile. <a href="/login/">Login</a></p>
+        </div>
+    </div>
+}
+else
+{
+    <dl>
+        <dt>Avatar:</dt>
+        <dd><img class="rounded" src="@(Model.Avatar?.GetCropUrl(120,120) ?? "")" /></dd>
+        <dt>Name:</dt>
+        <dd>@Model.Name</dd>
+    </dl>
+
+    <a href="/edit-profile/">Edit profile</a>
+}
