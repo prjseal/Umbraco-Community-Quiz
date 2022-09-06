@@ -73,7 +73,7 @@ namespace Quiz.Site.Controllers.Surface
                 if (!ModelState.IsValid) return RedirectToCurrentUmbracoPage();
 
 
-                var fullName = $"{model.FirstName} {model.LastName}";
+                var fullName = $"{model.Name}";
 
                 var memberTypeAlias = CurrentPage.HasValue("memberType")
                     ? CurrentPage.Value<string>("memberType")
@@ -88,8 +88,7 @@ namespace Quiz.Site.Controllers.Surface
 
                 _logger.LogInformation("Register: Member created successfully");
 
-                member.SetValue("firstName", model.FirstName);
-                member.SetValue("lastName", model.LastName);
+                member.Name = model.Name;
                 member.IsApproved = true;
 
                 _memberService.Save(member);

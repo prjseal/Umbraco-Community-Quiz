@@ -6,14 +6,10 @@ namespace Quiz.Site.Models
     public class RegisterViewModel
     {
         [Required]
-        [Display(Name = "First Name")]
-        public string FirstName { get; set; }
+        [Display(Name = "Name")]
+        public string Name { get; set; }
 
-        [Required]
-        [Display(Name = "Last Name")]
-        public string LastName { get; set; }
-
-        [Display(Name = "Email")]
+       [Display(Name = "Email")]
         [EmailAddress(ErrorMessage = "You must enter a valid email address")]
         [Required(ErrorMessage = "You must enter your email address")]
         public string Email { get; set; }
