@@ -6,12 +6,12 @@
 {
     <div class="row">
         <div class="col-12 text-center">
-
+            
             @using (Html.BeginUmbracoForm("Logout", "AuthSurface", FormMethod.Post))
             {
                 <p class="mb-5">Signed in as @User.Identity.Name</p>
-                <div class="text-center">
-                    <button type="button" class="btn btn-lg btn-primary btn-lg w-100 mt-4 mb-0">Logout</button>
+                <div class="form-group">
+                    <button class="btn btn-primary btn-block btn-lg" type="submit">Logout</button>
                 </div>
             }
 
@@ -22,18 +22,27 @@ else
 {
     using (Html.BeginUmbracoForm("Login", "AuthSurface", FormMethod.Post))
     {
+        <label asp-for="@Model.Username"></label>
         <div class="mb-3">
-            <input asp-for="@Model.Username" type="text" class="form-control" placeholder="Email" aria-label="Email">
+            <input asp-for="@Model.Username" class="form-control" placeholder="Email" aria-label="Email" />
+            <span asp-validation-for="@Model.Username" class="text-danger"></span>
+
         </div>
+        <label asp-for="@Model.Password"></label>
         <div class="mb-3">
-            <input asp-for="@Model.Password" type="text" class="form-control" placeholder="Password" aria-label="Password">
+            <input asp-for="@Model.Password" type="password" class="form-control" placeholder="Password" aria-label="Password" />
+            <span asp-validation-for="@Model.Password" class="text-danger"></span>
         </div>
-        <div class="form-check form-switch">
+        <label asp-for="@Model.RememberMe"></label>
+        <div class="form-check form-check-info text-left">
             <input asp-for="@Model.RememberMe" type="checkbox" class="form-check-input" />
-            <label asp-for="@Model.RememberMe" class="form-check-label">Remember me</label>
+            <label asp-for="@Model.RememberMe" class="form-check-label">
+            Remember me
+            </label>
+            <span asp-validation-for="@Model.RememberMe" class="text-danger"></span>
         </div>
-        <div class="text-center">
-            <button type="button" class="btn btn-lg btn-primary btn-lg w-100 mt-4 mb-0">Sign in</button>
+        <div class="form-group">
+            <button class="btn btn-primary btn-block btn-lg" type="submit">Login</button>
         </div>
     }
 }
