@@ -1,12 +1,12 @@
 ﻿@using Umbraco.Cms.Web.Common.PublishedModels;
-@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.ProfilePage>
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.EditProfilePage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 @using Umbraco.Cms.Core.Security
 
 @inject IMemberManager memberManager
 
 @{
-	Layout = "Master.cshtml";
+    Layout = "Master.cshtml";
 }
 
 <main class="main-content  mt-0">
@@ -20,12 +20,12 @@
                                 @if (!User.Identity.IsAuthenticated)
                                 {
                                     <h4 class="mb-0 font-weight-bolder">Please Login</h4>
-                                    <p class="mb-4">You need to be logged in to see your profile.<a href="/login/">Login</a></p>
+                                    <p class="mb-4">You need to be logged in before you can edit your profile. <a href="/login/">Login</a></p>
                                 }
                                 else
                                 {
-                                    <h4 class="mb-0 font-weight-bolder">Profile</h4>
-                                    @await Component.InvokeAsync("Profile", await memberManager.GetCurrentMemberAsync())
+                                    <h4 class="mb-0 font-weight-bolder">Edit Profile</h4>
+                                    @await Component.InvokeAsync("EditProfile", await memberManager.GetCurrentMemberAsync())
                                 }
                             </div>
                         </div>

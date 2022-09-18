@@ -42,7 +42,7 @@ else
     {
         using (Html.BeginUmbracoForm("EditProfile", "ProfileSurface", FormMethod.Post, new { @class = "text-left" }))
         {
-            <div class="form-group">
+@*            <div class="form-group">
                 <label asp-for="@Model.Avatar" />
                 <div>
                     <input asp-for="@Model.AvatarUrl" type="hidden" />
@@ -51,9 +51,9 @@ else
 
                 <input type="file" name="Avatar" id="Avatar" />
                 <span asp-validation-for="@Model.Avatar" class="text-danger"></span>
-            </div>
+            </div>*@
             <div class="form-group">
-                <label asp-for="@Model.Name" />
+                <label asp-for="@Model.Name"></label>
                 <input asp-for="@Model.Name" class="form-control" />
                 <span asp-validation-for="@Model.Name" class="text-danger"></span>
             </div>

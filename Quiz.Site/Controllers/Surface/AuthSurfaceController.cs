@@ -9,6 +9,7 @@ using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Persistence;
+using Umbraco.Cms.Web.Common.PublishedModels;
 using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
@@ -50,7 +51,9 @@ namespace Quiz.Site.Controllers.Surface
             SignInResult result = await _memberSignInManager.PasswordSignInAsync(
                 model.Username, model.Password, isPersistent: model.RememberMe, lockoutOnFailure: true);
 
-            return RedirectToCurrentUmbracoUrl();
+            var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
+
+            return RedirectToUmbracoPage(profilePage);
         }
 
         [HttpPost]

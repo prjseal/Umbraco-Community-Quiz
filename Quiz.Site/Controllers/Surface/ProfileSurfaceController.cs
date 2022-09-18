@@ -19,6 +19,7 @@ using Umbraco.Cms.Web.Website.Controllers;
 using Umbraco.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
+using Umbraco.Cms.Web.Common.PublishedModels;
 
 namespace Quiz.Site.Controllers.Surface
 {
@@ -145,7 +146,9 @@ namespace Quiz.Site.Controllers.Surface
 
             TempData["EditProfileSuccess"] = true;
 
-            var profilePage = CurrentPage.Parent;
+            var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
+
+            
 
             return RedirectToUmbracoPage(profilePage);
         }

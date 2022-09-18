@@ -22,7 +22,7 @@ namespace Quiz.Site.Components
 
         public IViewComponentResult Invoke(MemberIdentityUser user)
         {
-            string[] selectedSkillsArray = null;
+           string[] selectedSkillsArray = null;
             string[] selectedJobTitleArray = null;
             string[] selectedFavouriteColourArray = null;
             var member = _accountService.GetMemberModelFromUser(user);
@@ -40,7 +40,7 @@ namespace Quiz.Site.Components
             //selectedFavouriteColourArray = new[] { enrichedProfile.FavouriteColour };
             //model.Skills = enrichedProfile.Skills;
             //selectedSkillsArray = enrichedProfile.Skills?.ToArray();
-            model.AvatarUrl = enrichedProfile.Avatar?.GetCropUrl(120, 120);
+            //model.AvatarUrl = enrichedProfile.Avatar?.GetCropUrl(120, 120);
             //model.CurrentGalleryItems = enrichedProfile.Gallery;
 
             //if (model.CurrentGalleryItems != null && model.CurrentGalleryItems.Any())

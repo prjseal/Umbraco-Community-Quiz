@@ -90,11 +90,11 @@ namespace Quiz.Site.Services
 
             //member.SetValue("favouriteColour", model.FavouriteColour);
 
-            if (model.Avatar != null)
-            {
-                var avatarUdi = _mediaUploadService.CreateMediaItemFromFileUpload(model.Avatar, 1126, "Image");
-                member.SetValue("avatar", avatarUdi);
-            }
+            //if (model.Avatar != null)
+            //{
+            //    var avatarUdi = _mediaUploadService.CreateMediaItemFromFileUpload(model.Avatar, 1126, "Image");
+            //    member.SetValue("avatar", avatarUdi);
+            //}
 
             //List<string> galleryUdis = new List<string>();
 

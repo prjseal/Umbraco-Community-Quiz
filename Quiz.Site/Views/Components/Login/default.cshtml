@@ -6,15 +6,7 @@
 {
     <div class="row">
         <div class="col-12 text-center">
-            
-            @using (Html.BeginUmbracoForm("Logout", "AuthSurface", FormMethod.Post))
-            {
-                <p class="mb-5">Signed in as @User.Identity.Name</p>
-                <div class="form-group">
-                    <button class="btn btn-primary btn-block btn-lg" type="submit">Logout</button>
-                </div>
-            }
-
+            <p class="mb-5">Signed in as @User.Identity.Name</p>
         </div>
     </div>
 }
@@ -33,7 +25,6 @@ else
             <input asp-for="@Model.Password" type="password" class="form-control" placeholder="Password" aria-label="Password" />
             <span asp-validation-for="@Model.Password" class="text-danger"></span>
         </div>
-        <label asp-for="@Model.RememberMe"></label>
         <div class="form-check form-check-info text-left">
             <input asp-for="@Model.RememberMe" type="checkbox" class="form-check-input" />
             <label asp-for="@Model.RememberMe" class="form-check-label">

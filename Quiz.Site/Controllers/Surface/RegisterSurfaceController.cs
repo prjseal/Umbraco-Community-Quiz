@@ -16,6 +16,8 @@ using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Persistence;
+using Umbraco.Cms.Web.Common.PublishedModels;
+using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
 using Umbraco.Extensions;
 
@@ -23,6 +25,7 @@ namespace Quiz.Site.Controllers.Surface
 {
     public class RegisterSurfaceController : SurfaceController
     {
+        private readonly IMemberSignInManager _memberSignInManager;
         private readonly IMemberManager _memberManager;
         private readonly IMemberService _memberService;
         private readonly ILogger<RegisterSurfaceController> _logger;
@@ -38,6 +41,7 @@ namespace Quiz.Site.Controllers.Surface
             IProfilingLogger profilingLogger,
             IPublishedUrlProvider publishedUrlProvider,
             //these are dependencies we've added
+            IMemberSignInManager memberSignInManager,
             IMemberManager memberManager,
             IMemberService memberService,
             ILogger<RegisterSurfaceController> logger,
@@ -45,6 +49,7 @@ namespace Quiz.Site.Controllers.Surface
             IOptions<GlobalSettings> globalSettings
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
+            _memberSignInManager = memberSignInManager ?? throw new ArgumentNullException(nameof(memberSignInManager));
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
             _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -97,6 +102,14 @@ namespace Quiz.Site.Controllers.Surface
             }
 
             TempData["Success"] = true;
+
+            Microsoft.AspNetCore.Identity.SignInResult result = await _memberSignInManager.PasswordSignInAsync(
+                model.Email, model.Password, isPersistent: false, lockoutOnFailure: true);
+
+            var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
+
+            return RedirectToUmbracoPage(profilePage);
+
             return RedirectToCurrentUmbracoPage();
         }
 
