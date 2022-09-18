@@ -1,0 +1,76 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<QuestionViewModel>
+
+@using Quiz.Site.Models
+
+@{
+    var submitted = false;
+    if (bool.TryParse(TempData["Success"]?.ToString() ?? "", out var success))
+    {
+        submitted = true;
+    }
+}
+
+@if (User.Identity.IsAuthenticated)
+{
+    if (submitted)
+    {
+        if (success)
+        {
+            <div class="row">
+                <div class="col-12 text-center">
+                    @if (success)
+                    {
+                        <p>Thanks for submitting a question. You're the best.</p>
+                    }
+                    else
+                    {
+                        <p>There was an error when trying to register. Please try again later.</p>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        using (Html.BeginUmbracoForm("Submit", "QuestionSurface", FormMethod.Post, new { @class="text-left", role="form"}))
+        {
+            <label asp-for="@Model.QuestionText"></label>
+            <div class="mb-3">
+                <input asp-for="@Model.QuestionText" type="text" class="form-control" placeholder="Question Text" aria-label="Question Text">
+                <span asp-validation-for="@Model.QuestionText"></span>
+            </div>
+            <label asp-for="@Model.CorrectAnswer"></label>
+            <div class="mb-3">
+                <input asp-for="@Model.CorrectAnswer" type="text" class="form-control" placeholder="CorrectAnswer" aria-label="CorrectAnswer">
+                <span asp-validation-for="@Model.CorrectAnswer"></span>
+            </div>
+            <div class="mb-3">
+                <input asp-for="@Model.WrongAnswer1" type="text" class="form-control" placeholder="Wrong Answer 1" aria-label="Wrong Answer 1">
+                <span asp-validation-for="@Model.WrongAnswer1"></span>
+            </div>
+            <div class="mb-3">
+                <input asp-for="@Model.WrongAnswer2" type="text" class="form-control" placeholder="Wrong Answer 2" aria-label="Wrong Answer 2">
+                <span asp-validation-for="@Model.WrongAnswer2"></span>
+            </div>
+            <div class="mb-3">
+                <input asp-for="@Model.WrongAnswer3" type="text" class="form-control" placeholder="Wrong Answer 3" aria-label="Wrong Answer 3">
+                <span asp-validation-for="@Model.WrongAnswer3"></span>
+            </div>
+            <div class="mb-3">
+                <input asp-for="@Model.MoreInfoLink" type="text" class="form-control" placeholder="More Info Link" aria-label="More Info Link">
+                <span asp-validation-for="@Model.MoreInfoLink"></span>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary btn-block btn-lg" type="submit">Submit</button>
+            </div>
+        }    
+    }
+}
+else
+{
+    <div class="row">
+        <div class="col-12 text-center">
+            <p>You need to be logged in before you view your profile. <a href="/login/">Login</a></p>
+        </div>
+    </div>
+}

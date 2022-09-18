@@ -23,20 +23,23 @@ namespace Quiz.Site.Models
         [Column("createdby")]
         public string CreatedBy { get; set; }
 
-        [Column("lasteditedby")]
-        public string LastEditedBy { get; set; }
+        [Column("questionText")]
+        public string QuestionText { get; set; }
 
-        [Column("text")]
-        public string Text { get; set; }
+        [Column("correctAnswer")]
+        public string CorrectAnswer { get; set; }
 
-        [Column("possibleanswers")]
-        public string PossibleAnswers { get; set; }
+        [Column("wrongAnswer1")]
+        public string WrongAnswer1 { get; set; }
 
-        [Column("correctanswers")]
-        public string CorrectAnswers { get; set; }
+        [Column("wrongAnswer2")]
+        public string WrongAnswer2 { get; set; }
 
-        [Column("links")]
-        public string Links { get; set; }
+        [Column("wrongAnswer3")]
+        public string WrongAnswer3 { get; set; }
+
+        [Column("moreInfoLink")]
+        public string MoreInfoLink { get; set; }
 
         [Column("tags")]
         public string Tags { get; set; }

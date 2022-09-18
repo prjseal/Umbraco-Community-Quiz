@@ -8,9 +8,9 @@ public interface IQuestionRepository
 
     Question GetById(int id);
 
-    Question Create(Question question);
+    void Create(Question question);
 
     Question Update(Question question);
 
-    bool Delete(Question question);
+    int Delete(int id);
 }

@@ -37,6 +37,9 @@ public class QuestionRepository : IQuestionRepository
     {
         using (var scope = _scopeProvider.CreateScope())
         {
+            question.DateCreated = DateTime.Now;
+            question.DateUpdated = DateTime.Now;
+            question.Tags = "";
             scope.Database.Insert(question);
             scope.Complete();
         }
