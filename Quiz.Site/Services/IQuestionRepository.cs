@@ -1,4 +1,5 @@
-﻿using Quiz.Site.Models;
+﻿using Quiz.Site.Enums;
+using Quiz.Site.Models;
 
 namespace Quiz.Site.Services;
 
@@ -6,7 +7,11 @@ public interface IQuestionRepository
 {
     IEnumerable<Question> GetAll();
 
+    IEnumerable<Question> GetAllByStatus(QuestionStatus questionStatus);
+
     Question GetById(int id);
+
+    Question GetByMemberId(string memberId);
 
     void Create(Question question);
 

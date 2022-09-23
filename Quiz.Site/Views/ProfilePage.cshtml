@@ -6,10 +6,12 @@
 @inject IMemberManager memberManager
 
 @{
-	Layout = "Master.cshtml";
+	Layout = "DashboardMaster.cshtml";
 }
 
-<main class="main-content  mt-0">
+@await Component.InvokeAsync("MemberQuestions")
+
+@*<main class="main-content  mt-0">
     <section>
         <div class="page-header min-vh-100">
             <div class="container">
@@ -35,4 +37,4 @@
             </div>
         </div>
     </section>
-</main>
+</main>*@

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Quiz.Site.Enums;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
 using System;
@@ -64,13 +65,14 @@ namespace Quiz.Site.Controllers.Surface
             Question question = new Question()
             {
                 Id = model.Id,
-                CreatedBy = "Paul Seal",
+                AuthorMemberId = int.Parse(User.Identity.GetUserId() ?? "0"),
                 QuestionText = model.QuestionText,
                 CorrectAnswer = model.CorrectAnswer,
                 WrongAnswer1 = model.WrongAnswer1,
                 WrongAnswer2 = model.WrongAnswer2,
                 WrongAnswer3 = model.WrongAnswer3,
-                MoreInfoLink = model.MoreInfoLink
+                MoreInfoLink = model.MoreInfoLink,
+                Status = (int)QuestionStatus.Pending
             };
 
             _questionRepository.Create(question);

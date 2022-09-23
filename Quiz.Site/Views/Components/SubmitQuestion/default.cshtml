@@ -36,26 +36,30 @@
         {
             <label asp-for="@Model.QuestionText"></label>
             <div class="mb-3">
-                <input asp-for="@Model.QuestionText" type="text" class="form-control" placeholder="Question Text" aria-label="Question Text">
+                <textarea asp-for="@Model.QuestionText" type="text" class="form-control" placeholder="Question Text" aria-label="Question Text"></textarea>
                 <span asp-validation-for="@Model.QuestionText"></span>
             </div>
-            <label asp-for="@Model.CorrectAnswer"></label>
+            <label asp-for="@Model.CorrectAnswer" class="text-success"></label>
             <div class="mb-3">
-                <input asp-for="@Model.CorrectAnswer" type="text" class="form-control" placeholder="CorrectAnswer" aria-label="CorrectAnswer">
+                <input asp-for="@Model.CorrectAnswer" type="text" class="form-control" placeholder="Correct Answer" aria-label="CorrectAnswer">
                 <span asp-validation-for="@Model.CorrectAnswer"></span>
             </div>
+            <label asp-for="@Model.WrongAnswer1" class="text-danger"></label>
             <div class="mb-3">
                 <input asp-for="@Model.WrongAnswer1" type="text" class="form-control" placeholder="Wrong Answer 1" aria-label="Wrong Answer 1">
                 <span asp-validation-for="@Model.WrongAnswer1"></span>
             </div>
+            <label asp-for="@Model.WrongAnswer2" class="text-danger"></label>
             <div class="mb-3">
                 <input asp-for="@Model.WrongAnswer2" type="text" class="form-control" placeholder="Wrong Answer 2" aria-label="Wrong Answer 2">
                 <span asp-validation-for="@Model.WrongAnswer2"></span>
             </div>
+            <label asp-for="@Model.WrongAnswer3" class="text-danger"></label>
             <div class="mb-3">
                 <input asp-for="@Model.WrongAnswer3" type="text" class="form-control" placeholder="Wrong Answer 3" aria-label="Wrong Answer 3">
                 <span asp-validation-for="@Model.WrongAnswer3"></span>
             </div>
+            <label asp-for="@Model.MoreInfoLink"></label>
             <div class="mb-3">
                 <input asp-for="@Model.MoreInfoLink" type="text" class="form-control" placeholder="More Info Link" aria-label="More Info Link">
                 <span asp-validation-for="@Model.MoreInfoLink"></span>

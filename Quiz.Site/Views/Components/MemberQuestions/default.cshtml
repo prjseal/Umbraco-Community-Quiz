@@ -1,0 +1,92 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<IEnumerable<Question>>
+@using Quiz.Site.Models
+@using Quiz.Site.Enums
+
+@if (Model == null && Model.Any())
+{
+    return;
+}
+
+<div class="table-responsive">
+    <table class="table table-flush" id="datatable-search">
+        <thead class="thead-light">
+            <tr>
+                <th>Id</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Question</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Count() > 0)
+            {
+                var index = 0;
+
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="customCheck@(index)">
+                                </div>
+                                <p class="text-xs font-weight-bold ms-2 mb-0">#@item.Id</p>
+                            </div>
+                        </td>
+                        <td class="font-weight-bold">
+                            <span class="my-2 text-xs">@item.DateCreated.ToString("dd MMM, HH:mm")</span>
+                        </td>
+                        <td class="text-xs font-weight-bold">
+                            <div class="d-flex align-items-center">
+                                @{
+                                    var statusLabel = "Unknown";
+                                    var statusColour = "secondary";
+                                }
+                                @switch ((QuestionStatus)item.Status)
+                                {
+                                    case QuestionStatus.Approved:
+                                        statusLabel = "Approved";
+                                        statusColour = "success";
+                                        break;
+                                    case QuestionStatus.Used:
+                                        statusLabel = "Approved";
+                                        statusColour = "success";
+                                        break;
+                                    case QuestionStatus.Pending:
+                                        statusLabel = "Pending";
+                                        statusColour = "info";
+                                        break;
+                                    case QuestionStatus.Incorrect:
+                                        statusLabel = "Incorrect";
+                                        statusColour = "warning";
+                                        break;
+                                    case QuestionStatus.Deleted:
+                                        statusLabel = "Deleted";
+                                        statusColour = "danger";
+                                        break;
+                                    default:
+                                        statusLabel = "Unknown";
+                                        statusColour = "secondary";
+                                        break;
+                                }
+                                <button class="btn btn-icon-only btn-rounded btn-outline-@statusColour mb-0 me-2 btn-sm d-flex align-items-center justify-content-center"><i class="fas fa-check" aria-hidden="true"></i></button>
+                                <span>@statusLabel</span>
+                            </div>
+                        </td>
+                        <td class="text-xs font-weight-bold">
+                            <div class="d-flex align-items-center">
+                                <span>@item.QuestionText</span>
+                            </div>
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+            else
+            {
+                <tr><td colspan="4" class="text-xs font-weight-bold">You haven't submitted any questions yet.</td></tr>
+            }
+
+        </tbody>
+    </table>
+</div>

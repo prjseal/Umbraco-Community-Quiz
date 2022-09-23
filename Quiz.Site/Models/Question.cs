@@ -20,8 +20,8 @@ namespace Quiz.Site.Models
         [Column("dateupdated")]
         public DateTime DateUpdated { get; set; }
 
-        [Column("createdby")]
-        public string CreatedBy { get; set; }
+        [Column("authorMemberId")]
+        public int AuthorMemberId { get; set; }
 
         [Column("questionText")]
         public string QuestionText { get; set; }
@@ -44,7 +44,7 @@ namespace Quiz.Site.Models
         [Column("tags")]
         public string Tags { get; set; }
 
-        [Column("approved")]
-        public bool Approved { get; set; }
+        [Column("status")]
+        public int Status { get; set; }
     }
 }

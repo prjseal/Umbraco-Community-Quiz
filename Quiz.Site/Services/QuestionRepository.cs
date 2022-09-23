@@ -1,4 +1,5 @@
-﻿using Quiz.Site.Models;
+﻿using Quiz.Site.Enums;
+using Quiz.Site.Models;
 using Umbraco.Cms.Infrastructure.Scoping;
 
 namespace Quiz.Site.Services;
@@ -23,6 +24,18 @@ public class QuestionRepository : IQuestionRepository
         }
     }
 
+    public IEnumerable<Question> GetAllByStatus(QuestionStatus questionStatus)
+    {
+        var status = (int)questionStatus;
+        using (var scope = _scopeProvider.CreateScope())
+        {
+            var db = scope.Database;
+            var records = db.Query<Question>("SELECT * FROM Question WHERE status = @status", new { status });
+
+            return records;
+        }
+    }
+
     public Question GetById(int id)
     {
         using (var scope = _scopeProvider.CreateScope())
@@ -33,6 +46,18 @@ public class QuestionRepository : IQuestionRepository
             return record;
         }
     }
+
+    public Question GetByMemberId(string memberId)
+    {
+        using (var scope = _scopeProvider.CreateScope())
+        {
+            var db = scope.Database;
+            var record = db.Query<Question>("SELECT * FROM Question WHERE [CreatedBy] = @memberId", new { memberId }).FirstOrDefault();
+
+            return record;
+        }
+    }
+
     public void Create(Question question)
     {
         using (var scope = _scopeProvider.CreateScope())
