@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<language alias="en" intName="English (US)" localName="English (US)" lcid="" culture="en-US">
+  <creator>
+    <name>Konstrukt</name>
+    <link>https://konstrukt.io</link>
+  </creator>
+  <area alias="sections">
+    <key alias="konstrukt">Konstrukt</key>
+    <key alias="quiz" autogen="true">Quiz</key>
+  </area>
+  <area alias="dashboardTabs">
+    <key alias="summary">Summary</key>
+    <key alias="konstrukt">Konstrukt</key>
+  </area>
+  <area alias="actions">
+    <key alias="delete" autogen="true">Delete</key>
+  </area>
+</language>

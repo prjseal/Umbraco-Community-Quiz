@@ -11,6 +11,8 @@ public interface IQuestionRepository
 
     Question GetById(int id);
 
+    List<Question> GetByIds(int[] ids);
+
     Question GetByMemberId(string memberId);
 
     void Create(Question question);

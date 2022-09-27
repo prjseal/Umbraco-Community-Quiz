@@ -5,5 +5,6 @@ public enum QuestionStatus
     Approved = 1,
     Incorrect = 2,
     Used = 3,
-    Deleted = 4
+    Deleted = 4,
+    Unknown = 5
 }

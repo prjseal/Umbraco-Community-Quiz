@@ -20,7 +20,7 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 {
 	/// <summary>Home Page</summary>
 	[PublishedModel("homePage")]
-	public partial class HomePage : PublishedContentModel
+	public partial class HomePage : PublishedContentModel, ISideBannerProperties
 	{
 		// helpers
 #pragma warning disable 0109 // new is redundant
@@ -48,5 +48,29 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		}
 
 		// properties
+
+		///<summary>
+		/// Side Banner Image: Add the image for the side banner
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "10.0.1+fd0c4fd")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("sideBannerImage")]
+		public virtual global::Umbraco.Cms.Core.Models.MediaWithCrops SideBannerImage => global::Umbraco.Cms.Web.Common.PublishedModels.SideBannerProperties.GetSideBannerImage(this, _publishedValueFallback);
+
+		///<summary>
+		/// Side Banner Summary: Enter the summary for the side banner
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "10.0.1+fd0c4fd")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("sideBannerSummary")]
+		public virtual string SideBannerSummary => global::Umbraco.Cms.Web.Common.PublishedModels.SideBannerProperties.GetSideBannerSummary(this, _publishedValueFallback);
+
+		///<summary>
+		/// Side Banner Title: Enter the title for the side banner
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "10.0.1+fd0c4fd")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("sideBannerTitle")]
+		public virtual string SideBannerTitle => global::Umbraco.Cms.Web.Common.PublishedModels.SideBannerProperties.GetSideBannerTitle(this, _publishedValueFallback);
 	}
 }

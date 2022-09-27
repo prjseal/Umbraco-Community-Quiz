@@ -21,7 +21,7 @@ namespace Quiz.Site.Models
         public DateTime DateUpdated { get; set; }
 
         [Column("authorMemberId")]
-        public int AuthorMemberId { get; set; }
+        public string AuthorMemberId { get; set; }
 
         [Column("questionText")]
         public string QuestionText { get; set; }
@@ -41,10 +41,10 @@ namespace Quiz.Site.Models
         [Column("moreInfoLink")]
         public string MoreInfoLink { get; set; }
 
-        [Column("tags")]
-        public string Tags { get; set; }
-
         [Column("status")]
         public int Status { get; set; }
+
+        [Column("correctAnswerPosition")]
+        public int CorrectAnswerPosition { get; set; }
     }
 }

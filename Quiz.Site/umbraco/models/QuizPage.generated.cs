@@ -20,7 +20,7 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 {
 	/// <summary>Quiz Page</summary>
 	[PublishedModel("quizPage")]
-	public partial class QuizPage : PublishedContentModel
+	public partial class QuizPage : PublishedContentModel, IQuizProperties
 	{
 		// helpers
 #pragma warning disable 0109 // new is redundant
@@ -48,5 +48,13 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		}
 
 		// properties
+
+		///<summary>
+		/// Questions: Choose the questions to use in this quiz
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "10.0.1+fd0c4fd")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("questions")]
+		public virtual global::System.Collections.Generic.List<string> Questions => global::Umbraco.Cms.Web.Common.PublishedModels.QuizProperties.GetQuestions(this, _publishedValueFallback);
 	}
 }

@@ -1,0 +1,37 @@
+﻿@using Quiz.Site.Models
+@using Quiz.Site.Models.ContentModels
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<QuizPageContentModel>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+
+@{
+	Layout = "Master.cshtml";
+}
+
+<main class="main-content  mt-0">
+    <section>
+        <div class="page-header min-vh-100">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
+                        <div class="card card-plain py-lg-3">
+                            <div class="card-body text-left">
+                                @if (!User.Identity.IsAuthenticated)
+                                {
+                                    <h4 class="mb-0 font-weight-bolder">Login</h4>
+                                    @await Component.InvokeAsync("Login")
+                                    <p class="my-4">Don't have an account yet? <a href="/register/">Register here</a></p>
+                                }
+                                else
+                                {
+                                    @await Component.InvokeAsync("Quiz", Model.Quiz)
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    @await Component.InvokeAsync("SideBanner")
+                </div>
+            </div>
+        </div>
+    </section>
+</main>

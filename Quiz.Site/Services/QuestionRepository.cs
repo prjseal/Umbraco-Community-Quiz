@@ -47,6 +47,19 @@ public class QuestionRepository : IQuestionRepository
         }
     }
 
+    public List<Question> GetByIds(int[] ids)
+    {
+        using (var scope = _scopeProvider.CreateScope())
+        {
+            var joinedIds = string.Join(',', ids);
+            var sql = $"SELECT * FROM Question WHERE [Id] IN ({joinedIds})";
+            var db = scope.Database;
+            var records = db.Query<Question>(sql).ToList();
+
+            return records;
+        }
+    }
+
     public Question GetByMemberId(string memberId)
     {
         using (var scope = _scopeProvider.CreateScope())
@@ -64,7 +77,6 @@ public class QuestionRepository : IQuestionRepository
         {
             question.DateCreated = DateTime.Now;
             question.DateUpdated = DateTime.Now;
-            question.Tags = "";
             scope.Database.Insert(question);
             scope.Complete();
         }

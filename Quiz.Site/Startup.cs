@@ -1,3 +1,6 @@
+using Konstrukt.Extensions;
+using Quiz.Site.Models;
+
 namespace Quiz.Site
 {
     public class Startup
@@ -32,6 +35,35 @@ namespace Quiz.Site
             services.AddUmbraco(_env, _config)
                 .AddBackOffice()
                 .AddWebsite()
+                .AddKonstrukt(cfg => {
+
+                    cfg.AddSectionAfter("media", "Quiz", sectionConfig => sectionConfig
+                        .Tree(treeConfig => treeConfig
+                            .AddCollection<Question>(x => x.Id, "Question", "Questions", "A question entity", "icon-help-alt", "icon-help-alt", collectionConfig => collectionConfig
+                                .SetNameProperty(p => p.QuestionText)
+                                .ListView(listViewConfig => listViewConfig
+                                    .AddField(p => p.CorrectAnswer).SetHeading("Correct Answer")
+                                    .AddField(p => p.DateCreated).SetHeading("Date Created")
+                                )
+                                .Editor(editorConfig => editorConfig
+                                    .AddTab("General", tabConfig => tabConfig
+                                        .AddFieldset("General", fieldsetConfig => fieldsetConfig
+                                            .AddField(p => p.QuestionText).SetDataType("Textarea").MakeRequired()
+                                            .AddField(p => p.CorrectAnswer).MakeRequired()
+                                            .AddField(p => p.WrongAnswer1).MakeRequired()
+                                            .AddField(p => p.WrongAnswer2).MakeRequired()
+                                            .AddField(p => p.WrongAnswer3).MakeRequired()
+                                            .AddField(p => p.MoreInfoLink)
+                                            .AddField(p => p.Status).SetDataType("[DataList] Question Status")
+                                            .AddField(p => p.AuthorMemberId).SetDataType("Member Picker")
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    );
+
+                })
                 .AddComposers()
                 .Build();
         }

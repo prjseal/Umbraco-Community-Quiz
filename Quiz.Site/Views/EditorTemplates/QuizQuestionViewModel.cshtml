@@ -1,0 +1,16 @@
+﻿@using Quiz.Site.Models
+
+@model QuizQuestionViewModel
+
+<div class="form-group">
+	<p>@Model.QuestionText</p>
+	@foreach(var answer in Model.Answers)
+	{
+		<div class="radio">
+			<label>
+				<input type="radio" asp-for="@Model.Answer" value="@answer.Value" />
+				<span>@answer.Value</span>
+			</label>
+        </div>
+	}
+</div>

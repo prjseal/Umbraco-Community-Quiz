@@ -18,14 +18,24 @@ using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Web.Common.PublishedModels
 {
-	/// <summary>Register Page</summary>
-	[PublishedModel("registerPage")]
-	public partial class RegisterPage : PublishedContentModel, ISideBannerProperties
+	// Mixin Content Type with alias "quizProperties"
+	/// <summary>Quiz Properties</summary>
+	public partial interface IQuizProperties : IPublishedElement
+	{
+		/// <summary>Questions</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "10.0.1+fd0c4fd")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		global::System.Collections.Generic.List<string> Questions { get; }
+	}
+
+	/// <summary>Quiz Properties</summary>
+	[PublishedModel("quizProperties")]
+	public partial class QuizProperties : PublishedElementModel, IQuizProperties
 	{
 		// helpers
 #pragma warning disable 0109 // new is redundant
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "10.0.1+fd0c4fd")]
-		public new const string ModelTypeAlias = "registerPage";
+		public new const string ModelTypeAlias = "quizProperties";
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "10.0.1+fd0c4fd")]
 		public new const PublishedItemType ModelItemType = PublishedItemType.Content;
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "10.0.1+fd0c4fd")]
@@ -34,14 +44,14 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 			=> PublishedModelUtility.GetModelContentType(publishedSnapshotAccessor, ModelItemType, ModelTypeAlias);
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "10.0.1+fd0c4fd")]
 		[return: global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		public static IPublishedPropertyType GetModelPropertyType<TValue>(IPublishedSnapshotAccessor publishedSnapshotAccessor, Expression<Func<RegisterPage, TValue>> selector)
+		public static IPublishedPropertyType GetModelPropertyType<TValue>(IPublishedSnapshotAccessor publishedSnapshotAccessor, Expression<Func<QuizProperties, TValue>> selector)
 			=> PublishedModelUtility.GetModelPropertyType(GetModelContentType(publishedSnapshotAccessor), selector);
 #pragma warning restore 0109
 
 		private IPublishedValueFallback _publishedValueFallback;
 
 		// ctor
-		public RegisterPage(IPublishedContent content, IPublishedValueFallback publishedValueFallback)
+		public QuizProperties(IPublishedElement content, IPublishedValueFallback publishedValueFallback)
 			: base(content, publishedValueFallback)
 		{
 			_publishedValueFallback = publishedValueFallback;
@@ -50,27 +60,16 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		// properties
 
 		///<summary>
-		/// Side Banner Image: Add the image for the side banner
+		/// Questions: Choose the questions to use in this quiz
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "10.0.1+fd0c4fd")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("sideBannerImage")]
-		public virtual global::Umbraco.Cms.Core.Models.MediaWithCrops SideBannerImage => global::Umbraco.Cms.Web.Common.PublishedModels.SideBannerProperties.GetSideBannerImage(this, _publishedValueFallback);
+		[ImplementPropertyType("questions")]
+		public virtual global::System.Collections.Generic.List<string> Questions => GetQuestions(this, _publishedValueFallback);
 
-		///<summary>
-		/// Side Banner Summary: Enter the summary for the side banner
-		///</summary>
+		/// <summary>Static getter for Questions</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "10.0.1+fd0c4fd")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("sideBannerSummary")]
-		public virtual string SideBannerSummary => global::Umbraco.Cms.Web.Common.PublishedModels.SideBannerProperties.GetSideBannerSummary(this, _publishedValueFallback);
-
-		///<summary>
-		/// Side Banner Title: Enter the title for the side banner
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "10.0.1+fd0c4fd")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("sideBannerTitle")]
-		public virtual string SideBannerTitle => global::Umbraco.Cms.Web.Common.PublishedModels.SideBannerProperties.GetSideBannerTitle(this, _publishedValueFallback);
+		[return: global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		public static global::System.Collections.Generic.List<string> GetQuestions(IQuizProperties that, IPublishedValueFallback publishedValueFallback) => that.Value<global::System.Collections.Generic.List<string>>(publishedValueFallback, "questions");
 	}
 }
