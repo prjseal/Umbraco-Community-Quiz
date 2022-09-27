@@ -10,6 +10,9 @@ public class QuizQuestionViewModel
     public string? QuestionText { get; set; }
     public List<SelectListItem>? Answers { get; set; }
 
+    public bool? IsCorrect { get; set; }
+    public string? MoreInfoLink { get; set; }
+
     [Required]
     public string Answer { get; set; }
 }

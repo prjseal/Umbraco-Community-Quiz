@@ -6,30 +6,46 @@
 
 @using (Html.BeginUmbracoForm("Submit", "QuizSurface", FormMethod.Post, new { @class = "text-left" }))
 {
-		var questionIndex = 0;
-		@for(var q = 0; q < 2; q++)
-		{
-			<div class="form-group">
-				<h3>Question @(q + 1)</h3>
-				<p>@Model.Questions[q].QuestionText</p>
-				<span asp-validation-for="@Model.Questions[q].Answer"></span>
-				@for(var a = 0; a < 4; a++)
+	<input type="hidden" asp-for="@Model.QuizId" value="@Model.QuizId" />
+	var questionCount = Model.Questions.Count;
+	@for(var q = 0; q < questionCount; q++)
+	{
+		var answered = Model?.Questions[q]?.IsCorrect.HasValue ?? false;
+		<div class="form-group">
+			<h3>Question @(q + 1)</h3>
+			<p>@Model.Questions[q].QuestionText</p>
+			<span asp-validation-for="@Model.Questions[q].Answer"></span>
+			@for(var a = 0; a < 4; a++)
+			{
+				<div class="radio">
+					<label>
+						<input type="radio" disabled="@(answered ? "disabled" : null)" checked="@(Model.Questions[q].Answers[a].Selected ? "checked" : null)" asp-for="@Model.Questions[q].Answer" value="@(Model.Questions[q].Answers[a].Value)" />
+						<span>@(Model.Questions[q].Answers[a].Text)</span>
+					</label>
+				</div>
+			}
+			@if(answered)
+			{
+				if(Model.Questions[q].IsCorrect.Value)
 				{
-					<div class="radio">
-						<label>
-							<input type="radio" checked="@(Model.Questions[q].Answers[a].Selected ? "checked" : null)" asp-for="@Model.Questions[q].Answer" value="@(Model.Questions[q].Answers[a].Value)" />
-							<span>@(Model.Questions[q].Answers[a].Text)</span>
-						</label>
-					</div>
+					<p class="text-success">Correct</p>
 				}
-			</div>
-			questionIndex++;
-		}
-		@foreach(var question in Model.Questions)
-		{
+				else
+				{
+					<p class="text-danger">Incorrect</p>
+				}
+				@if(!string.IsNullOrWhiteSpace(Model.Questions[q].MoreInfoLink))
+				{
+					<p><a href="@Model.Questions[q].MoreInfoLink" target="_blank">Learn more about this here</a></p>
+				}
+			}
+		</div>
+	}
+	@foreach(var question in Model.Questions)
+	{
 			
-		}
-        <div class="form-group">
-            <button class="btn btn-primary btn-block btn-lg" type="submit">Update</button>
-        </div>
+	}
+    <div class="form-group">
+        <button class="btn btn-primary btn-block btn-lg" type="submit">Update</button>
+    </div>
 }

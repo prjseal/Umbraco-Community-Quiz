@@ -1,4 +1,5 @@
-﻿@using Quiz.Site.Models
+﻿@using Newtonsoft.Json
+@using Quiz.Site.Models
 @using Quiz.Site.Models.ContentModels
 @using Umbraco.Cms.Web.Common.PublishedModels;
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<QuizPageContentModel>
@@ -24,7 +25,17 @@
                                 }
                                 else
                                 {
-                                    @await Component.InvokeAsync("Quiz", Model.Quiz)
+                                    var success = TempData["Success"] as bool?;
+                                    var completedQuizString = TempData["CompletedQuiz"] != null ? TempData["CompletedQuiz"].ToString() : "";
+                                    var completedQuiz = JsonConvert.DeserializeObject<QuizViewModel>(completedQuizString);
+                                    if(completedQuiz != null && success.HasValue && success.Value)
+                                    {
+                                        @await Component.InvokeAsync("Quiz", completedQuiz)
+                                    }
+                                    else
+                                    {
+                                        @await Component.InvokeAsync("Quiz", Model.Quiz)
+                                    }
                                 }
                             </div>
                         </div>

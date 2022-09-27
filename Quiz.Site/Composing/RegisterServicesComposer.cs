@@ -13,6 +13,7 @@ namespace Quiz.Site.Composing
             builder.Services.AddTransient<IDataTypeValueService, DataTypeValueService>();
             builder.Services.AddTransient<IMediaUploadService, MediaUploadService>();
             builder.Services.AddTransient<IQuestionRepository, QuestionRepository>();
+            builder.Services.AddTransient<IQuestionService, QuestionService>();
         }
     }
 }
