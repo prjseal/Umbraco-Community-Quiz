@@ -13,7 +13,7 @@ public interface IQuestionRepository
 
     List<Question> GetByIds(int[] ids);
 
-    Question GetByMemberId(string memberId);
+    IEnumerable<Question> GetByMemberId(string memberId);
 
     void Create(Question question);
 

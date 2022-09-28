@@ -6,6 +6,7 @@
         public static class Tables
         {
             public const string QuestionTable = "Question";
+            public const string QuizResultTable = "QuizResult";
         }
     }
 }

@@ -44,7 +44,8 @@ namespace Quiz.Site.Composing
                 var plan = new MigrationPlan("QuizApplication");
 
                 plan.From(string.Empty)
-                    .To<CreateQuestionTable>("1.0.0");
+                    .To<CreateQuestionTable>("1.0.0")
+                    .To<CreateQuizResultTable>("1.0.1");
 
                 var upgrader = new Upgrader(plan);
 

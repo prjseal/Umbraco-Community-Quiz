@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.Logging;
@@ -26,6 +27,7 @@ namespace Quiz.Site.Controllers.Surface
         private readonly GlobalSettings _globalSettings;
         private readonly IAccountService _accountService;
         private readonly IQuestionService _questionService;
+        private readonly IQuizResultRepository _quizResultRepository;
 
         public QuizSurfaceController(
             //these are required by the base controller
@@ -42,7 +44,8 @@ namespace Quiz.Site.Controllers.Surface
             IEmailSender emailSender,
             IOptions<GlobalSettings> globalSettings,
             IAccountService accountService,
-            IQuestionService questionService
+            IQuestionService questionService,
+            IQuizResultRepository quizResultRepository
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
@@ -52,6 +55,7 @@ namespace Quiz.Site.Controllers.Surface
             _globalSettings = globalSettings?.Value ?? throw new ArgumentNullException(nameof(globalSettings));
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _questionService = questionService ?? throw new ArgumentNullException(nameof(questionService));
+            _quizResultRepository = quizResultRepository ?? throw new ArgumentNullException(nameof(quizResultRepository));
         }
 
         [HttpPost]
@@ -70,6 +74,7 @@ namespace Quiz.Site.Controllers.Surface
             var questionsToVerify = _questionService.GetListOfQuestions(questionIds);
 
             var questionCount = model.Questions.Count;
+            var correctCount = 0;
             for(var q = 0; q < questionCount; q++)
             {
                 var selectedAnswerIndex = model.Questions[q].Answer;
@@ -77,6 +82,10 @@ namespace Quiz.Site.Controllers.Surface
                 var isCorrect = questionsToVerify[q].CorrectAnswerPosition == selectedAnswerIndexAsInt;
                 questionsToVerify[q].IsCorrect = isCorrect;
                 questionsToVerify[q].Answers[selectedAnswerIndexAsInt].Selected = true;
+                if(isCorrect)
+                {
+                    correctCount++;
+                }
             }
 
             var member = _memberManager.GetCurrentMemberAsync();
@@ -85,6 +94,30 @@ namespace Quiz.Site.Controllers.Surface
             quiz.QuizId = quizPage.Id;
             quiz.MemberId = member.Id;
             quiz.Questions = questionsToVerify;
+
+            GuidUdi udi = null;
+            var userEmail = User?.Identity?.GetEmail();
+
+            if (!string.IsNullOrWhiteSpace(userEmail))
+            {
+                var memberAccount = _memberService.GetByEmail(userEmail);
+                if (memberAccount != null)
+                {
+                    udi = memberAccount.GetUdi();
+                }
+            }
+
+            var quizUdi = Udi.Create("document", quizPage.Key);
+
+            var quizResult = new QuizResult()
+            {
+                MemberId = udi.ToString(),
+                QuizId = quizUdi.ToString(),
+                Score = correctCount,
+                Total = questionCount
+            };
+
+            _quizResultRepository.Create(quizResult);
 
             TempData["Success"] = true;
             TempData["CompletedQuiz"] = JsonConvert.SerializeObject(quiz);

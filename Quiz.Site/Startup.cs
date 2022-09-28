@@ -1,4 +1,7 @@
+using Konstrukt.Configuration.Actions;
 using Konstrukt.Extensions;
+using Quiz.Site.Actions;
+using Quiz.Site.Enums;
 using Quiz.Site.Models;
 
 namespace Quiz.Site
@@ -40,11 +43,25 @@ namespace Quiz.Site
                     cfg.AddSectionAfter("media", "Quiz", sectionConfig => sectionConfig
                         .Tree(treeConfig => treeConfig
                             .AddCollection<Question>(x => x.Id, "Question", "Questions", "A question entity", "icon-help-alt", "icon-help-alt", collectionConfig => collectionConfig
+                            .AddCard("Questions", "icon-help-alt", p => p.Status == ((int)QuestionStatus.Pending).ToString(), cardConfig => {
+                                cardConfig.SetColor("blue");
+                            })
+                                .AddSearchableProperty(p => p.QuestionText)
                                 .SetNameProperty(p => p.QuestionText)
+                                .AddAction<ChangeStatusAction>(actionConfig => actionConfig
+                                    .SetVisibility(x => x.ActionType == KonstruktActionType.Bulk
+                                        || x.ActionType == KonstruktActionType.Row))
                                 .ListView(listViewConfig => listViewConfig
                                     .AddField(p => p.CorrectAnswer).SetHeading("Correct Answer")
                                     .AddField(p => p.DateCreated).SetHeading("Date Created")
                                 )
+                                .AddDataView("All", p => true)
+                                .AddDataView("Pending", p => p.Status == ((int)QuestionStatus.Pending).ToString())
+                                .AddDataView("Approved", p => p.Status == ((int)QuestionStatus.Approved).ToString())
+                                .AddDataView("Incorrect", p => p.Status == ((int)QuestionStatus.Incorrect).ToString())
+                                .AddDataView("Used", p => p.Status == ((int)QuestionStatus.Used).ToString())
+                                .AddDataView("Deleted", p => p.Status == ((int)QuestionStatus.Deleted).ToString())
+                                .AddDataView("Unknown", p => p.Status == ((int)QuestionStatus.Unknown).ToString())
                                 .Editor(editorConfig => editorConfig
                                     .AddTab("General", tabConfig => tabConfig
                                         .AddFieldset("General", fieldsetConfig => fieldsetConfig
@@ -81,13 +98,11 @@ namespace Quiz.Site
             }
 
             app.UseUmbraco()
-                .WithMiddleware(u =>
-                {
+                .WithMiddleware(u => {
                     u.UseBackOffice();
                     u.UseWebsite();
                 })
-                .WithEndpoints(u =>
-                {
+                .WithEndpoints(u => {
                     u.UseInstallerEndpoints();
                     u.UseBackOfficeEndpoints();
                     u.UseWebsiteEndpoints();

@@ -11,8 +11,10 @@
   <area alias="dashboardTabs">
     <key alias="summary">Summary</key>
     <key alias="konstrukt">Konstrukt</key>
+    <key alias="pendingquestions" autogen="true">Pending Questions</key>
   </area>
   <area alias="actions">
     <key alias="delete" autogen="true">Delete</key>
+    <key alias="changestatus" autogen="true">Change Status</key>
   </area>
 </language>

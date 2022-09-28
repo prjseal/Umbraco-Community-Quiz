@@ -39,33 +39,43 @@
                         <td class="text-xs font-weight-bold">
                             <div class="d-flex align-items-center">
                                 @{
-                                    var status = (QuestionStatus)item.Status;
+                                    var status = (QuestionStatus)(int.Parse(item.Status));
                                     string statusLabel = Enum.GetName(status) ?? "Unknown";
                                     var statusColour = "secondary";
+                                    var iconClass = "fas fa-question";
                                 }
                                 @switch (status)
                                 {
                                     case QuestionStatus.Approved:
                                         statusColour = "success";
+                                        iconClass = "fas fa-check";
                                         break;
                                     case QuestionStatus.Used:
                                         statusColour = "success";
+                                        iconClass = "far fa-check-square";
                                         break;
                                     case QuestionStatus.Pending:
                                         statusColour = "info";
+                                        iconClass = "far fa-square";
                                         break;
                                     case QuestionStatus.Incorrect:
-                                        statusColour = "warning";
+                                        statusColour = "danger";
+                                        iconClass = "fas fa-times";
                                         break;
                                     case QuestionStatus.Deleted:
                                         statusColour = "danger";
+                                        iconClass = "fas fa-trash";
                                         break;
                                     default:
-                                        statusLabel = "Unknown";
                                         statusColour = "warning";
+                                        iconClass = "fas fa-question";
+                                        statusLabel = "Unknown";
                                         break;
                                 }
-                                <button class="btn btn-icon-only btn-rounded btn-outline-@statusColour mb-0 me-2 btn-sm d-flex align-items-center justify-content-center"><i class="fas fa-check" aria-hidden="true"></i></button>
+                                <span class="fa-stack fa-2x" style="font-size: 1em; margin-right: 0.5em;">
+                                    <i class="fas fa-circle fa-stack-2x text-@statusColour" aria-hidden="true"></i>
+                                    <i class="@iconClass fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                                </span>
                                 <span>@statusLabel</span>
                             </div>
                         </td>

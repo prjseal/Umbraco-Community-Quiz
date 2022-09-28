@@ -42,7 +42,7 @@ namespace Quiz.Site.Models
         public string MoreInfoLink { get; set; }
 
         [Column("status")]
-        public int Status { get; set; }
+        public string Status { get; set; }
 
         [Column("correctAnswerPosition")]
         public int CorrectAnswerPosition { get; set; }

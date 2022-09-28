@@ -1,27 +1,20 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Quiz.Site.Enums;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
-using System;
-using System.Threading.Tasks;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Mail;
-using Umbraco.Cms.Core.Models.Email;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Web.Common.PublishedModels;
-using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
-using Umbraco.Extensions;
 
 namespace Quiz.Site.Controllers.Surface
 {
@@ -97,7 +90,7 @@ namespace Quiz.Site.Controllers.Surface
                 WrongAnswer2 = model.WrongAnswer2,
                 WrongAnswer3 = model.WrongAnswer3,
                 MoreInfoLink = model.MoreInfoLink,
-                Status = (int)QuestionStatus.Pending,
+                Status = ((int)QuestionStatus.Pending).ToString(),
                 CorrectAnswerPosition = random.Next(0, 3)
             };
 
