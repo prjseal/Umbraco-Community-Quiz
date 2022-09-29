@@ -53,12 +53,23 @@
                                 <span class="sidenav-normal"> Submit Question </span>
                             </a>
                         </li>
-                        <li class="nav-item ">
-                            <a class="nav-link " href="/submit/">
-                                <span class="sidenav-mini-icon"> S </span>
-                                <span class="sidenav-normal"> Take the Quiz </span>
-                            </a>
-                        </li>
+                        @{
+                            var quizzes = Model.AncestorOrSelf<HomePage>().ChildrenOfType(QuizList.ModelTypeAlias).FirstOrDefault();
+                        }
+                        @if(quizzes != null && quizzes.Children != null && quizzes.Children.Any())
+                        {
+                            var index = 1;
+                            foreach(var quiz in quizzes.Children)
+                            {
+                                <li class="nav-item ">
+                                    <a class="nav-link " href="@quiz.Url()">
+                                        <span class="sidenav-mini-icon"> Q@(index) </span>
+                                        <span class="sidenav-normal"> @quiz.Name </span>
+                                    </a>
+                                </li>
+                                index++;
+                            }
+                        }
                     </ul>
                 </div>
             </li>

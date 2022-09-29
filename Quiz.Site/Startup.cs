@@ -43,7 +43,7 @@ namespace Quiz.Site
                     cfg.AddSectionAfter("media", "Quiz", sectionConfig => sectionConfig
                         .Tree(treeConfig => treeConfig
                             .AddCollection<Question>(x => x.Id, "Question", "Questions", "A question entity", "icon-help-alt", "icon-help-alt", collectionConfig => collectionConfig
-                            .AddCard("Questions", "icon-help-alt", p => p.Status == ((int)QuestionStatus.Pending).ToString(), cardConfig => {
+                            .AddCard("Pending", "icon-help-alt", p => p.Status == ((int)QuestionStatus.Pending).ToString(), cardConfig => {
                                 cardConfig.SetColor("blue");
                             })
                                 .AddSearchableProperty(p => p.QuestionText)
@@ -73,6 +73,31 @@ namespace Quiz.Site
                                             .AddField(p => p.MoreInfoLink)
                                             .AddField(p => p.Status).SetDataType("[DataList] Question Status")
                                             .AddField(p => p.AuthorMemberId).SetDataType("Member Picker")
+                                        )
+                                    )
+                                )
+                            )
+                            .AddCollection<QuizResult>(x => x.Id, "Quiz Result", "Quiz Results", "A quiz result entity", "icon-check", "icon-check", collectionConfig => collectionConfig
+                            .AddCard("Perfect Scores", "icon-check", p => p.Score == p.Total, cardConfig => {
+                                cardConfig.SetColor("blue");
+                            })
+                                .SetNameProperty(p => p.Name)
+                                .ListView(listViewConfig => listViewConfig
+                                    .AddField(p => p.Score).SetHeading("Score")
+                                    .AddField(p => p.Total).SetHeading("Total")
+                                )
+                                .AddDataView("All", p => true)
+                                .AddDataView("Perfect", p => p.Score == p.Total)
+                                .AddDataView("Inbetweeners", p => p.Score < p.Total && p.Score > 0)
+                                .AddDataView("Zero", p => p.Score == 0)
+                                .Editor(editorConfig => editorConfig
+                                    .AddTab("General", tabConfig => tabConfig
+                                        .AddFieldset("General", fieldsetConfig => fieldsetConfig
+                                            .AddField(p => p.Score).MakeRequired()
+                                            .AddField(p => p.Total).MakeRequired()
+                                            .AddField(p => p.MemberId).MakeRequired()
+                                            .AddField(p => p.QuizId).MakeRequired()
+                                            .AddField(p => p.DateCreated).SetDefaultValue(DateTime.UtcNow).MakeReadOnly()
                                         )
                                     )
                                 )

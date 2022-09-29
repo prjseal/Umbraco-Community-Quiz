@@ -19,6 +19,10 @@
                                     @await Component.InvokeAsync("Login")
                                     <p class="my-4">Don't have an account yet? <a href="/register/">Register here</a></p>
                                 }
+                                else
+                                {
+                                    @await Component.InvokeAsync("Leaderboard")
+                                }
                             </div>
                         </div>
                     </div>

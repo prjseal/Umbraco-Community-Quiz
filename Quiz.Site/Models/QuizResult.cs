@@ -14,14 +14,17 @@ namespace Quiz.Site.Models
         [PrimaryKeyColumn]
         public int Id { get; set; }
 
+        [Column("name")]
+        public string Name { get; set; }
+
         [Column("quizId")]
         public string QuizId { get; set; }
 
         [Column("datecreated")]
         public DateTime DateCreated { get; set; }
 
-        [Column("authorMemberId")]
-        public string MemberId { get; set; }
+        [Column("memberId")]
+        public int MemberId { get; set; }
 
         [Column("score")]
         public int Score { get; set; }

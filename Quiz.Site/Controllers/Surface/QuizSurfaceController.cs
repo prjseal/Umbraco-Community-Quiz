@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Quiz.Site.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core;
@@ -73,45 +74,24 @@ namespace Quiz.Site.Controllers.Surface
 
             var questionsToVerify = _questionService.GetListOfQuestions(questionIds);
 
-            var questionCount = model.Questions.Count;
-            var correctCount = 0;
-            for(var q = 0; q < questionCount; q++)
-            {
-                var selectedAnswerIndex = model.Questions[q].Answer;
-                var selectedAnswerIndexAsInt = int.Parse(selectedAnswerIndex);
-                var isCorrect = questionsToVerify[q].CorrectAnswerPosition == selectedAnswerIndexAsInt;
-                questionsToVerify[q].IsCorrect = isCorrect;
-                questionsToVerify[q].Answers[selectedAnswerIndexAsInt].Selected = true;
-                if(isCorrect)
-                {
-                    correctCount++;
-                }
-            }
+            int questionCount = model.Questions.Count;
+            int correctCount = 0;
+            VerifyQuestions(model, questionsToVerify, out correctCount);
 
-            var member = _memberManager.GetCurrentMemberAsync();
+            var member = await _memberManager.GetCurrentMemberAsync();
+            var memberItem = _memberService.GetByEmail(member.Email);
 
             var quiz = new QuizViewModel();
             quiz.QuizId = quizPage.Id;
-            quiz.MemberId = member.Id;
+            quiz.MemberId = memberItem.Id;
             quiz.Questions = questionsToVerify;
 
-            GuidUdi udi = null;
-            var userEmail = User?.Identity?.GetEmail();
-
-            if (!string.IsNullOrWhiteSpace(userEmail))
-            {
-                var memberAccount = _memberService.GetByEmail(userEmail);
-                if (memberAccount != null)
-                {
-                    udi = memberAccount.GetUdi();
-                }
-            }
-
-            var quizUdi = Udi.Create("document", quizPage.Key);
+            var quizUdi = quizPage.GetUdiObject();
 
             var quizResult = new QuizResult()
             {
-                MemberId = udi.ToString(),
+                Name = memberItem.Name + " - " + quizPage.Name, 
+                MemberId = memberItem.Id,
                 QuizId = quizUdi.ToString(),
                 Score = correctCount,
                 Total = questionCount
@@ -123,6 +103,35 @@ namespace Quiz.Site.Controllers.Surface
             TempData["CompletedQuiz"] = JsonConvert.SerializeObject(quiz);
 
             return RedirectToCurrentUmbracoPage();
+        }
+
+        private static void VerifyQuestions(QuizViewModel model, List<QuizQuestionViewModel> questionsToVerify, out int correctCount)
+        {
+            int questionCount = model.Questions.Count;
+            correctCount = 0;
+            for (var q = 0; q < questionCount; q++)
+            {
+                var selectedAnswerIndex = model.Questions[q].Answer;
+                var selectedAnswerIndexAsInt = int.Parse(selectedAnswerIndex);
+                var isCorrect = questionsToVerify[q].CorrectAnswerPosition == selectedAnswerIndexAsInt;
+                questionsToVerify[q].IsCorrect = isCorrect;
+                questionsToVerify[q].Answers[selectedAnswerIndexAsInt].Selected = true;
+                if (isCorrect)
+                {
+                    correctCount++;
+                }
+            }
+        }
+
+        private static void SetAllCorrectAnswers(List<QuizQuestionViewModel> questionsToVerify)
+        {
+            int questionCount = questionsToVerify?.Count ?? 0;
+            for (var q = 0; q < questionCount; q++)
+            {
+                var selectedAnswerIndexAsInt = questionsToVerify[q].CorrectAnswerPosition.Value;
+                questionsToVerify[q].IsCorrect = true;
+                questionsToVerify[q].Answers[selectedAnswerIndexAsInt].Selected = true;
+            }
         }
     }
 }

@@ -11,11 +11,15 @@ public interface IQuizResultRepository
 
     List<QuizResult> GetByIds(int[] ids);
 
-    QuizResult GetByMemberId(string memberId);
+    QuizResult GetByMemberId(int memberId);
+
+    IEnumerable<QuizResult> GetAllByMemberId(int memberId);
 
     void Create(QuizResult quizResult);
 
     QuizResult Update(QuizResult quizResult);
 
     int Delete(int id);
+
+    IEnumerable<PlayerRecord> GetPlayerRecords();
 }

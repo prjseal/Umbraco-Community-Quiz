@@ -1,0 +1,100 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<IEnumerable<PlayerRecord>>
+@using Quiz.Site.Extensions
+@using Quiz.Site.Models
+@using Quiz.Site.Enums
+@using Umbraco.Cms.Core
+@using Umbraco.Cms.Core.Models
+@using Umbraco.Cms.Core.Security
+@using Umbraco.Cms.Core.Services
+
+@inject IMemberManager memberManager
+
+@if (Model == null && Model.Any())
+{
+    return;
+}
+
+@{
+    var defaultMediaItem = Umbraco.Media(Udi.Create("media", new Guid("65da644d-3fba-41c8-8173-2a924d96bba4")));
+    var fallbackImageUrl = defaultMediaItem.GetCropUrl(100, 100);
+}
+
+<div class="table-responsive">
+    <table class="table table-flush" id="datatable-search">
+        <thead class="thead-light">
+            <tr>
+                <th>Rank</th>
+                <th>Player</th>
+                <th class="text-center">Quizzes</th>
+                <th class="text-center">Correct</th>
+                <th class="text-center">Out of</th>
+                <th class="text-center">%</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Count() > 0)
+            {
+                var index = 1;
+
+                foreach (var player in Model)
+                {
+                    IPublishedContent memberContent = null;
+                    var member = await memberManager.FindByIdAsync(player.MemberId.ToString());
+                    if (member != null)
+                    {
+                        memberContent = memberManager.AsPublishedMember(member);
+                    }
+                    var avatarImage = memberContent.Value<MediaWithCrops>("avatar");
+                    var avatarImageUrl = "";
+                    if (avatarImage != null)
+                    {
+                        avatarImageUrl = avatarImage.GetCropUrl(100, 100);
+                    }
+                    else
+                    {
+                        avatarImageUrl = fallbackImageUrl;
+                    }
+                    <tr>
+                        <td class="font-weight-bold px-4">
+                            <div class="d-flex justify-content-start">
+                                <span class="my-2">@index</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex">
+                                <img class="w-10 ms-3 rounded-circle" src="@avatarImageUrl" alt="@memberContent.Name">
+                                <h6 class="ms-3 my-auto">@memberContent.Name</h6>
+                            </div>
+                        </td>
+                        <td class="font-weight-bold">
+                            <div class="d-flex align-content-center justify-content-center">
+                                <span class="my-2 text-center  align-middle">@player.Quizzes</span>
+                            </div>
+                        </td>
+                        <td class="font-weight-bold">
+                            <div class="d-flex align-content-center justify-content-center">
+                                <span class="my-2 text-center  align-middle">@player.Correct</span>
+                            </div>
+                        </td>
+                        <td class="font-weight-bold">
+                            <div class="d-flex align-content-center justify-content-center">
+                                <span class="my-2 text-center  align-middle">@player.Total</span>
+                            </div>
+                        </td>
+                        <td class="font-weight-bold">
+                            <div class="d-flex align-content-center justify-content-center">
+                                <span class="my-2 text-center  align-middle">@(player.Percentage * 100f)%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+            else
+            {
+                <tr><td colspan="4" class="text-xs font-weight-bold px-4 py-3">No one has completed any quizzes yet.</td></tr>
+            }
+
+        </tbody>
+    </table>
+</div>
