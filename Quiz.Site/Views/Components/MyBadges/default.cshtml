@@ -1,0 +1,86 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using Quiz.Site.Extensions
+@using Quiz.Site.Models
+@using Quiz.Site.Enums
+@using Umbraco.Cms.Core
+@using Umbraco.Cms.Core.Models
+@using Umbraco.Cms.Core.Security
+@using Umbraco.Cms.Core.Services
+
+@inject IMemberManager memberManager
+
+@{
+    var defaultMediaItem = Umbraco.Media(Udi.Create("media", new Guid("65da644d-3fba-41c8-8173-2a924d96bba4")));
+    var fallbackImageUrl = defaultMediaItem.GetCropUrl(100, 100);
+
+    IPublishedContent memberContent = null;
+    var member = await memberManager.GetCurrentMemberAsync();
+    if (member != null)
+    {
+        memberContent = memberManager.AsPublishedMember(member);
+    }
+    var hasBadges = false;
+    IEnumerable<IPublishedContent> badges = null;
+    if(memberContent != null)
+    {
+        if(memberContent.HasValue("badges"))
+        {
+            badges = memberContent.Value<IEnumerable<IPublishedContent>>("badges");
+        }
+        hasBadges = badges != null && badges.Any();
+    }
+}
+<div class="row">
+    <h3 class="px-5 mt-3">My Badges</h3>
+</div>
+<div class="table-responsive">
+    <table class="table table-flush" id="datatable-search">
+        <thead class="thead-light">
+            <tr>
+                <th>Badge</th>
+                <th>Awarded For</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (hasBadges)
+            {
+                var index = 1;
+
+                foreach (var badge in badges)
+                {
+                    var badgeItem = (BadgePage)badge;
+
+                    var badgeImage = badgeItem.Image;
+                    var badgeImageUrl = "";
+                    if (badgeImage != null)
+                    {
+                        badgeImageUrl = badgeImage.GetCropUrl(100, 100);
+                    }
+                    else
+                    {
+                        badgeImageUrl = fallbackImageUrl;
+                    }
+                    <tr>
+                        <td>
+                            <div class="d-flex">
+                                <img class="ms-3" style="width: 50px; height: auto;" src="@badgeImageUrl" alt="@badge.Name">
+                                <h6 class="ms-3 my-auto">@badge.Name</h6>
+                            </div>
+                        </td>
+                        <td class="font-weight-bold">
+                            <div class="d-flex">
+                                <div class="my-2 px-3">@badgeItem.Description</div>
+                            </div>
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+            else
+            {
+                <tr><td colspan="4" class="text-xs font-weight-bold px-4 py-3">You haven't earned any badges yet.</td></tr>
+            }
+
+        </tbody>
+    </table>
+</div>

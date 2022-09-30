@@ -21,7 +21,7 @@
                                 }
                                 else
                                 {
-                                    @await Component.InvokeAsync("Leaderboard")
+                                    return Context.Response.Redirect("/profile/");
                                 }
                             </div>
                         </div>

@@ -38,6 +38,7 @@
 
                 foreach (var player in Model)
                 {
+                    var playerPercentage = Math.Round((player.Percentage * 100f), 1);
                     IPublishedContent memberContent = null;
                     var member = await memberManager.FindByIdAsync(player.MemberId.ToString());
                     if (member != null)
@@ -83,7 +84,7 @@
                         </td>
                         <td class="font-weight-bold">
                             <div class="d-flex align-content-center justify-content-center">
-                                <span class="my-2 text-center  align-middle">@(player.Percentage * 100f)%</span>
+                                <span class="my-2 text-center  align-middle">@(playerPercentage)%</span>
                             </div>
                         </td>
                     </tr>

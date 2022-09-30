@@ -1,5 +1,15 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 
+@{
+    var homePage = Umbraco.AssignedContentItem.AncestorOrSelf<HomePage>();
+    var profilePage = homePage.FirstChildOfType(ProfilePage.ModelTypeAlias);
+    var leaderboardPage = homePage.FirstChildOfType(LeaderboardPage.ModelTypeAlias);
+
+    var navLinks = new List<IPublishedContent>();
+    navLinks.Add(profilePage);
+    navLinks.Add(leaderboardPage);
+}
+
 <div class="container position-sticky z-index-sticky top-0">
     <div class="row">
         <div class="col-12">
@@ -18,11 +28,14 @@
                     </button>
                     <div class="collapse navbar-collapse w-100 pt-3 pb-2 py-lg-0" id="navigation">
                         <ul class="navbar-nav navbar-nav-hover mx-auto">
-                            <li class="nav-item mx-2">
-                                <a class="nav-link ps-2 d-flex justify-content-between cursor-pointer align-items-center " href="/profile/">
-                                    Profile
-                                </a>
-                            </li>
+                            @foreach(var item in navLinks)
+                            {
+                                <li class="nav-item mx-2">
+                                    <a class="nav-link ps-2 d-flex justify-content-between cursor-pointer align-items-center " href="@item.Url()">
+                                        @item.Name
+                                    </a>
+                                </li>
+                            }
                             @*<li class="nav-item mx-2">
                                 <a class="nav-link ps-2 d-flex justify-content-between cursor-pointer align-items-center " id="dropdownMenuPages" data-bs-toggle="dropdown" aria-expanded="false">
                                     Pages

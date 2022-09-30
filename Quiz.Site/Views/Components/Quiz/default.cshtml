@@ -55,7 +55,7 @@
 
 			@if(q + 1 < questionCount)
 			{
-				<div class="form-group d-flex justify-content-around">
+				<div class="form-group d-flex justify-content-around mt-3">
 					@if(q >= 1)
 					{
 						<a class="btn btn-primary btn-block btn-lg d-flex" href="#quesiton@(q)"><i class="fas fa-chevron-left mx-1"></i> Previous</a>
@@ -65,7 +65,7 @@
 			}
 			else
 			{
-				<div class="form-group d-flex justify-content-around">
+				<div class="form-group d-flex justify-content-around mt-3">
 					<a class="btn btn-primary btn-block btn-lg d-flex" href="#quesiton@(q)"><i class="fas fa-chevron-left mx-1"></i> Previous</a>
 					@if(!(justCompletedIt || Model.CompletedPreviously))
 					{
