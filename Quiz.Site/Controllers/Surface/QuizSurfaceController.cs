@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
-using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.Logging;
@@ -29,6 +28,7 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IAccountService _accountService;
         private readonly IQuestionService _questionService;
         private readonly IQuizResultRepository _quizResultRepository;
+        private readonly IBadgeService _badgeService;
 
         public QuizSurfaceController(
             //these are required by the base controller
@@ -46,7 +46,8 @@ namespace Quiz.Site.Controllers.Surface
             IOptions<GlobalSettings> globalSettings,
             IAccountService accountService,
             IQuestionService questionService,
-            IQuizResultRepository quizResultRepository
+            IQuizResultRepository quizResultRepository,
+            IBadgeService badgeService
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
@@ -57,7 +58,8 @@ namespace Quiz.Site.Controllers.Surface
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _questionService = questionService ?? throw new ArgumentNullException(nameof(questionService));
             _quizResultRepository = quizResultRepository ?? throw new ArgumentNullException(nameof(quizResultRepository));
-        }
+            _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
+    }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -80,6 +82,7 @@ namespace Quiz.Site.Controllers.Surface
 
             var member = await _memberManager.GetCurrentMemberAsync();
             var memberItem = _memberService.GetByEmail(member.Email);
+            var memberModel = _accountService.GetMemberModelFromMember(memberItem);
 
             var quiz = new QuizViewModel();
             quiz.QuizId = quizPage.Id;
@@ -98,6 +101,19 @@ namespace Quiz.Site.Controllers.Surface
             };
 
             _quizResultRepository.Create(quizResult);
+
+            List<string> notifications = new List<string>();
+            if(quizResult.Score > 0 && quizResult.Score == quizResult.Total)
+            {
+                var updateProfileBadge = _badgeService.GetBadgeByName("Perfect Score");
+                if (!_badgeService.HasBadge(memberModel, updateProfileBadge))
+                {
+                    if (_badgeService.AddBadgeToMember(memberItem, updateProfileBadge))
+                    {
+                        notifications.Add("Added Badge to Member");
+                    }
+                }
+            }
 
             TempData["Success"] = true;
             TempData["CompletedQuiz"] = JsonConvert.SerializeObject(quiz);

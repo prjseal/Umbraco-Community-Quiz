@@ -1,101 +1,78 @@
-﻿using Umbraco.Cms.Core;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Quiz.Site.Extensions;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
-using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
-using Umbraco.Cms.Infrastructure.Persistence;
-using
-using Quiz.Site.Extensions;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
+using Umbraco.Cms.Web.Common.PublishedModels;
 
 namespace Quiz.Site.Services;
 public class BadgeService : IBadgeService
 {
-    private readonly IUmbracoContextFactory _umbracoContextFactory;
     private readonly IMemberService _memberService;
+    private readonly IUmbracoContextFactory _umbracoContextFactory;
 
-    public BadgeService(IUmbracoContextFactory umbracoContextFactory, IMemberService memberService)
+    public BadgeService(IMemberService memberService, IUmbracoContextFactory umbracoContextFactory)
     {
-        _umbracoContextFactory = umbracoContextFactory;
         _memberService = memberService;
+        _umbracoContextFactory = umbracoContextFactory;
     }
 
-    public bool AddBadgeToMember(int memberId, IPublishedContent contentItem)
+    public IPublishedContent GetBadgeByName(string badgeName)
     {
-        using (UmbracoContextReference umbracoContextReference = _umbracoContextFactory.EnsureUmbracoContext())
+        IPublishedContent badge = null;
+        using (var umbracoContextReference = _umbracoContextFactory.EnsureUmbracoContext())
         {
-            var udi = contentItem.GetUdiObject().ToString();
-
-            var member = _memberService.GetById(memberId);
-
-            var badgeUdis = member.GetValue<IEnumerable<string>>("badges").ToList();
-            
-            if(badgeUdis != null && badgeUdis.Any() && !badgeUdis.Contains(udi))
-            {
-                badgeUdis.Add(udi);
-            }
-
-            var galleryValue = member.GetValue<string>("gallery");
-
-            if (!string.IsNullOrWhiteSpace(galleryValue))
-            {
-                JArray galleryArray = JsonConvert.DeserializeObject<JArray>(galleryValue);
-
-                var sortOrderArray =
-                model.GallerySortOrder.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => int.Parse(x)).ToArray();
-
-                var sortedArray = new JArray();
-
-                var numberOfItems = galleryArray.Count;
-                foreach (var index in sortOrderArray)
-                {
-                    if (index < numberOfItems)
-                    {
-                        sortedArray.Add(galleryArray[index]);
-                    }
-                }
-
-                var json = JsonConvert.SerializeObject(sortedArray);
-
-                member.SetValue("gallery", json);
-                galleryValue = json;
-            }
-
-            if (model.Gallery != null && model.Gallery.Any())
-            {
-                JArray galleryArray = null;
-                if (!string.IsNullOrWhiteSpace(galleryValue))
-                {
-                    galleryArray = JsonConvert.DeserializeObject<JArray>(galleryValue);
-                }
-                else
-                {
-                    galleryArray = new JArray();
-                }
-
-                foreach (var item in model.Gallery.Where(x => x != null))
-                {
-                    var mediaKey = _mediaUploadService.CreateMediaItemFromFileUpload(item, 1126, "Image", returnUdi: false);
-
-                    if (!string.IsNullOrWhiteSpace(mediaKey))
-                    {
-                        JObject galleryItem = new JObject();
-                        galleryItem.Add("key", Guid.NewGuid().ToString());
-                        galleryItem.Add("mediaKey", mediaKey);
-                        galleryItem.Add("crops", null);
-                        galleryItem.Add("focalPoint", null);
-
-                        galleryArray.Add(galleryItem);
-                    }
-                }
-
-                member.SetValue("gallery", galleryArray);
-            }
-
+            var contentQuery = umbracoContextReference.UmbracoContext.Content; 
+            var homePage = contentQuery.GetAtRoot().FirstOrDefault();
+            if (homePage == null) return null;
+            var badgeList = homePage?.FirstChildOfType(BadgeListPage.ModelTypeAlias) ?? null;
+            if (badgeList == null && badgeList?.Children != null ) return null;
+            badge = badgeList?.Children?.FirstOrDefault(x => string.Equals(x.Name, badgeName, StringComparison.CurrentCultureIgnoreCase)) ?? null;
         }
+        return badge;
+    }
+
+    public bool HasBadge(Umbraco.Cms.Web.Common.PublishedModels.Member member, IPublishedContent contentItem)
+    {
+        var udi = contentItem.GetUdiObject().ToString();
+
+        if (member == null) throw new Exception("Member is null");
+
+        var badgeUdis = new List<string>();
+
+        if(member.Badges != null && member.Badges.Any())
+        {
+            foreach(var badge in member.Badges)
+            {
+                badgeUdis.Add(badge.GetUdiObject().ToString());
+            }
+        }
+
+        return badgeUdis?.Contains(udi) ?? false;
+    }
+
+    public bool AddBadgeToMember(IMember member, IPublishedContent contentItem)
+    {
+        var badgesValue = member.GetValue<string>("badges");
+
+        JArray badgesArray = null;
+
+        if (!string.IsNullOrWhiteSpace(badgesValue))
+        {
+            badgesArray = JsonConvert.DeserializeObject<JArray>(badgesValue);
+        }
+        else
+        {
+            badgesArray = new JArray();
+        }
+
+        badgesArray.Add(contentItem.GetUdiObject().ToString());
+
+        member.SetValue("badges", badgesArray);
+
+        _memberService.Save(member);
 
         return true;
     }

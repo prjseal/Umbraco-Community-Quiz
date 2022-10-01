@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
+using Quiz.Site.Models;
+using Quiz.Site.Services;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
@@ -15,11 +14,8 @@ using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Persistence;
-using Umbraco.Cms.Web.Website.Controllers;
-using Umbraco.Extensions;
-using Quiz.Site.Models;
-using Quiz.Site.Services;
 using Umbraco.Cms.Web.Common.PublishedModels;
+using Umbraco.Cms.Web.Website.Controllers;
 
 namespace Quiz.Site.Controllers.Surface
 {
@@ -31,6 +27,7 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IEmailSender _emailSender;
         private readonly GlobalSettings _globalSettings;
         private readonly IAccountService _accountService;
+        private readonly IBadgeService _badgeService;
 
         public ProfileSurfaceController(
             //these are required by the base controller
@@ -46,7 +43,8 @@ namespace Quiz.Site.Controllers.Surface
             ILogger<ProfileSurfaceController> logger,
             IEmailSender emailSender,
             IOptions<GlobalSettings> globalSettings,
-            IAccountService accountService
+            IAccountService accountService,
+            IBadgeService badgeService
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
@@ -55,6 +53,7 @@ namespace Quiz.Site.Controllers.Surface
             _emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
             _globalSettings = globalSettings?.Value ?? throw new ArgumentNullException(nameof(globalSettings));
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
+            _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
         }
 
         [HttpPost]
@@ -145,6 +144,16 @@ namespace Quiz.Site.Controllers.Surface
             _accountService.UpdateProfile(model, memberModel, member);
 
             TempData["EditProfileSuccess"] = true;
+
+            List<string> notifications = new List<string>();
+            var updateProfileBadge = _badgeService.GetBadgeByName("Updated Profile");
+            if(!_badgeService.HasBadge(memberModel, updateProfileBadge))
+            {
+                if(_badgeService.AddBadgeToMember(member, updateProfileBadge))
+                {
+                    notifications.Add("Added Badge to Member");
+                }
+            }
 
             var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
 

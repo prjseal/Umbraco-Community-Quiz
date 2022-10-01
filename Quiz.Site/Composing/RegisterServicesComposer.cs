@@ -16,6 +16,7 @@ namespace Quiz.Site.Composing
             builder.Services.AddTransient<IQuizResultRepository, QuizResultRepository>();
             builder.Services.AddTransient<IQuestionService, QuestionService>();
             builder.Services.AddTransient<IQuizResultService, QuizResultService>();
+            builder.Services.AddTransient<IBadgeService, BadgeService>();
         }
     }
 }
