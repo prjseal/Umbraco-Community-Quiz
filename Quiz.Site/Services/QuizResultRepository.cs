@@ -74,7 +74,7 @@ public class QuizResultRepository : IQuizResultRepository
     {
         using (var scope = _scopeProvider.CreateScope())
         {
-            question.DateCreated = DateTime.Now;
+            question.DateCreated = DateTime.UtcNow;
             scope.Database.Insert(question);
             scope.Complete();
         }

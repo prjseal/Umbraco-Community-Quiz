@@ -45,7 +45,9 @@ namespace Quiz.Site.Composing
 
                 plan.From(string.Empty)
                     .To<CreateQuestionTable>("1.0.0")
-                    .To<CreateQuizResultTable>("1.0.1");
+                    .To<CreateQuizResultTable>("1.0.1")
+                    .To<CreateNotificationTable>("1.0.2")
+                    .To<CreateReadNotificationTable>("1.0.3");
 
                 var upgrader = new Upgrader(plan);
 

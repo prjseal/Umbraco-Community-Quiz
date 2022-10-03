@@ -25,6 +25,7 @@
             <tr>
                 <th>Rank</th>
                 <th>Player</th>
+                <th class="text-center">Badges</th>
                 <th class="text-center">Quizzes</th>
                 <th class="text-center">Correct</th>
                 <th class="text-center">Out of</th>
@@ -55,6 +56,12 @@
                     {
                         avatarImageUrl = fallbackImageUrl;
                     }
+
+                    var badgeCount = 0;
+                    if(memberContent.HasProperty("badges") && memberContent.HasValue("badges"))
+                    {
+                        var badges = memberContent.Value<IEnumerable<IPublishedContent>>("badges");
+                    }
                     <tr>
                         <td class="font-weight-bold px-4">
                             <div class="d-flex justify-content-start">
@@ -65,6 +72,11 @@
                             <div class="d-flex">
                                 <img class="w-10 ms-3 rounded-circle" src="@avatarImageUrl" alt="@memberContent.Name">
                                 <h6 class="ms-3 my-auto">@memberContent.Name</h6>
+                            </div>
+                        </td>
+                        <td class="font-weight-bold">
+                            <div class="d-flex align-content-center justify-content-center">
+                                <span class="my-2 text-center  align-middle">@badgeCount</span>
                             </div>
                         </td>
                         <td class="font-weight-bold">
