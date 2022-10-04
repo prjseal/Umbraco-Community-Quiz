@@ -1,0 +1,74 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<IEnumerable<QuizModels.Notification>>
+@using Quiz.Site.Extensions
+@using QuizModels = Quiz.Site.Models
+@using Quiz.Site.Enums
+@using Umbraco.Cms.Core
+@using Umbraco.Cms.Core.Models
+@using Umbraco.Cms.Core.Security
+@using Our.Umbraco.TagHelpers
+
+@if (Model != null && Model.Any())
+{
+    var toastIndex = 0;
+    <div aria-live="polite" aria-atomic="true" class="bg-dark position-absolute bd-example-toasts bottom-0 w-100">
+        @foreach (var notification in Model)
+        {
+            <div class="toast-container position-relative p-3 bottom-0 start-50 translate-middle-x" id="toastPlacement@(toastIndex)">
+                <div class="toast">
+                    <div class="toast-header">
+                        @if (!string.IsNullOrWhiteSpace(notification.BadgeId))
+                        {
+                            var badge = Umbraco.Content(notification.BadgeId);
+                            if (badge != null)
+                            {
+                                var badgeItem = (BadgePage)badge;
+                                @if(!badgeItem.Colour.IsNullOrWhiteSpace())
+                                {
+                                    <style>
+                                        .svg-@badge.Key path{
+                                            fill: @badgeItem.Colour
+                                        }
+                                    </style>
+                                }
+
+                                <div class="me-3 svg-@badge.Key" style="width: 50px; height: auto;">
+                                    <our-svg media-item="@badgeItem.Image"></our-svg>
+                                </div>
+                                <strong class="me-auto">New Badge</strong>
+                            }
+                            else
+                            {
+                                <strong class="me-auto">Notification</strong>
+                            }
+                        }
+                        else
+                        {
+                            <strong class="me-auto">Notification</strong>
+                        }
+                        <small class="timeago" datetime="@notification.DateCreated.ToString("yyyy-MM-dd HH:mm:ss")"></small>
+                    </div>
+                    <div class="toast-body">
+                        @notification.Message
+                    </div>
+                </div>
+            </div>
+            toastIndex++;
+        }
+    </div>
+
+    <script type="text/javascript">
+        const nodes = document.querySelectorAll('.timeago');
+        nodes.forEach(function(element) {
+            var when = element.getAttribute('datetime');
+            var timeanddate = moment(when);
+            element.textContent = timeanddate.fromNow();
+        });
+
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+            var toastList = toastElList.map(function (toastEl) {
+            return new bootstrap.Toast(toastEl)
+        });
+
+        toastList[0].show();
+    </script>
+}

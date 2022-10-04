@@ -64,7 +64,7 @@ public class NotificationRepository : INotificationRepository
         using (var scope = _scopeProvider.CreateScope())
         {
             var db = scope.Database;
-            var records = db.Query<Notification>("SELECT * FROM Notification WHERE [MemberId] = @memberId", new { memberId });
+            var records = db.Query<Notification>("SELECT * FROM Notification WHERE [MemberId] = @memberId ORDER BY [DateCreated] DESC", new { memberId });
 
             return records;
         }
