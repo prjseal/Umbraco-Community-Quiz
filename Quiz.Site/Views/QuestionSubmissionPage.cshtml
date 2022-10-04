@@ -2,6 +2,13 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.QuestionSubmissionPage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 @{
+	if(User.Identity != null && !User.Identity.IsAuthenticated)
+    {
+        this.Context.Response.Redirect("/");        
+        IgnoreBody();
+        return;
+    }
+	
 	Layout = "DashboardMaster.cshtml";
 }
 
