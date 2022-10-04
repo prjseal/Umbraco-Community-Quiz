@@ -6,6 +6,13 @@
 @inject IMemberManager memberManager
 
 @{
+	if(User.Identity != null && !User.Identity.IsAuthenticated)
+    {
+        this.Context.Response.Redirect("/");        
+        IgnoreBody();
+        return;
+    }
+	
 	Layout = "DashboardMaster.cshtml";
 	var member = await memberManager.GetCurrentMemberAsync();
 }

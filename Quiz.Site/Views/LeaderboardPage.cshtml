@@ -1,9 +1,14 @@
-﻿@using Umbraco.Cms.Web.Common.PublishedModels;
-@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.LeaderboardPage>
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.LeaderboardPage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
-@using Umbraco.Cms.Core.Security
 
 @{
+	if(User.Identity != null && !User.Identity.IsAuthenticated)
+    {
+        this.Context.Response.Redirect("/");        
+        IgnoreBody();
+        return;
+    }
+
 	Layout = "DashboardMaster.cshtml";
 }
 
