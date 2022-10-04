@@ -5,7 +5,7 @@
 @using Umbraco.Cms.Core
 @using Umbraco.Cms.Core.Models
 @using Umbraco.Cms.Core.Security
-@using Umbraco.Cms.Core.Services
+@using Our.Umbraco.TagHelpers
 
 @inject IMemberManager memberManager
 
@@ -62,8 +62,19 @@
                     }
                     <tr>
                         <td>
+                            @if(!badgeItem.Colour.IsNullOrWhiteSpace())
+                            {
+                                <style>
+                                    .svg-@badge.Key path{
+                                        fill: @badgeItem.Colour
+                                    }
+                                </style>
+                            }
                             <div class="d-flex">
-                                <img class="ms-3" style="width: 50px; height: auto;" src="@badgeImageUrl" alt="@badge.Name">
+                                <div class="ms-3 svg-@badge.Key" style="width: 50px; height: auto;">
+                                    <our-svg media-item="@badgeImage"></our-svg>
+                                </div>
+                                @* <img  src="@badgeImageUrl" alt="@badge.Name"> *@
                                 <h6 class="ms-3 my-auto">@badge.Name</h6>
                             </div>
                         </td>

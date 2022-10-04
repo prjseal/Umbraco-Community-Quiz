@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="Konstrukt" Version="1.5.2" />
     <PackageReference Include="Our.Umbraco.Community.Contentment" Version="4.1.5" />
+    <PackageReference Include="Our.Umbraco.TagHelpers" Version="0.8.0" />
     <PackageReference Include="Umbraco.Cms" Version="10.0.1" />
     <PackageReference Include="uSync" Version="10.0.0" />
   </ItemGroup>
