@@ -61,6 +61,7 @@
                     if(memberContent.HasProperty("badges") && memberContent.HasValue("badges"))
                     {
                         var badges = memberContent.Value<IEnumerable<IPublishedContent>>("badges");
+                        badgeCount = badges != null && badges.Any() ? badges.Count() : 0;
                     }
                     <tr>
                         <td class="font-weight-bold px-4">
