@@ -29,6 +29,7 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IQuestionService _questionService;
         private readonly IQuizResultRepository _quizResultRepository;
         private readonly IBadgeService _badgeService;
+        private readonly INotificationRepository _notificationRepository;
 
         public QuizSurfaceController(
             //these are required by the base controller
@@ -47,7 +48,8 @@ namespace Quiz.Site.Controllers.Surface
             IAccountService accountService,
             IQuestionService questionService,
             IQuizResultRepository quizResultRepository,
-            IBadgeService badgeService
+            IBadgeService badgeService,
+            INotificationRepository notificationRepository
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
@@ -59,7 +61,8 @@ namespace Quiz.Site.Controllers.Surface
             _questionService = questionService ?? throw new ArgumentNullException(nameof(questionService));
             _quizResultRepository = quizResultRepository ?? throw new ArgumentNullException(nameof(quizResultRepository));
             _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
-    }
+            _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -101,8 +104,6 @@ namespace Quiz.Site.Controllers.Surface
             };
 
             _quizResultRepository.Create(quizResult);
-
-            List<string> notifications = new List<string>();
             if(quizResult.Score > 0 && quizResult.Score == quizResult.Total)
             {
                 var updateProfileBadge = _badgeService.GetBadgeByName("Perfect Score");
@@ -110,7 +111,12 @@ namespace Quiz.Site.Controllers.Surface
                 {
                     if (_badgeService.AddBadgeToMember(memberItem, updateProfileBadge))
                     {
-                        notifications.Add("Added Badge to Member");
+                        _notificationRepository.Create(new Notification()
+                        {
+                            BadgeId = updateProfileBadge.GetUdiObject().ToString(),
+                            MemberId = memberModel.Id,
+                            Message = "New badge earned - " + updateProfileBadge.Name
+                        });
                     }
                 }
             }
