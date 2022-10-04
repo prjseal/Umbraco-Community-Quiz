@@ -29,7 +29,12 @@
 			<h3 class="mt-5">Question @(q + 1)</h3>
 			<p>@Model.Questions[q].QuestionText</p>
 			<span asp-validation-for="@Model.Questions[q].Answer"></span>
-			@for(var a = 0; a < 4; a++)
+
+			@{
+				var answerPositionOrder = new int[] {0, 1, 2, 3};
+				answerPositionOrder = answerPositionOrder.OrderBy(x => Guid.NewGuid()).ToArray();
+			}
+			@foreach(var a in answerPositionOrder)
 			{
 				<div class="radio">
 					<label>

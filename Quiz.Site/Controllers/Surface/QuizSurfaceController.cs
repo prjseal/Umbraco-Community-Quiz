@@ -106,16 +106,16 @@ namespace Quiz.Site.Controllers.Surface
             _quizResultRepository.Create(quizResult);
             if(quizResult.Score > 0 && quizResult.Score == quizResult.Total)
             {
-                var updateProfileBadge = _badgeService.GetBadgeByName("Perfect Score");
-                if (!_badgeService.HasBadge(memberModel, updateProfileBadge))
+                var badge = _badgeService.GetBadgeByName("Perfect Score");
+                if (!_badgeService.HasBadge(memberModel, badge))
                 {
-                    if (_badgeService.AddBadgeToMember(memberItem, updateProfileBadge))
+                    if (_badgeService.AddBadgeToMember(memberItem, badge))
                     {
                         _notificationRepository.Create(new Notification()
                         {
-                            BadgeId = updateProfileBadge.GetUdiObject().ToString(),
+                            BadgeId = badge.GetUdiObject().ToString(),
                             MemberId = memberModel.Id,
-                            Message = "New badge earned - " + updateProfileBadge.Name
+                            Message = "New badge earned - " + badge.Name
                         });
                     }
                 }

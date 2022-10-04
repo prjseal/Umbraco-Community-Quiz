@@ -331,6 +331,7 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="@Url.Content("/assets/js/argon-dashboard.min.js?v=2.0.5")"></script>
+    <script src="/assets/js/plugins/moment.min.js"></script>
 
     @{
         var member = _accountService.GetMemberFromUser(await _memberManager.GetCurrentMemberAsync());
@@ -347,9 +348,25 @@
                 <div class="toast-container position-relative p-3 bottom-0 start-50 translate-middle-x" id="toastPlacement@(toastIndex)">
                     <div class="toast">
                         <div class="toast-header">
-                            <img src="..." class="rounded me-2" alt="...">
-                            <strong class="me-auto">Bootstrap</strong>
-                            <small>11 mins ago</small>
+                            @if (!string.IsNullOrWhiteSpace(notification.BadgeId))
+                            {
+                                var badgeItem = Umbraco.Content(notification.BadgeId);
+                                if (badgeItem != null)
+                                {
+                                    var badge = (BadgePage)badgeItem;
+                                    <img src="@badge.Image.Url()" width="40" height="40" class="rounded me-2" alt="@badge.Name">
+                                    <strong class="me-auto">New Badge</strong>
+                                }
+                                else
+                                {
+                                    <strong class="me-auto">Notification</strong>
+                                }
+                            }
+                            else
+                            {
+                                <strong class="me-auto">Notification</strong>
+                            }
+                            <small class="timeago" datetime="@notification.DateCreated.ToString("yyyy-MM-dd HH:mm:ss")"></small>
                         </div>
                         <div class="toast-body">
                             @notification.Message
@@ -362,10 +379,17 @@
         </div>
 
         <script type="text/javascript">
+            const nodes = document.querySelectorAll('.timeago');
+            nodes.forEach(function(element) {
+                var when = element.getAttribute('datetime');
+                var timeanddate = moment(when);
+                element.textContent = timeanddate.fromNow();
+            });
+
             var toastElList = [].slice.call(document.querySelectorAll('.toast'))
                 var toastList = toastElList.map(function (toastEl) {
                 return new bootstrap.Toast(toastEl)
-            })
+            });
 
             toastList[0].show();
         </script>

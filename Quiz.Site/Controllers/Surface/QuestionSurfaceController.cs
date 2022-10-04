@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Quiz.Site.Enums;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
+using System.Security.Cryptography;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
@@ -79,7 +80,7 @@ namespace Quiz.Site.Controllers.Surface
                 return CurrentUmbracoPage();
             }
 
-            var random = new Random();
+            var randomPosition = GetRandomNumberInRange(0, 4);
             Question question = new Question()
             {
                 Id = model.Id,
@@ -91,7 +92,7 @@ namespace Quiz.Site.Controllers.Surface
                 WrongAnswer3 = model.WrongAnswer3,
                 MoreInfoLink = model.MoreInfoLink,
                 Status = ((int)QuestionStatus.Pending).ToString(),
-                CorrectAnswerPosition = random.Next(0, 3)
+                CorrectAnswerPosition = randomPosition
             };
 
             _questionRepository.Create(question);
@@ -99,6 +100,20 @@ namespace Quiz.Site.Controllers.Surface
             var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
 
             return RedirectToUmbracoPage(profilePage);
+        }
+
+        private static int GetRandomNumberInRange(int min, int max)
+        {
+            if (min > max)
+                throw new ArgumentOutOfRangeException();
+
+            var _rng = RandomNumberGenerator.Create();
+
+            var data = new byte[sizeof(int)];
+            _rng.GetBytes(data);
+            var randomNumber = BitConverter.ToInt32(data, 0);
+
+            return (int)Math.Floor((double)(min + Math.Abs(randomNumber % (max - min))));
         }
     }
 }

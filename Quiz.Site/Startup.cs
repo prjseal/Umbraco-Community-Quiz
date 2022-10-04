@@ -82,7 +82,7 @@ namespace Quiz.Site
                                     )
                                 )
                             )
-                            .AddCollection<QuizResult>(x => x.Id, "Quiz Result", "Quiz Results", "A quiz result entity", "icon-check", "icon-check", collectionConfig => collectionConfig
+                            .AddCollection<QuizResult>(x => x.Id, "Quiz Result", "Quiz Results", "A quiz result entity", "icon-calculator", "icon-calculator", collectionConfig => collectionConfig
                             .AddCard("Perfect Scores", "icon-check", p => p.Score == p.Total, cardConfig => {
                                 cardConfig.SetColor("blue");
                             })
@@ -102,6 +102,42 @@ namespace Quiz.Site
                                             .AddField(p => p.Total).MakeRequired()
                                             .AddField(p => p.MemberId).MakeRequired()
                                             .AddField(p => p.QuizId).MakeRequired()
+                                            .AddField(p => p.DateCreated).SetDefaultValue(DateTime.UtcNow).MakeReadOnly()
+                                        )
+                                    )
+                                )
+                            )
+                            .AddCollection<Notification>(x => x.Id, "Notification", "Notifications", "A notification entity", "icon-flag", "icon-flag", collectionConfig => collectionConfig
+                                .SetNameProperty(p => p.Message)
+                                .ListView(listViewConfig => listViewConfig
+                                    .AddField(p => p.Id).SetHeading("Id")
+                                    .AddField(p => p.Message).SetHeading("Message")
+                                    .AddField(p => p.MemberId).SetHeading("Member Id")
+                                    .AddField(p => p.DateCreated).SetHeading("Date Created")
+                                )
+                                .Editor(editorConfig => editorConfig
+                                    .AddTab("General", tabConfig => tabConfig
+                                        .AddFieldset("General", fieldsetConfig => fieldsetConfig
+                                            .AddField(p => p.Id).MakeReadOnly()
+                                            .AddField(p => p.Message).MakeRequired()
+                                            .AddField(p => p.MemberId).MakeRequired()
+                                            .AddField(p => p.BadgeId).MakeRequired()
+                                            .AddField(p => p.DateCreated).SetDefaultValue(DateTime.UtcNow).MakeReadOnly()
+                                        )
+                                    )
+                                )
+                            )
+                            .AddCollection<ReadNotification>(x => x.Id, "Read Notification", "Read Notifications", "A read notification entity", "icon-flag", "icon-flag-alt", collectionConfig => collectionConfig
+                                .ListView(listViewConfig => listViewConfig
+                                    .AddField(p => p.Id).SetHeading("Id")
+                                    .AddField(p => p.NotificationId).SetHeading("Notification Id")
+                                    .AddField(p => p.DateCreated).SetHeading("Date Created")
+                                )
+                                .Editor(editorConfig => editorConfig
+                                    .AddTab("General", tabConfig => tabConfig
+                                        .AddFieldset("General", fieldsetConfig => fieldsetConfig
+                                            .AddField(p => p.Id).MakeReadOnly()
+                                            .AddField(p => p.NotificationId).MakeRequired()
                                             .AddField(p => p.DateCreated).SetDefaultValue(DateTime.UtcNow).MakeReadOnly()
                                         )
                                     )
