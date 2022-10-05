@@ -48,4 +48,13 @@
             </li>
         }
     </ul>
+
+    <script type="text/javascript">
+        const nodes = document.querySelectorAll('ul.dropdown-menu li p span.timeago');
+        nodes.forEach(function(element) {
+            var when = element.getAttribute('datetime');
+            var timeanddate = moment(when);
+            element.textContent = timeanddate.fromNow();
+        });
+    </script>
 }

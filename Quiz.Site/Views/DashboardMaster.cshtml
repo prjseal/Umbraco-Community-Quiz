@@ -9,7 +9,12 @@
 
 @{
     Layout = null;    
-    //var memberModel = _accountService.GetMemberModelFromUser(await _memberManager.GetCurrentMemberAsync());
+    Member memberModel = null;
+    var isLoggedIn = User.Identity.IsAuthenticated;
+    if(isLoggedIn)
+    {
+        memberModel = _accountService.GetMemberModelFromUser(await _memberManager.GetCurrentMemberAsync());
+    }
 }
 
 
@@ -34,6 +39,7 @@
     <link href="@Url.Content("/assets/css/nucleo-svg.css")" rel="stylesheet" />
     <!-- CSS Files -->
     <link id="pagestyle" href="@Url.Content("/assets/css/argon-dashboard.css?v=2.0.5")" rel="stylesheet" />
+    <script src="/assets/js/plugins/moment.min.js"></script>
 </head>
 
 <body class="g-sidenav-show   bg-gray-100">
@@ -86,7 +92,10 @@
                             </a>
                         </li>
                         <li class="nav-item dropdown pe-2 d-flex align-items-center">
-                            @*@await Component.InvokeAsync("BellNotifications", memberModel)*@
+                            @if(memberModel != null)
+                            {
+                                @await Component.InvokeAsync("BellNotifications", memberModel)
+                            }
                         </li>
                     </ul>
                 </div>
@@ -115,9 +124,11 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="@Url.Content("/assets/js/argon-dashboard.min.js?v=2.0.5")"></script>
-    <script src="/assets/js/plugins/moment.min.js"></script>
 
-    @*@await Component.InvokeAsync("ToastNotifications", memberModel)*@
+    @if(memberModel != null)
+    {
+        @await Component.InvokeAsync("ToastNotifications", memberModel)
+    }
 
 
 </body>
