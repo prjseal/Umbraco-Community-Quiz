@@ -9,7 +9,7 @@
 
 @{
     Layout = null;    
-    var memberModel = _accountService.GetMemberModelFromUser(await _memberManager.GetCurrentMemberAsync());
+    //var memberModel = _accountService.GetMemberModelFromUser(await _memberManager.GetCurrentMemberAsync());
 }
 
 
@@ -117,7 +117,7 @@
     <script src="@Url.Content("/assets/js/argon-dashboard.min.js?v=2.0.5")"></script>
     <script src="/assets/js/plugins/moment.min.js"></script>
 
-    @await Component.InvokeAsync("ToastNotifications", memberModel)
+    @*@await Component.InvokeAsync("ToastNotifications", memberModel)*@
 
 
 </body>
