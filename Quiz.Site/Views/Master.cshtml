@@ -7,8 +7,15 @@
 @inject IMemberManager _memberManager;
 
 @{
-	Layout = null;
-    var memberModel = _accountService.GetMemberModelFromUser(await _memberManager.GetCurrentMemberAsync());
+    Layout = null;
+
+
+    Member memberModel = null;
+    var isLoggedIn = User.Identity.IsAuthenticated;
+    if(isLoggedIn)
+    {
+        memberModel = _accountService.GetMemberModelFromUser(await _memberManager.GetCurrentMemberAsync());
+    }
 }
 
 <!DOCTYPE html>
@@ -60,7 +67,10 @@
   <script src="@Url.Content("/assets/js/argon-dashboard.min.js?v=2.0.5")"></script>
     <script src="/assets/js/plugins/moment.min.js"></script>
 
-  @await Component.InvokeAsync("ToastNotifications", memberModel)
+  @if(memberModel != null)
+    {
+        @await Component.InvokeAsync("ToastNotifications", memberModel)
+    }
 </body>
 
 </html>
