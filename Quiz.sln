@@ -1,22 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quiz.Site", "Quiz.Site\Quiz.Site.csproj", "{C9CC7EE1-2EE4-4D00-B655-E59B8AFBD446}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quiz.Site", "Quiz.Site\Quiz.Site.csproj", "{C9CC7EE1-2EE4-4D00-B655-E59B8AFBD446}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quiz.ContentModels", "Quiz.ContentModels\Quiz.ContentModels.csproj", "{B7F9CABD-9003-4224-BB7C-D51D07522E93}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{C9CC7EE1-2EE4-4D00-B655-E59B8AFBD446}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C9CC7EE1-2EE4-4D00-B655-E59B8AFBD446}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9CC7EE1-2EE4-4D00-B655-E59B8AFBD446}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9CC7EE1-2EE4-4D00-B655-E59B8AFBD446}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7F9CABD-9003-4224-BB7C-D51D07522E93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7F9CABD-9003-4224-BB7C-D51D07522E93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7F9CABD-9003-4224-BB7C-D51D07522E93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7F9CABD-9003-4224-BB7C-D51D07522E93}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E837CC7D-C798-4B46-8430-8360509F1C43}
 	EndGlobalSection
 EndGlobal
