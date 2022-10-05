@@ -7,7 +7,15 @@
 @using Umbraco.Cms.Core.Security
 @using Our.Umbraco.TagHelpers
 
-@if (Model != null && Model.Any())
+@{
+    var showToast = false;
+    if(TempData["ShowToast"] != null && !string.IsNullOrWhiteSpace(TempData["ShowToast"].ToString()))
+    {
+        showToast = bool.TryParse(TempData["ShowToast"].ToString(), out showToast);
+    }
+}
+
+@if (showToast && Model != null && Model.Any())
 {
     var toastIndex = 0;
     <div aria-live="polite" aria-atomic="true" class="bg-dark position-absolute bd-example-toasts bottom-0 w-100">

@@ -147,8 +147,6 @@ namespace Quiz.Site.Controllers.Surface
 
             _accountService.UpdateProfile(model, memberModel, member);
 
-            TempData["EditProfileSuccess"] = true;
-
             var updateProfileBadge = _badgeService.GetBadgeByName("Updated Profile");
             if(!_badgeService.HasBadge(memberModel, updateProfileBadge))
             {
@@ -160,6 +158,8 @@ namespace Quiz.Site.Controllers.Surface
                         MemberId = memberModel.Id,
                         Message = "New badge earned - " + updateProfileBadge.Name
                     });
+
+                    TempData["ShowToast"] = true;
                 }
             }
 

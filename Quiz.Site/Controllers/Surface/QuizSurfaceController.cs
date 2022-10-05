@@ -117,6 +117,8 @@ namespace Quiz.Site.Controllers.Surface
                             MemberId = memberModel.Id,
                             Message = "New badge earned - " + badge.Name
                         });
+
+                        TempData["ShowToast"] = true;
                     }
                 }
             }

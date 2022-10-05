@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Views\Components\BellNotifications\Default.cshtml" />
     <None Include="Views\Components\ToastNotifications\Default.cshtml" />
   </ItemGroup>
 
