@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-using Umbraco.Cms.Core.Models;
+﻿using Umbraco.Cms.Core.Models;
 
 namespace Quiz.Site.Services
 {

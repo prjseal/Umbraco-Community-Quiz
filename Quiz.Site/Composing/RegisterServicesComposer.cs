@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Quiz.Site.Services;
 using Umbraco.Cms.Core.Composing;
-using Umbraco.Cms.Core.DependencyInjection;
-using Quiz.Site.Services;
 
 namespace Quiz.Site.Composing
 {

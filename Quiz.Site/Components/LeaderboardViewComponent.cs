@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Quiz.Site.Models;
 using Quiz.Site.Services;
-using Umbraco.Cms.Core.Security;
 
 namespace Quiz.Site.Components
 {

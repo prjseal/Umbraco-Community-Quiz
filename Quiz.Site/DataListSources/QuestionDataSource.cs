@@ -1,9 +1,4 @@
 ﻿using Quiz.Site.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Community.Contentment.DataEditors;
 

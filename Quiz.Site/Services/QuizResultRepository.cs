@@ -1,5 +1,4 @@
-﻿using Quiz.Site.Enums;
-using Quiz.Site.Models;
+﻿using Quiz.Site.Models;
 using Umbraco.Cms.Infrastructure.Scoping;
 
 namespace Quiz.Site.Services;

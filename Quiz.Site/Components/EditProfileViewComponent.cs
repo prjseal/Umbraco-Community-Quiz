@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
-using Umbraco.Cms.Core.Security;
-using Umbraco.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
+using Umbraco.Cms.Core.Security;
 
 namespace Quiz.Site.Components
 {

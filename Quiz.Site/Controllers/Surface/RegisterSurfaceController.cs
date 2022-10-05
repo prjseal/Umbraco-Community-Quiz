@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Quiz.Site.Models;
-using System;
-using System.Threading.Tasks;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
@@ -19,7 +16,6 @@ using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Web.Common.PublishedModels;
 using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
-using Umbraco.Extensions;
 
 namespace Quiz.Site.Controllers.Surface
 {

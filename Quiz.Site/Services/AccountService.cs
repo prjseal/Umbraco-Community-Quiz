@@ -1,15 +1,9 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Newtonsoft.Json.Linq;
+using Quiz.Site.Models;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
-using Umbraco.Extensions;
-using Quiz.Site.Helpers;
-using Quiz.Site.Models;
 using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 
 namespace Quiz.Site.Services

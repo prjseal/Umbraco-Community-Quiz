@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Quiz.Site.Models;
 using Quiz.Site.Services;
 using Umbraco.Cms.Web.Common.PublishedModels;
 

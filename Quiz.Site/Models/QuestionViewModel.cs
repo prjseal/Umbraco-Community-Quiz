@@ -1,5 +1,4 @@
-﻿using Quiz.Site.Validation;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Quiz.Site.Models
 {

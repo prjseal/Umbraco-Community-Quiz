@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel.DataAnnotations;
-using Umbraco.Cms.Core.Models.PublishedContent;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Quiz.Site.Models
 {

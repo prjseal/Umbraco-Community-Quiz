@@ -1,6 +1,4 @@
-﻿using Umbraco.Cms.Core.Models;
-
-namespace Quiz.Site.Models
+﻿namespace Quiz.Site.Models
 {
     public class PlayerRecord
     {
