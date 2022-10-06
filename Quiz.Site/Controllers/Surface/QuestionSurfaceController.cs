@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Quiz.Site.Enums;
+using Quiz.Site.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
 using System.Security.Cryptography;
@@ -9,6 +10,7 @@ using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Mail;
+using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
@@ -27,6 +29,9 @@ namespace Quiz.Site.Controllers.Surface
         private readonly GlobalSettings _globalSettings;
         private readonly IMemberManager _memberManager;
         private readonly IMemberService _memberService;
+        private readonly IAccountService _accountService;
+        private readonly IBadgeService _badgeService;
+        private readonly INotificationRepository _notificationRepository;
 
         public QuestionSurfaceController(
             //these are required by the base controller
@@ -42,7 +47,10 @@ namespace Quiz.Site.Controllers.Surface
             IEmailSender emailSender,
             IOptions<GlobalSettings> globalSettings,
             IMemberManager memberManager,
-            IMemberService memberService
+            IMemberService memberService,
+            IAccountService accountService,
+            IBadgeService badgeService,
+            INotificationRepository notificationRepository
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _questionRepository = questionRepository ?? throw new ArgumentNullException(nameof(questionRepository));
@@ -51,6 +59,9 @@ namespace Quiz.Site.Controllers.Surface
             _globalSettings = globalSettings?.Value ?? throw new ArgumentNullException(nameof(globalSettings));
             _memberManager = memberManager;
             _memberService = memberService;
+            _accountService = accountService;
+            _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
+            _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
         }
 
         [HttpPost]
@@ -65,12 +76,15 @@ namespace Quiz.Site.Controllers.Surface
             GuidUdi udi = null;
             var userEmail = User?.Identity?.GetEmail();
 
+            IMember member = null;
+            Umbraco.Cms.Web.Common.PublishedModels.Member memberModel = null;
             if (!string.IsNullOrWhiteSpace(userEmail))
             {
-                var member = _memberService.GetByEmail(userEmail);
+                member = _memberService.GetByEmail(userEmail);
                 if (member != null)
                 {
                     udi = member.GetUdi();
+                    memberModel = _accountService.GetMemberModelFromMember(member);
                 }
             }
 
@@ -96,6 +110,22 @@ namespace Quiz.Site.Controllers.Surface
             };
 
             _questionRepository.Create(question);
+
+            var teacherBadge = _badgeService.GetBadgeByName("Teacher");
+            if (!_badgeService.HasBadge(memberModel, teacherBadge))
+            {
+                if (_badgeService.AddBadgeToMember(member, teacherBadge))
+                {
+                    _notificationRepository.Create(new Models.Notification()
+                    {
+                        BadgeId = teacherBadge.GetUdiObject().ToString(),
+                        MemberId = memberModel.Id,
+                        Message = "New badge earned - " + teacherBadge.Name
+                    });
+
+                    TempData["ShowToast"] = true;
+                }
+            }
 
             var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
 

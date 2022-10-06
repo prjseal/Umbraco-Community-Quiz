@@ -39,7 +39,7 @@ namespace Quiz.Site.Services
                 //JobTitle = member.JobTitle,
                 //FavouriteColour = member.FavouriteColour,
                 //Skills = member.Skills,
-                //Avatar = member.Avatar,
+                Avatar = member.Avatar
                 //Gallery = member.Gallery
             };
 
@@ -84,11 +84,11 @@ namespace Quiz.Site.Services
 
             //member.SetValue("favouriteColour", model.FavouriteColour);
 
-            //if (model.Avatar != null)
-            //{
-            //    var avatarUdi = _mediaUploadService.CreateMediaItemFromFileUpload(model.Avatar, 1126, "Image");
-            //    member.SetValue("avatar", avatarUdi);
-            //}
+            if (model.Avatar != null)
+            {
+                var avatarUdi = _mediaUploadService.CreateMediaItemFromFileUpload(model.Avatar, 1093, "Image");
+                member.SetValue("avatar", avatarUdi);
+            }
 
             //List<string> galleryUdis = new List<string>();
 

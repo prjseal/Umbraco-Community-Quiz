@@ -1,6 +1,7 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<EditProfileViewModel>
 
 @using Quiz.Site.Models
+@using Umbraco.Cms.Core
 
 @{
     var submitted = false;
@@ -8,6 +9,9 @@
     {
         submitted = true;
     }
+
+    var defaultMediaItem = Umbraco.Media(Udi.Create("media", new Guid("65da644d-3fba-41c8-8173-2a924d96bba4")));
+    var fallbackImageUrl = defaultMediaItem.GetCropUrl(100, 100);
 }
 
 @if (!User.Identity.IsAuthenticated)
@@ -42,16 +46,16 @@ else
     {
         using (Html.BeginUmbracoForm("EditProfile", "ProfileSurface", FormMethod.Post, new { @class = "text-left" }))
         {
-@*            <div class="form-group">
-                <label asp-for="@Model.Avatar" />
+            <div class="form-group">
+                <label asp-for="@Model.Avatar"></label>
                 <div>
                     <input asp-for="@Model.AvatarUrl" type="hidden" />
-                    <img class="image-fluid" src="@(Model.AvatarUrl ?? "/img/profile.png")" />
+                    <img class="image-fluid rounded-circle mb-3" src="@(Model.AvatarUrl ?? fallbackImageUrl)" />
                 </div>
 
                 <input type="file" name="Avatar" id="Avatar" />
                 <span asp-validation-for="@Model.Avatar" class="text-danger"></span>
-            </div>*@
+            </div>
             <div class="form-group">
                 <label asp-for="@Model.Name"></label>
                 <input asp-for="@Model.Name" class="form-control" />

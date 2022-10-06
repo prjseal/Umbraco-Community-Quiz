@@ -7,10 +7,10 @@
 @using Umbraco.Cms.Core.Security
 
 @{
-    var showToast = false;
+    var showToast = true;
     if(TempData["ShowToast"] != null && !string.IsNullOrWhiteSpace(TempData["ShowToast"].ToString()))
     {
-        showToast = bool.TryParse(TempData["ShowToast"].ToString(), out showToast);
+        showToast = true;// = bool.TryParse(TempData["ShowToast"].ToString(), out showToast);
     }
 }
 
