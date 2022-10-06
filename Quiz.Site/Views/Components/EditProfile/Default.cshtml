@@ -50,7 +50,7 @@ else
                 <label asp-for="@Model.Avatar"></label>
                 <div>
                     <input asp-for="@Model.AvatarUrl" type="hidden" />
-                    <img class="image-fluid rounded-circle mb-3" src="@(Model.AvatarUrl ?? fallbackImageUrl)" />
+                    <img class="image-fluid rounded-circle mb-3" style="width:120px; height:120px;" src="@(Model.AvatarUrl ?? fallbackImageUrl)" />
                 </div>
 
                 <input type="file" name="Avatar" id="Avatar" />
