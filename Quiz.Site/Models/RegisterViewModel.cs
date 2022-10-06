@@ -17,7 +17,7 @@ namespace Quiz.Site.Models
         [Display(Name = "Password")]
         [Required(ErrorMessage = "You must enter a password")]
         [DataType(DataType.Password)]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,15}$", ErrorMessage = "Password must be at least 8 characters long, have 1 uppercase, 1 lowercase, 1 number and 1 special character.")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,256}$", ErrorMessage = "Password must be at least 8 characters long, have 1 uppercase, 1 lowercase, 1 number and 1 special character.")]
         public string Password { get; set; }
 
         [Display(Name = "Confirm Password")]
