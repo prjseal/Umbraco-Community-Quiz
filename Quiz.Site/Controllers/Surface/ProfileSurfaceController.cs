@@ -167,7 +167,7 @@ namespace Quiz.Site.Controllers.Surface
 
             
 
-            return RedirectToUmbracoPage(profilePage);
+            return RedirectToCurrentUmbracoPage();
         }
     }
 }

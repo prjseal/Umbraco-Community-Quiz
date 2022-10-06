@@ -53,7 +53,7 @@
         const nodes = document.querySelectorAll('ul.dropdown-menu li p span.timeago');
         nodes.forEach(function(element) {
             var when = element.getAttribute('datetime');
-            var timeanddate = moment(when);
+            var timeanddate = moment.utc(when);
             element.textContent = timeanddate.fromNow();
         });
     </script>

@@ -7,21 +7,21 @@
 @using Umbraco.Cms.Core.Security
 
 @{
-    var showToast = true;
+    var showToast = false;
     if(TempData["ShowToast"] != null && !string.IsNullOrWhiteSpace(TempData["ShowToast"].ToString()))
     {
-        showToast = true;// = bool.TryParse(TempData["ShowToast"].ToString(), out showToast);
+        showToast = bool.TryParse(TempData["ShowToast"].ToString(), out showToast);
     }
 }
 
 @if (showToast && Model != null && Model.Any())
 {
     var toastIndex = 0;
-    <div aria-live="polite" aria-atomic="true" class="bg-dark position-absolute bd-example-toasts bottom-0 w-100">
+    <div aria-live="polite" aria-atomic="true" class="position-absolute bd-example-toasts bottom-0 w-100 z-index-3">
         @foreach (var notification in Model)
         {
             <div class="toast-container position-relative p-3 bottom-0 start-50 translate-middle-x" id="toastPlacement@(toastIndex)">
-                <div class="toast">
+                <div class="toast shadow bg-light">
                     <div class="toast-header">
                         @if (!string.IsNullOrWhiteSpace(notification.BadgeId))
                         {
@@ -67,7 +67,7 @@
         const nodes = document.querySelectorAll('.timeago');
         nodes.forEach(function(element) {
             var when = element.getAttribute('datetime');
-            var timeanddate = moment(when);
+            var timeanddate = moment.utc(when);
             element.textContent = timeanddate.fromNow();
         });
 

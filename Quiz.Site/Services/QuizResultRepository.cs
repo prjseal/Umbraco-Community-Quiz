@@ -69,6 +69,17 @@ public class QuizResultRepository : IQuizResultRepository
         }
     }
 
+    public QuizResult GetByMemberIdAndQuizId(int memberId, string quizId)
+    {
+        using (var scope = _scopeProvider.CreateScope())
+        {
+            var db = scope.Database;
+            var records = db.Query<QuizResult>("SELECT * FROM QuizResult WHERE [MemberId] = @memberId AND [quizId] = @quizId", new { memberId, quizId }).FirstOrDefault();
+
+            return records;
+        }
+    }
+
     public void Create(QuizResult question)
     {
         using (var scope = _scopeProvider.CreateScope())

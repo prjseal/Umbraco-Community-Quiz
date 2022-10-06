@@ -14,6 +14,8 @@ public interface IQuizResultRepository
 
     IEnumerable<QuizResult> GetAllByMemberId(int memberId);
 
+    QuizResult GetByMemberIdAndQuizId(int memberId, string quizId);
+
     void Create(QuizResult quizResult);
 
     QuizResult Update(QuizResult quizResult);

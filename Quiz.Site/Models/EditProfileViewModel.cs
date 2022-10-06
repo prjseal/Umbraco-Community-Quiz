@@ -5,7 +5,7 @@ namespace Quiz.Site.Models
     public class EditProfileViewModel
     {
         [Display(Name = "Avatar")]
-        public IFormFile Avatar { get; set; }
+        public IFormFile? Avatar { get; set; }
 
         public string AvatarUrl { get; set; }
 

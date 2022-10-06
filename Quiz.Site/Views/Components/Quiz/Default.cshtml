@@ -1,12 +1,45 @@
 ﻿@inherits UmbracoViewPage<QuizViewModel>
 @using Quiz.Site.Models
+@using Quiz.Site.Services
+@using Umbraco.Cms.Core.Security
+@using Quiz.Site.Extensions;
+@inject IAccountService accountService;
+@inject IMemberManager memberManager;
+@inject IQuizResultRepository quizResultRepository;
 
 @if (Model == null || Model.Questions == null || !Model.Questions.Any()) return;
 
 @{
 	var success = TempData["Success"];
 	var justCompletedIt = success != null && !string.IsNullOrWhiteSpace(success.ToString()); 
+	var umbracoPage = Umbraco.AssignedContentItem;
+	var quizUdi = Umbraco.AssignedContentItem.GetUdiObject().ToString();
+	var member = await memberManager.GetCurrentMemberAsync();
+	var memberModel = accountService.GetMemberModelFromUser(member);
+	var quizResult = quizResultRepository.GetByMemberIdAndQuizId(memberModel.Id, quizUdi);
 }
+
+@if(quizResult != null)
+{
+	<div class="form-group min-vh-90 py-5 mt-5 text-center" id="result">
+		@if(justCompletedIt)
+		{
+			<h2>Well Done!</h2>
+			<h3>You scored @quizResult.Score out of @quizResult.Total</h3>
+			<p>See all of the correct answers</p>
+			<a class="btn btn-primary btn-block" href="#quesiton1">Let's go <i class="fas fa-chevron-right mx-1" aria-hidden="true"></i> </a>
+		}
+		else
+		{
+			<h2>You already completed this quiz.</h2>
+			<h3>You scored @quizResult.Score out of @quizResult.Total</h3>
+			<p>See all of the correct answers</p>
+			<a class="btn btn-primary btn-block" href="#quesiton1">Let's go <i class="fas fa-chevron-right mx-1" aria-hidden="true"></i> </a>
+			
+		}
+	</div>
+}
+
 
 @using (Html.BeginUmbracoForm("Submit", "QuizSurface", FormMethod.Post, new { @class = "text-left" }))
 {
