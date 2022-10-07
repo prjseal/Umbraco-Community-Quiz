@@ -61,7 +61,6 @@
 			}
 			<h3 class="mt-5">Question @(q + 1)</h3>
 			<p>@Model.Questions[q].QuestionText</p>
-			<span asp-validation-for="@Model.Questions[q].Answer"></span>
 
 			@{
 				var answerPositionOrder = new int[] {0, 1, 2, 3};
@@ -71,7 +70,7 @@
 			{
 				<div class="radio">
 					<label>
-						<input type="radio" disabled="@(answered ? "disabled" : null)" checked="@(Model.Questions[q].Answers[a].Selected ? "checked" : null)" asp-for="@Model.Questions[q].Answer" value="@(Model.Questions[q].Answers[a].Value)" />
+						<input type="radio" disabled="@(answered ? "disabled" : null)" checked="@(Model.Questions[q].Answers[a].Selected ? "checked" : null)" asp-for="@Model.Questions[q].Answer" value="@(Model.Questions[q].Answers[a].Value)" required />
 						@if(justCompletedIt || Model.CompletedPreviously)
 						{
 							<span class="p-2 @(Model.Questions[q].Answers[a].Selected ? "text-bold" : null) @(Model.Questions[q].Answers[a].Selected && Model.Questions[q].IsCorrect.Value ? "text-success" : null) @(!Model.Questions[q].Answers[a].Selected && Model.Questions[q].CorrectAnswerPosition == a ? "text-success" : null) @(justCompletedIt && Model.Questions[q].Answers[a].Selected && !Model.Questions[q].IsCorrect.Value ? "text-danger" : null)">@(Model.Questions[q].Answers[a].Text)</span>
@@ -81,6 +80,7 @@
 							<span class="p-2">@(Model.Questions[q].Answers[a].Text)</span>
 						}
 					</label>
+					<span asp-validation-for="@Model.Questions[q].Answer" class="text-danger"></span>
 				</div>
 			}
 			@if(justCompletedIt || Model.CompletedPreviously)
