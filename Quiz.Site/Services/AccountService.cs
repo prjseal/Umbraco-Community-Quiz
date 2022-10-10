@@ -14,15 +14,18 @@ namespace Quiz.Site.Services
         private readonly IMediaUploadService _mediaUploadService;
         private readonly IMemberService _memberService;
         private readonly IUmbracoContextFactory _umbracoContextFactory;
+        private readonly ILogger<AccountService> _logger;
 
         public AccountService(IMemberGroupService memberGroupService,
             IMediaUploadService mediaUploadService, IMemberService memberService,
-            IUmbracoContextFactory umbracoContextFactory)
+            IUmbracoContextFactory umbracoContextFactory,
+            ILogger<AccountService> logger)
         {
             _memberGroupService = memberGroupService;
             _mediaUploadService = mediaUploadService;
             _memberService = memberService;
             _umbracoContextFactory = umbracoContextFactory;
+            _logger = logger;
         }
 
 
@@ -72,83 +75,20 @@ namespace Quiz.Site.Services
 
         public void UpdateProfile(EditProfileViewModel model, ContentModels.Member memberModel, IMember member)
         {
-            //member.SetValue("firstName", model.FirstName);
-            //member.SetValue("lastName", model.LastName);
-
             member.Name = model.Name;
-            //member.SetValue("jobTitle",
-            //    JsonConvert.SerializeObject(new[] { model.JobTitle }));
-
-            //member.SetValue("skills",
-            //    JsonConvert.SerializeObject(model.Skills));
-
-            //member.SetValue("favouriteColour", model.FavouriteColour);
-
-            if (model.Avatar != null)
+            
+            try
             {
-                var avatarUdi = _mediaUploadService.CreateMediaItemFromFileUpload(model.Avatar, Guid.Parse("88614415-784f-4421-84c1-5318b75cf2f4"), "Image");
-                member.SetValue("avatar", avatarUdi);
+                if (model.Avatar != null)
+                {
+                    var avatarUdi = _mediaUploadService.CreateMediaItemFromFileUpload(model.Avatar, Guid.Parse("88614415-784f-4421-84c1-5318b75cf2f4"), "Image");
+                    member.SetValue("avatar", avatarUdi);
+                }
             }
-
-            //List<string> galleryUdis = new List<string>();
-
-            //var galleryValue = member.GetValue<string>("gallery");
-
-            //if (!string.IsNullOrWhiteSpace(galleryValue))
-            //{
-            //    JArray galleryArray = JsonConvert.DeserializeObject<JArray>(galleryValue);
-
-            //    var sortOrderArray =
-            //    model.GallerySortOrder.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
-            //        .Select(x => int.Parse(x)).ToArray();
-
-            //    var sortedArray = new JArray();
-
-            //    var numberOfItems = galleryArray.Count;
-            //    foreach (var index in sortOrderArray)
-            //    {
-            //        if (index < numberOfItems)
-            //        {
-            //            sortedArray.Add(galleryArray[index]);
-            //        }
-            //    }
-
-            //    var json = JsonConvert.SerializeObject(sortedArray);
-
-            //    member.SetValue("gallery", json);
-            //    galleryValue = json;
-            //}
-
-            //if (model.Gallery != null && model.Gallery.Any())
-            //{
-            //    JArray galleryArray = null;
-            //    if (!string.IsNullOrWhiteSpace(galleryValue))
-            //    {
-            //        galleryArray = JsonConvert.DeserializeObject<JArray>(galleryValue);
-            //    }
-            //    else
-            //    {
-            //        galleryArray = new JArray();
-            //    }
-
-            //    foreach (var item in model.Gallery.Where(x => x != null))
-            //    {
-            //        var mediaKey = _mediaUploadService.CreateMediaItemFromFileUpload(item, 1126, "Image", returnUdi: false);
-
-            //        if (!string.IsNullOrWhiteSpace(mediaKey))
-            //        {
-            //            JObject galleryItem = new JObject();
-            //            galleryItem.Add("key", Guid.NewGuid().ToString());
-            //            galleryItem.Add("mediaKey", mediaKey);
-            //            galleryItem.Add("crops", null);
-            //            galleryItem.Add("focalPoint", null);
-
-            //            galleryArray.Add(galleryItem);
-            //        }
-            //    }
-
-            //    member.SetValue("gallery", galleryArray);
-            //}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error when updating member profile");
+            }
 
             _memberService.Save(member);
         }

@@ -145,6 +145,8 @@ namespace Quiz.Site.Controllers.Surface
 
             if (memberModel == null) return RedirectToCurrentUmbracoPage();
 
+            _logger.LogInformation("Member Model is Not Null");
+            
             _accountService.UpdateProfile(model, memberModel, member);
 
             var updateProfileBadge = _badgeService.GetBadgeByName("Updated Profile");
