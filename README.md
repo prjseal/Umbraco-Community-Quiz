@@ -8,7 +8,7 @@ Whilst this particular project Umbraco Community Quiz is open sourced, the HTML,
 
 So please feel free to contribute to the source code for this website but do not use it for any other website without purchasing a license for it from [https://creative-tim.com](https://creative-tim.com)
 
-#How to Contribute
+# How to Contribute
 
 The process to follow when contributing is to:
 
@@ -20,7 +20,7 @@ We can discuss new features in the issue to make sure that your PR is something 
 - Create a PR back to the main repository that shows what the problem was, how you fixed it and what happens now.
 - Hopefully I will be able to review the PR, test it out, and all being well, merge it in.
 
-#uSync
+# uSync
 
 When you get it running locally, you can install an empty Umbraco site and then click uSync in the settings section and then click on Full Import.
 
