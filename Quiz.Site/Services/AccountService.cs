@@ -82,7 +82,17 @@ namespace Quiz.Site.Services
                 if (model.Avatar != null)
                 {
                     var avatarUdi = _mediaUploadService.CreateMediaItemFromFileUpload(model.Avatar, Guid.Parse("88614415-784f-4421-84c1-5318b75cf2f4"), "Image");
+
+                    if (avatarUdi == null)
+                    {
+                        _logger.LogError("Avatar UDI is null");
+                    }
+
                     member.SetValue("avatar", avatarUdi);
+                }
+                else
+                {
+                    _logger.LogError("Avatar is null");
                 }
             }
             catch (Exception ex)

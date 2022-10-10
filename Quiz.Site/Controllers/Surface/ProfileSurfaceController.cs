@@ -133,17 +133,37 @@ namespace Quiz.Site.Controllers.Surface
 
         public async Task<IActionResult> EditProfile(EditProfileViewModel model)
         {
-            if (!ModelState.IsValid) return RedirectToCurrentUmbracoPage();
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Edit Profile Model State Invalid");
+                var invalidFields = ModelState.ToErrorDictionary();
+                if(invalidFields != null && invalidFields.Any())
+                {
+                    foreach(var item in invalidFields)
+                    {
+                        _logger.LogError($" - {item.Key}: {item.Value}");
+                    }
+                }
+                return RedirectToCurrentUmbracoPage();
+            }
 
             var user = await _memberManager.GetCurrentMemberAsync();
 
             var member = _accountService.GetMemberFromUser(await _memberManager.GetCurrentMemberAsync());
 
-            if (member == null) return RedirectToCurrentUmbracoPage();
+            if (member == null)
+            {
+                _logger.LogError("Member is null");
+                return RedirectToCurrentUmbracoPage();
+            }
 
             var memberModel = _accountService.GetMemberModelFromMember(member);
 
-            if (memberModel == null) return RedirectToCurrentUmbracoPage();
+            if (memberModel == null)
+            {
+                _logger.LogError("MemberModel is null");
+                return RedirectToCurrentUmbracoPage();
+            }
 
             _logger.LogInformation("Member Model is Not Null");
             
