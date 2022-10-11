@@ -7,7 +7,7 @@ namespace Quiz.Site.Models
         [Display(Name = "Avatar")]
         public IFormFile? Avatar { get; set; }
 
-        public string AvatarUrl { get; set; }
+        public string? AvatarUrl { get; set; }
 
         //[Required]
         //[Display(Name = "First Name")]
