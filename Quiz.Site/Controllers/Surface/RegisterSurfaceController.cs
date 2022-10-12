@@ -1,12 +1,16 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Quiz.Site.Filters;
+using Quiz.Site.Extensions;
 using Quiz.Site.Models;
+using Quiz.Site.Services;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Mail;
+using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.Email;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Security;
@@ -16,6 +20,7 @@ using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Web.Common.PublishedModels;
 using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
+using Notification = Quiz.Site.Models.Notification;
 
 namespace Quiz.Site.Controllers.Surface
 {
@@ -24,9 +29,14 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IMemberSignInManager _memberSignInManager;
         private readonly IMemberManager _memberManager;
         private readonly IMemberService _memberService;
+        private readonly IAccountService _accountService;
+        private readonly IBadgeService _badgeService;
+        private readonly INotificationRepository _notificationRepository;
         private readonly ILogger<RegisterSurfaceController> _logger;
         private readonly IEmailSender _emailSender;
         private readonly GlobalSettings _globalSettings;
+
+        public readonly static DateTime EarlyAdopterThreshold = new DateTime(2022, 11, 5);
 
         public RegisterSurfaceController(
             //these are required by the base controller
@@ -40,6 +50,9 @@ namespace Quiz.Site.Controllers.Surface
             IMemberSignInManager memberSignInManager,
             IMemberManager memberManager,
             IMemberService memberService,
+            IAccountService accountService,
+            IBadgeService badgeService,
+            INotificationRepository notificationRepository,
             ILogger<RegisterSurfaceController> logger,
             IEmailSender emailSender,
             IOptions<GlobalSettings> globalSettings
@@ -48,6 +61,9 @@ namespace Quiz.Site.Controllers.Surface
             _memberSignInManager = memberSignInManager ?? throw new ArgumentNullException(nameof(memberSignInManager));
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
             _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
+            _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
+            _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
+            _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
             _globalSettings = globalSettings?.Value ?? throw new ArgumentNullException(nameof(globalSettings));
@@ -55,8 +71,9 @@ namespace Quiz.Site.Controllers.Surface
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ValidateCaptcha]
         public async Task<IActionResult> Register(RegisterViewModel model)
-        {
+        {            
             if (!ModelState.IsValid)
             {
                 return CurrentUmbracoPage();
@@ -99,14 +116,22 @@ namespace Quiz.Site.Controllers.Surface
 
             TempData["Success"] = true;
 
-            Microsoft.AspNetCore.Identity.SignInResult result = await _memberSignInManager.PasswordSignInAsync(
+            var result = await _memberSignInManager.PasswordSignInAsync(
                 model.Email, model.Password, isPersistent: false, lockoutOnFailure: true);
 
+            if (result.Succeeded && DateTime.Now.Date < EarlyAdopterThreshold.Date)
+            {
+                var member = _accountService.GetMemberFromUser(await _memberManager.GetCurrentMemberAsync());
+                
+                if(member is not null)
+                {
+                    AssignEarlyAdopterBadge(member);
+                }
+            }
+            
             var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
 
             return RedirectToUmbracoPage(profilePage);
-
-            return RedirectToCurrentUmbracoPage();
         }
 
         public async Task<bool> SendAlreadyRegisteredEmail(RegisterViewModel model)
@@ -129,6 +154,27 @@ namespace Quiz.Site.Controllers.Surface
             {
                 _logger.LogError(ex, "Error When Trying To Send Already Registered Email");
                 return false;
+            }
+        }
+        
+        private void AssignEarlyAdopterBadge(IMember member)
+        {
+            var memberModel = _accountService.GetMemberModelFromMember(member);
+            var earlyAdopterBadge = _badgeService.GetBadgeByName("Early Adopter");
+            
+            if(memberModel is not null && !_badgeService.HasBadge(memberModel, earlyAdopterBadge))
+            {
+                if(_badgeService.AddBadgeToMember(member, earlyAdopterBadge))
+                {
+                    _notificationRepository.Create(new Notification()
+                    {
+                        BadgeId = earlyAdopterBadge.GetUdiObject().ToString(),
+                        MemberId = memberModel.Id,
+                        Message = "New badge earned - " + earlyAdopterBadge.Name
+                    });
+
+                    TempData["ShowToast"] = true;
+                }
             }
         }
     }

@@ -1,10 +1,14 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<RegisterViewModel>
-
+@using Microsoft.Extensions.Options;
 @using Quiz.Site.Models
+@inject IOptionsMonitor<CaptchaSettings> _captchaSettings
 
 @{
+    var captchaSettings = _captchaSettings.CurrentValue;
+    _captchaSettings.OnChange(config => captchaSettings = config);
+
     var submitted = false;
-    if (bool.TryParse(TempData["Success"]?.ToString() ?? "", out var success))
+    if (bool.TryParse(TempData["Success"]?.ToString() ?? string.Empty, out var success))
     {
         submitted = true;
     }
@@ -78,7 +82,22 @@ else
                 <span asp-validation-for="@Model.Consent" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <button class="btn btn-primary btn-block btn-lg" type="submit">Register</button>
+                <div class="h-captcha" data-sitekey="@(captchaSettings.SiteKey)"></div>
+                <input asp-for="@Model.CaptchaResponse" type="hidden" id="captchaResponse" name="captchaResponse">
+                <span asp-validation-for="@Model.CaptchaResponse" class="text-danger"></span>
+                <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+                <script type="text/javascript">
+                    function appendCaptchaResponse() {
+                        let captcha = document.getElementsByClassName('h-captcha');
+                        if (captcha) {
+                            let captchaResponse = captcha[0].querySelector('iframe').getAttribute('data-hcaptcha-response')
+                            document.getElementById("captchaResponse").value = captchaResponse;
+                        }
+                    }
+                </script>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary btn-block btn-lg" onclick="appendCaptchaResponse()" type="submit">Register</button>
             </div>
         }    
     }

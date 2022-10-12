@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Quiz.Site.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Logging;
+using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
@@ -14,6 +16,7 @@ using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Web.Common.PublishedModels;
 using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
+using Notification = Quiz.Site.Models.Notification;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Quiz.Site.Controllers.Surface
@@ -23,6 +26,9 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IMemberSignInManager _memberSignInManager;
         private readonly IMemberManager _memberManager;
         private readonly IMemberService _memberService;
+        private readonly IAccountService _accountService;
+        private readonly IBadgeService _badgeService;
+        private readonly INotificationRepository _notificationRepository;
         private readonly ILogger<AuthSurfaceController> _logger;
         private readonly IhCaptchaService _hCaptchaService;
 
@@ -43,6 +49,9 @@ namespace Quiz.Site.Controllers.Surface
             _memberSignInManager = memberSignInManager ?? throw new ArgumentNullException(nameof(memberSignInManager));
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
             _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
+            _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
+            _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
+            _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _hCaptchaService = hCaptchaService;
         }
@@ -115,10 +124,39 @@ namespace Quiz.Site.Controllers.Surface
                 _memberService.Save(member);
 
                 _memberService.AssignRoles(new[] { member.Username }, new[] { "Member" });
+                
+                if (DateTime.Now.Date < RegisterSurfaceController.EarlyAdopterThreshold.Date)
+                {
+                    if(member is not null)
+                    {
+                        AssignEarlyAdopterBadge(member);
+                    }
+                }
             }
 
             TempData["Success"] = true;
             return RedirectToCurrentUmbracoPage();
+        }
+        
+        private void AssignEarlyAdopterBadge(IMember member)
+        {
+            var memberModel = _accountService.GetMemberModelFromMember(member);
+            var earlyAdopterBadge = _badgeService.GetBadgeByName("Early Adopter");
+            
+            if(memberModel is not null && !_badgeService.HasBadge(memberModel, earlyAdopterBadge))
+            {
+                if(_badgeService.AddBadgeToMember(member, earlyAdopterBadge))
+                {
+                    _notificationRepository.Create(new Notification()
+                    {
+                        BadgeId = earlyAdopterBadge.GetUdiObject().ToString(),
+                        MemberId = memberModel.Id,
+                        Message = "New badge earned - " + earlyAdopterBadge.Name
+                    });
+
+                    TempData["ShowToast"] = true;
+                }
+            }
         }
     }
 }
