@@ -31,7 +31,7 @@ namespace Quiz.Site.Models
         [MustBeTrue(ErrorMessage = "You must give consent to us storing your details before you can create an account")]
         public bool Consent { get; set; }
 
-        [Required(ErrorMessage = "Please complete the Captcha")]
-        public string CaptchaResponse { get; set; }
+        // ReSharper disable once InconsistentNaming
+        public string hCaptchaSiteKey { get; set; } = string.Empty;
     }
 }

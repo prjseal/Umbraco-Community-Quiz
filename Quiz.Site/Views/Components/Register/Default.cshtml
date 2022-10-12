@@ -1,17 +1,10 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<RegisterViewModel>
-@using Microsoft.Extensions.Options;
 @using Quiz.Site.Models
-@inject IOptionsMonitor<CaptchaSettings> _captchaSettings
+@using Umbraco.Cms.Core.Hosting
+@inject IHostingEnvironment HostingEnvironment
 
 @{
-    var captchaSettings = _captchaSettings.CurrentValue;
-    _captchaSettings.OnChange(config => captchaSettings = config);
-
-    var submitted = false;
-    if (bool.TryParse(TempData["Success"]?.ToString() ?? string.Empty, out var success))
-    {
-        submitted = true;
-    }
+    bool submitted = bool.TryParse(TempData["Success"]?.ToString() ?? string.Empty, out var success);
 }
 
 @if (User.Identity.IsAuthenticated)
@@ -77,25 +70,18 @@ else
             <div class="form-check form-check-info text-left">
                 <input asp-for="@Model.Consent" class="form-check-input" type="checkbox">
                 <label asp-for="@Model.Consent" class="form-check-label">
-                I agree the <a href="/pages/privacy.html" class="text-dark font-weight-bolder">Terms and Conditions</a>
+                    I agree the <a href="/pages/privacy.html" class="text-dark font-weight-bolder">Terms and Conditions</a>
                 </label>
                 <span asp-validation-for="@Model.Consent" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <div class="h-captcha" data-sitekey="@(captchaSettings.SiteKey)"></div>
-                <input asp-for="@Model.CaptchaResponse" type="hidden" id="captchaResponse" name="captchaResponse">
-                <span asp-validation-for="@Model.CaptchaResponse" class="text-danger"></span>
-                <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-                <script type="text/javascript">
-                    function appendCaptchaResponse() {
-                        let captcha = document.getElementsByClassName('h-captcha');
-                        if (captcha) {
-                            let captchaResponse = captcha[0].querySelector('iframe').getAttribute('data-hcaptcha-response')
-                            document.getElementById("captchaResponse").value = captchaResponse;
-                        }
-                    }
-                </script>
-            </div>
+            @if (!HostingEnvironment.IsDebugMode)
+            {
+                <div class="mb-3">
+                    <div class="text-center">
+                        <div class="h-captcha" data-sitekey="@Model.hCaptchaSiteKey"></div>
+                    </div>
+                </div>
+            }
             <div class="form-group">
                 <button class="btn btn-primary btn-block btn-lg" onclick="appendCaptchaResponse()" type="submit">Register</button>
             </div>
