@@ -30,8 +30,6 @@ namespace Quiz.Site.Controllers.Surface
         private readonly INotificationRepository _notificationRepository;
         private readonly ILogger<AuthSurfaceController> _logger;
         
-        private readonly DateTime _earlyAdopterThreshold = new DateTime(2022, 11, 5);
-        
         public AuthSurfaceController(
             //these are required by the base controller
             IUmbracoContextAccessor umbracoContextAccessor,
@@ -66,16 +64,6 @@ namespace Quiz.Site.Controllers.Surface
             SignInResult result = await _memberSignInManager.PasswordSignInAsync(
                 model.Username, model.Password, isPersistent: model.RememberMe, lockoutOnFailure: true);
 
-            if (result.Succeeded && DateTime.Now.Date < _earlyAdopterThreshold.Date)
-            {
-                var member = _accountService.GetMemberFromUser(await _memberManager.GetCurrentMemberAsync());
-                
-                if(member is not null)
-                {
-                    AssignEarlyAdopterBadge(member);
-                }
-            }
-            
             var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
 
             return RedirectToUmbracoPage(profilePage);
@@ -130,6 +118,14 @@ namespace Quiz.Site.Controllers.Surface
                 _memberService.Save(member);
 
                 _memberService.AssignRoles(new[] { member.Username }, new[] { "Member" });
+                
+                if (DateTime.Now.Date < RegisterSurfaceController.EarlyAdopterThreshold.Date)
+                {
+                    if(member is not null)
+                    {
+                        AssignEarlyAdopterBadge(member);
+                    }
+                }
             }
 
             TempData["Success"] = true;
