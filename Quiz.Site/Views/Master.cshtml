@@ -1,10 +1,12 @@
 ﻿@using Umbraco.Cms.Web.Common.PublishedModels;
 @using Quiz.Site.Services
+@using Umbraco.Cms.Core.Hosting
 @using Umbraco.Cms.Core.Security
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 
 @inject IAccountService _accountService;
 @inject IMemberManager _memberManager;
+@inject IHostingEnvironment HostingEnvironment
 
 @{
     Layout = null;
@@ -86,9 +88,10 @@
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="@Url.Content("/assets/js/argon-dashboard.min.js?v=2.0.5")"></script>
     <script src="/assets/js/plugins/moment.min.js"></script>
-    <environment names="Staging,Production">
+    @if (!HostingEnvironment.IsDebugMode)
+    {
         <script src="https://hcaptcha.com/1/api.js"></script>
-    </environment>
+    }
 
     @if (memberModel != null)
     {
