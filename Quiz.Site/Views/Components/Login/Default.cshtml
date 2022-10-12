@@ -24,12 +24,14 @@ else
         <div class="mb-3">
             <input asp-for="@Model.Password" type="password" class="form-control" placeholder="Password" aria-label="Password" />
             <span asp-validation-for="@Model.Password" class="text-danger"></span>
-        </div>        
-        <div class="mb-3">
-            <div class="text-center">
-                <div class="h-captcha" data-sitekey="@Model.hCaptchaSiteKey"></div>
-            </div>
         </div>
+        <environment names="Staging,Production">
+            <div class="mb-3">
+                <div class="text-center">
+                    <div class="h-captcha" data-sitekey="@Model.hCaptchaSiteKey"></div>
+                </div>
+            </div>
+        </environment>
         <div class="form-check form-check-info text-left">
             <input asp-for="@Model.RememberMe" type="checkbox" class="form-check-input" />
             <label asp-for="@Model.RememberMe" class="form-check-label">
