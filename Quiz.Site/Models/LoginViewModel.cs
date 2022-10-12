@@ -4,6 +4,7 @@
     {
         public string Username { get; set; }
         public string Password { get; set; }
+        public string? hCaptchaSiteKey { get; set; }
         public bool RememberMe { get; set; }
     }
 }

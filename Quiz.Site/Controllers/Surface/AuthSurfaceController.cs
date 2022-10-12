@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Quiz.Site.Models;
+using Quiz.Site.Services;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Logging;
@@ -22,6 +24,7 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IMemberManager _memberManager;
         private readonly IMemberService _memberService;
         private readonly ILogger<AuthSurfaceController> _logger;
+        private readonly IhCaptchaService _hCaptchaService;
 
         public AuthSurfaceController(
             //these are required by the base controller
@@ -35,19 +38,26 @@ namespace Quiz.Site.Controllers.Surface
             IMemberSignInManager memberSignInManager,
             IMemberManager memberManager,
             IMemberService memberService,
-            ILogger<AuthSurfaceController> logger
-            ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
+            ILogger<AuthSurfaceController> logger, IhCaptchaService hCaptchaService) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberSignInManager = memberSignInManager ?? throw new ArgumentNullException(nameof(memberSignInManager));
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
             _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _hCaptchaService = hCaptchaService;
         }
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-
+            var httpContext = HttpContext;
+            var userIp = httpContext.Features.Get<IHttpConnectionFeature>()?.RemoteIpAddress?.ToString();
+            var valid = _hCaptchaService.Validate(userIp, httpContext.Request.Form["h-captcha-response"]);
+            if (!valid)
+            {
+                ModelState.AddModelError("hCaptcha", "You did not pass the human validation, please try again");
+                return CurrentUmbracoPage();
+            }
             SignInResult result = await _memberSignInManager.PasswordSignInAsync(
                 model.Username, model.Password, isPersistent: model.RememberMe, lockoutOnFailure: true);
 
