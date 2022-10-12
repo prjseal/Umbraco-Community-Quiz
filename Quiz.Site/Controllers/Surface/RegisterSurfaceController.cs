@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Quiz.Site.Filters;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
@@ -70,8 +71,9 @@ namespace Quiz.Site.Controllers.Surface
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ValidateCaptcha]
         public async Task<IActionResult> Register(RegisterViewModel model)
-        {
+        {            
             if (!ModelState.IsValid)
             {
                 return CurrentUmbracoPage();
