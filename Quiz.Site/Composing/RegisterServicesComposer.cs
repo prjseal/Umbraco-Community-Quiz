@@ -18,9 +18,6 @@ namespace Quiz.Site.Composing
             builder.Services.AddTransient<IBadgeService, BadgeService>();
             builder.Services.AddTransient<INotificationRepository, NotificationRepository>();
             builder.Services.AddTransient<IReadNotificationRepository, ReadNotificationRepository>();
-            builder.Services.AddHttpClient<ICaptchaService, CaptchaService>(client => {
-                client.BaseAddress = new Uri("https://hcaptcha.com/");
-            });
             builder.Services.AddTransient<IhCaptchaService, hCaptchaService>();
         }
     }

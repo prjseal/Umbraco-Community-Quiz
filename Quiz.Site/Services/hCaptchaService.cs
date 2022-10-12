@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 
 namespace Quiz.Site.Services;
 
+// ReSharper disable once InconsistentNaming
 internal class hCaptchaService : IhCaptchaService
 {
     private readonly hCaptchaConfiguration _hCaptchaConfiguration;
@@ -16,7 +17,7 @@ internal class hCaptchaService : IhCaptchaService
         _hCaptchaConfiguration = hCaptchaConfiguration.Value;
     }
 
-    public bool Validate(string? remoteIp, string responseText)
+    public async Task<bool> ValidateAsync(string? remoteIp, string responseText)
     {
         var client = _clientFactory.CreateClient();
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded"));
@@ -38,7 +39,7 @@ internal class hCaptchaService : IhCaptchaService
             Content = new FormUrlEncodedContent(parameters)
         };
 
-        var response = client.SendAsync(request).Result;
+        var response = await client.SendAsync(request);
 
         if (response.IsSuccessStatusCode)
         {

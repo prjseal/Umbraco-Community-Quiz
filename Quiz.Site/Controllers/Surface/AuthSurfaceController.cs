@@ -1,12 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Quiz.Site.Extensions;
+using Quiz.Site.Filters;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
+using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.Logging;
+using Umbraco.Cms.Core.Mail;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Security;
@@ -30,7 +34,6 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IBadgeService _badgeService;
         private readonly INotificationRepository _notificationRepository;
         private readonly ILogger<AuthSurfaceController> _logger;
-        private readonly IhCaptchaService _hCaptchaService;
 
         public AuthSurfaceController(
             //these are required by the base controller
@@ -44,7 +47,10 @@ namespace Quiz.Site.Controllers.Surface
             IMemberSignInManager memberSignInManager,
             IMemberManager memberManager,
             IMemberService memberService,
-            ILogger<AuthSurfaceController> logger, IhCaptchaService hCaptchaService) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
+            IAccountService accountService,
+            IBadgeService badgeService,
+            INotificationRepository notificationRepository,
+            ILogger<AuthSurfaceController> logger) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberSignInManager = memberSignInManager ?? throw new ArgumentNullException(nameof(memberSignInManager));
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
@@ -53,20 +59,17 @@ namespace Quiz.Site.Controllers.Surface
             _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
             _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _hCaptchaService = hCaptchaService;
         }
 
         [HttpPost]
+        [ValidateCaptcha]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            var httpContext = HttpContext;
-            var userIp = httpContext.Features.Get<IHttpConnectionFeature>()?.RemoteIpAddress?.ToString();
-            var valid = _hCaptchaService.Validate(userIp, httpContext.Request.Form["h-captcha-response"]);
-            if (!valid)
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError("hCaptcha", "You did not pass the human validation, please try again");
                 return CurrentUmbracoPage();
             }
+
             SignInResult result = await _memberSignInManager.PasswordSignInAsync(
                 model.Username, model.Password, isPersistent: model.RememberMe, lockoutOnFailure: true);
 
