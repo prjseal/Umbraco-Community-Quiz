@@ -54,6 +54,11 @@ namespace Quiz.Site
             {
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseExceptionHandler("/error.html");
+            }
+
 
             app.UseUmbraco()
                 .WithMiddleware(u => {
