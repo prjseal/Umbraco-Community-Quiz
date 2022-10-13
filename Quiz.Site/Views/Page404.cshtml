@@ -1,0 +1,31 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Page404>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@{
+	Layout = "Master.cshtml";
+}
+
+<main class="main-content mt-0 ps">
+  <div class="page-header min-vh-100" style="background-image: url('../../../assets/img/illustrations/404.svg')">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-7 mx-auto text-center">
+          <h1 class="display-1 text-bolder text-primary fadeIn1 fadeInBottom">Error 404</h1>
+          <h2 class="fadeIn3 fadeInBottom">Erm. Page not found</h2>
+          <p class="lead fadeIn2 fadeInBottom">
+            We suggest you to go to the homepage while we solve this issue.
+          </p>
+          <a href="/" class="btn bg-gradient-dark mt-4 fadeIn2 fadeInBottom">
+              Go to Homepage
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ps__rail-x" style="left: 0px; bottom: 0px">
+    <div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px"></div>
+  </div>
+  <div class="ps__rail-y" style="top: 0px; right: 0px">
+    <div class="ps__thumb-y" tabindex="0" style="top: 0px; height: 0px"></div>
+  </div>
+</main>
