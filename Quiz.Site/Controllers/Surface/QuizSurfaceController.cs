@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Quiz.Site.Enums;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
@@ -30,6 +32,7 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IQuizResultRepository _quizResultRepository;
         private readonly IBadgeService _badgeService;
         private readonly INotificationRepository _notificationRepository;
+        private readonly IMemoryCache _memoryCache;
 
         public QuizSurfaceController(
             //these are required by the base controller
@@ -49,7 +52,8 @@ namespace Quiz.Site.Controllers.Surface
             IQuestionService questionService,
             IQuizResultRepository quizResultRepository,
             IBadgeService badgeService,
-            INotificationRepository notificationRepository
+            INotificationRepository notificationRepository,
+            IMemoryCache memoryCache
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
@@ -62,6 +66,7 @@ namespace Quiz.Site.Controllers.Surface
             _quizResultRepository = quizResultRepository ?? throw new ArgumentNullException(nameof(quizResultRepository));
             _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
             _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
+            _memoryCache = memoryCache ?? throw new ArgumentException(nameof(memoryCache));
         }
 
         [HttpPost]
@@ -121,6 +126,11 @@ namespace Quiz.Site.Controllers.Surface
                         TempData["ShowToast"] = true;
                     }
                 }
+            }
+
+            if (_memoryCache.TryGetValue(CacheKey.LeaderBoard, out _))
+            {
+                _memoryCache.Remove(CacheKey.LeaderBoard);
             }
 
             TempData["Success"] = true;

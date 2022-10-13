@@ -1,10 +1,12 @@
 ﻿@using Umbraco.Cms.Web.Common.PublishedModels;
 @using Quiz.Site.Services
+@using Umbraco.Cms.Core.Hosting
 @using Umbraco.Cms.Core.Security
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 
 @inject IAccountService _accountService;
 @inject IMemberManager _memberManager;
+@inject IHostingEnvironment HostingEnvironment
 
 @{
     Layout = null;
@@ -12,7 +14,7 @@
 
     Member memberModel = null;
     var isLoggedIn = User.Identity.IsAuthenticated;
-    if(isLoggedIn)
+    if (isLoggedIn)
     {
         memberModel = _accountService.GetMemberModelFromUser(await _memberManager.GetCurrentMemberAsync());
     }
@@ -23,7 +25,7 @@
 * Argon Dashboard 2 PRO - v2.0.5
 =========================================================
 
-* Product Page:  https://www.creative-tim.com/product/argon-dashboard-pro 
+* Product Page:  https://www.creative-tim.com/product/argon-dashboard-pro
 * Copyright 2022 Creative Tim (https://www.creative-tim.com)
 * Coded by Creative Tim
 
@@ -58,36 +60,40 @@
     <meta name="twitter:image" content="https://communityquiz.net/media/c5bfz3b5/umbraco-flag.jpg?rxy=0.39974937343358397,0.667568286429962&width=1200&height=630&rnd=133093529598370000">
 
 
-  <title>
-    @Model.Name | Umbraco Community Quiz
-  </title>
-  <!--     Fonts and icons     -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-  <!-- Nucleo Icons -->
-  <link href="@Url.Content("/assets/css/nucleo-icons.css")" rel="stylesheet" />
-  <link href="@Url.Content("/assets/css/nucleo-svg.css")" rel="stylesheet" />
-  <!-- Font Awesome Icons -->
-  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
-  <link href="@Url.Content("/assets/css/nucleo-svg.css")" rel="stylesheet" />
-  <!-- CSS Files -->
-  <link id="pagestyle" href="@Url.Content("/assets/css/argon-dashboard.css?v=2.0.5")" rel="stylesheet" />
+    <title>
+        @Model.Name | Umbraco Community Quiz
+    </title>
+    <!--     Fonts and icons     -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <!-- Nucleo Icons -->
+    <link href="@Url.Content("/assets/css/nucleo-icons.css")" rel="stylesheet" />
+    <link href="@Url.Content("/assets/css/nucleo-svg.css")" rel="stylesheet" />
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <link href="@Url.Content("/assets/css/nucleo-svg.css")" rel="stylesheet" />
+    <!-- CSS Files -->
+    <link id="pagestyle" href="@Url.Content("/assets/css/argon-dashboard.css?v=2.0.5")" rel="stylesheet" />
 </head>
 
 <body class="">
     @(await Component.InvokeAsync("Navigation"))
     @RenderBody()
-  <!--   Core JS Files   -->
-  <script src="@Url.Content("/assets/js/core/popper.min.js")"></script>
-  <script src="@Url.Content("/assets/js/core/bootstrap.min.js")"></script>
+    <!--   Core JS Files   -->
+    <script src="@Url.Content("/assets/js/core/popper.min.js")"></script>
+    <script src="@Url.Content("/assets/js/core/bootstrap.min.js")"></script>
     <script src="@Url.Content("/assets/js/plugins/perfect-scrollbar.min.js")"></script>
-  <script src="@Url.Content("/assets/js/plugins/smooth-scrollbar.min.js")"></script>
-  <!-- Github buttons -->
-  <script async defer src="https://buttons.github.io/buttons.js"></script>
-  <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="@Url.Content("/assets/js/argon-dashboard.min.js?v=2.0.5")"></script>
+    <script src="@Url.Content("/assets/js/plugins/smooth-scrollbar.min.js")"></script>
+    <!-- Github buttons -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+    <script src="@Url.Content("/assets/js/argon-dashboard.min.js?v=2.0.5")"></script>
     <script src="/assets/js/plugins/moment.min.js"></script>
+    @if (!HostingEnvironment.IsDebugMode)
+    {
+        <script src="https://hcaptcha.com/1/api.js"></script>
+    }
 
-    @if(memberModel != null)
+    @if (memberModel != null)
     {
         @await Component.InvokeAsync("ToastNotifications", memberModel)
     }

@@ -1,11 +1,16 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Quiz.Site.Extensions;
+using Quiz.Site.Filters;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
+using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.Logging;
+using Umbraco.Cms.Core.Mail;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Security;
@@ -29,7 +34,7 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IBadgeService _badgeService;
         private readonly INotificationRepository _notificationRepository;
         private readonly ILogger<AuthSurfaceController> _logger;
-        
+
         public AuthSurfaceController(
             //these are required by the base controller
             IUmbracoContextAccessor umbracoContextAccessor,
@@ -45,8 +50,7 @@ namespace Quiz.Site.Controllers.Surface
             IAccountService accountService,
             IBadgeService badgeService,
             INotificationRepository notificationRepository,
-            ILogger<AuthSurfaceController> logger
-            ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
+            ILogger<AuthSurfaceController> logger) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberSignInManager = memberSignInManager ?? throw new ArgumentNullException(nameof(memberSignInManager));
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
@@ -58,8 +62,13 @@ namespace Quiz.Site.Controllers.Surface
         }
 
         [HttpPost]
+        [ValidateCaptcha]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return CurrentUmbracoPage();
+            }
 
             SignInResult result = await _memberSignInManager.PasswordSignInAsync(
                 model.Username, model.Password, isPersistent: model.RememberMe, lockoutOnFailure: true);

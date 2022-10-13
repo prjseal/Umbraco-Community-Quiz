@@ -1,8 +1,4 @@
-using Konstrukt.Configuration.Actions;
-using Konstrukt.Extensions;
-using Quiz.Site.Actions;
-using Quiz.Site.Enums;
-using Quiz.Site.Models;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Quiz.Site
 {
@@ -35,6 +31,10 @@ namespace Quiz.Site
         /// </remarks>
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<ForwardedHeadersOptions>(options => {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
+
             services.AddUmbraco(_env, _config)
                 .AddBackOffice()
                 .AddWebsite()
@@ -50,6 +50,8 @@ namespace Quiz.Site
         /// <param name="env">The web hosting environment.</param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseForwardedHeaders();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

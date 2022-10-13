@@ -1,6 +1,8 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<LoginViewModel>
 
 @using Quiz.Site.Models
+@using Umbraco.Cms.Core.Hosting
+@inject IHostingEnvironment HostingEnvironment
 
 @if (User.Identity.IsAuthenticated)
 {
@@ -25,6 +27,14 @@ else
             <input asp-for="@Model.Password" type="password" class="form-control" placeholder="Password" aria-label="Password" />
             <span asp-validation-for="@Model.Password" class="text-danger"></span>
         </div>
+        @if (!HostingEnvironment.IsDebugMode)
+        {
+            <div class="mb-3">
+                <div class="text-center">
+                    <div class="h-captcha" data-sitekey="@Model.hCaptchaSiteKey"></div>
+                </div>
+            </div>
+        }
         <div class="form-check form-check-info text-left">
             <input asp-for="@Model.RememberMe" type="checkbox" class="form-check-input" />
             <label asp-for="@Model.RememberMe" class="form-check-label">
