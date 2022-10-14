@@ -23,11 +23,18 @@ using Umbraco.Cms.Web.Common.PublishedModels;
 using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
 using Notification = Quiz.Site.Models.Notification;
+using Quiz.Site.Models.EmailViewModels;
 
 namespace Quiz.Site.Controllers.Surface
 {
     public class RegisterSurfaceController : SurfaceController
     {
+        private readonly IUmbracoContextAccessor umbracoContextAccessor;
+        private readonly IUmbracoDatabaseFactory databaseFactory;
+        private readonly ServiceContext services;
+        private readonly AppCaches appCaches;
+        private readonly IProfilingLogger profilingLogger;
+        private readonly IPublishedUrlProvider publishedUrlProvider;
         private readonly IMemberSignInManager _memberSignInManager;
         private readonly IMemberManager _memberManager;
         private readonly IMemberService _memberService;
@@ -36,6 +43,8 @@ namespace Quiz.Site.Controllers.Surface
         private readonly INotificationRepository _notificationRepository;
         private readonly ILogger<RegisterSurfaceController> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly IOptions<GlobalSettings> globalSettings;
+        private readonly IEmailBodyService _emailBodyService;
         private readonly GlobalSettings _globalSettings;
         private readonly IEventAggregator _eventAggregator;
 
@@ -59,9 +68,16 @@ namespace Quiz.Site.Controllers.Surface
             ILogger<RegisterSurfaceController> logger,
             IEmailSender emailSender,
             IOptions<GlobalSettings> globalSettings,
+            IEmailBodyService emailBodyService,
             IEventAggregator eventAggregator
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
+            this.umbracoContextAccessor = umbracoContextAccessor;
+            this.databaseFactory = databaseFactory;
+            this.services = services;
+            this.appCaches = appCaches;
+            this.profilingLogger = profilingLogger;
+            this.publishedUrlProvider = publishedUrlProvider;
             _memberSignInManager = memberSignInManager ?? throw new ArgumentNullException(nameof(memberSignInManager));
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
             _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
@@ -71,6 +87,7 @@ namespace Quiz.Site.Controllers.Surface
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
             _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
+            this.globalSettings = globalSettings;
             _globalSettings = globalSettings?.Value ?? throw new ArgumentNullException(nameof(globalSettings));
         }
 
@@ -78,7 +95,7 @@ namespace Quiz.Site.Controllers.Surface
         [ValidateAntiForgeryToken]
         [ValidateCaptcha]
         public async Task<IActionResult> Register(RegisterViewModel model)
-        {            
+        {
             if (!ModelState.IsValid)
             {
                 return CurrentUmbracoPage();
@@ -90,12 +107,43 @@ namespace Quiz.Site.Controllers.Surface
             {
                 await SendAlreadyRegisteredEmail(model);
                 _logger.LogInformation("Register: Member has already been registered");
+                ModelState.AddModelError("General", "There was an issue registering your account.");
             }
-            else
+
+            if (!ModelState.IsValid) return RedirectToCurrentUmbracoPage();
+
+            var hasCreatedMember = await CreateMember(model);
+
+            if(!hasCreatedMember)
             {
-                if (!ModelState.IsValid) return RedirectToCurrentUmbracoPage();
+                ModelState.AddModelError("General", "There was an issue registering your account.");
+                return RedirectToCurrentUmbracoPage();
+            }
 
+            TempData["Success"] = true;
 
+            var result = await _memberSignInManager.PasswordSignInAsync(
+                model.Email, model.Password, isPersistent: false, lockoutOnFailure: true);
+
+            if (result.Succeeded && DateTime.Now.Date < EarlyAdopterThreshold.Date)
+            {
+                var member = _accountService.GetMemberFromUser(await _memberManager.GetCurrentMemberAsync());
+
+                if (member is not null)
+                {
+                    AssignEarlyAdopterBadge(member);
+                }
+            }
+
+            var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
+
+            return RedirectToUmbracoPage(profilePage);
+        }
+
+        private async Task<bool> CreateMember(RegisterViewModel model)
+        {
+            try
+            {
                 var fullName = $"{model.Name}";
 
                 var memberTypeAlias = CurrentPage.HasValue("memberType")
@@ -119,39 +167,30 @@ namespace Quiz.Site.Controllers.Surface
                 _memberService.AssignRoles(new[] { member.Username }, new[] { "Member" });
                 
                 await _eventAggregator.PublishAsync(new MemberRegisteredNotification(member));
+
+                return true;
             }
-
-            TempData["Success"] = true;
-
-            var result = await _memberSignInManager.PasswordSignInAsync(
-                model.Email, model.Password, isPersistent: false, lockoutOnFailure: true);
-            
-            if (result.Succeeded && DateTime.Now.Date < EarlyAdopterThreshold.Date)
+            catch (System.Exception ex)
             {
-                var member = _accountService.GetMemberFromUser(await _memberManager.GetCurrentMemberAsync());
-                
-                if(member is not null)
-                {
-                    AssignEarlyAdopterBadge(member);
-                }
+                _logger.LogError(ex, "Unable to create member.");                
             }
-            
-            var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
 
-            return RedirectToUmbracoPage(profilePage);
+            return false;
+            
         }
 
         public async Task<bool> SendAlreadyRegisteredEmail(RegisterViewModel model)
         {
             try
             {
-                var body =
-                    "Somebody tried to register an account using your email address, but you are already registered.";
+                var body = await _emailBodyService.RenderRazorEmail(new AlreadyRegisteredNotificationModel(){
+                    SiteDomain = $"{Request.Scheme}://{Request.Host}"
+                });
 
                 var fromAddress = _globalSettings.Smtp.From;
 
                 var subject = string.Format("Already Registered");
-                var message = new EmailMessage(fromAddress, model.Email, subject, body, false);
+                var message = new EmailMessage(fromAddress, model.Email, subject, body, true);
                 await _emailSender.SendAsync(message, emailType: "AlreadyRegistered");
 
                 _logger.LogInformation("Already Registered Email Sent Successfully");
