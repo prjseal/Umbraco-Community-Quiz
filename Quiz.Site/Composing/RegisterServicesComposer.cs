@@ -19,6 +19,7 @@ namespace Quiz.Site.Composing
             builder.Services.AddTransient<INotificationRepository, NotificationRepository>();
             builder.Services.AddTransient<IReadNotificationRepository, ReadNotificationRepository>();
             builder.Services.AddTransient<IhCaptchaService, hCaptchaService>();
+            builder.Services.AddTransient<IEmailBodyService, EmailBodyService>();
         }
     }
 }

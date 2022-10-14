@@ -1,0 +1,38 @@
+@using Quiz.Site.Models.EmailViewModels
+@using Quiz.Site.Models
+@inherits EmailBaseViewPage<AlreadyRegisteredNotificationModel>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Already Registered</title>
+</head>
+<body>
+    <table style="width:100%">
+        <tr>
+            <td>
+                <table style="width: 600px; margin-left:auto;margin-right:auto;">
+                    <tr>
+                        <td style="background-color: #5e72e4; color: #ffffff ; text-align:center;font-size:28px;padding:40px">
+                            <a href="@Model.SiteDomain" style="color: #ffffff;" target="_blank" rel="nofollow noopener"><h1>Umbraco Community Quiz</h1></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 20px 60px">
+                            <p>Hi,</p>
+                            <p>Somebody tried to register an account using your email address, but you are already registered.</p>
+                            <p>@Model.ToPlainTextBody()</p>
+                            <p style="margin-top: 20px; margin-bottom: 25px;">Kind regards<br/><br/>The <span style="font-size: 16px; font-weight: bold;">Community Quiz Team</span></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: #5e72e4; color: #ffffff ; text-align:center;font-size:28px;padding:20px"></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
