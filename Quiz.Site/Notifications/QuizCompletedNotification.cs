@@ -5,16 +5,15 @@ namespace Quiz.Site.Notifications;
 
 public class QuizCompletedNotification : INotification
 {
-    public IMember Member { get; }
+    public IMember CompletedBy { get; }
     
     public int QuizTotal { get; }
 
     public int QuizScore { get; }
-    
 
-    public QuizCompletedNotification(IMember member, int quizTotal, int quizScore)
+    public QuizCompletedNotification(IMember completedBy, int quizTotal, int quizScore)
     {
-        Member = member;
+        CompletedBy = completedBy;
         QuizTotal = quizTotal;
         QuizScore = quizScore;
     }
