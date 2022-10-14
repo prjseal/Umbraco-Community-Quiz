@@ -3,11 +3,13 @@ using Microsoft.Extensions.Options;
 using Quiz.Site.Enums;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
+using Quiz.Site.Notifications;
 using Quiz.Site.Services;
 using System.Security.Cryptography;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
+using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Mail;
 using Umbraco.Cms.Core.Models;
@@ -32,6 +34,7 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IAccountService _accountService;
         private readonly IBadgeService _badgeService;
         private readonly INotificationRepository _notificationRepository;
+        private readonly IEventAggregator _eventAggregator;
 
         public QuestionSurfaceController(
             //these are required by the base controller
@@ -50,7 +53,8 @@ namespace Quiz.Site.Controllers.Surface
             IMemberService memberService,
             IAccountService accountService,
             IBadgeService badgeService,
-            INotificationRepository notificationRepository
+            INotificationRepository notificationRepository,
+            IEventAggregator eventAggregator
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _questionRepository = questionRepository ?? throw new ArgumentNullException(nameof(questionRepository));
@@ -62,6 +66,7 @@ namespace Quiz.Site.Controllers.Surface
             _accountService = accountService;
             _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
             _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
+            _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
         }
 
         [HttpPost]
@@ -110,6 +115,8 @@ namespace Quiz.Site.Controllers.Surface
             };
 
             _questionRepository.Create(question);
+            
+            await _eventAggregator.PublishAsync(new QuestionCreatedNotification(member));
 
             var teacherBadge = _badgeService.GetBadgeByName("Teacher");
             if (!_badgeService.HasBadge(memberModel, teacherBadge))

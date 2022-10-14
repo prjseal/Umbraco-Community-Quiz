@@ -4,10 +4,12 @@ using Microsoft.Extensions.Options;
 using Quiz.Site.Filters;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
+using Quiz.Site.Notifications;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
+using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Mail;
 using Umbraco.Cms.Core.Models;
@@ -35,6 +37,7 @@ namespace Quiz.Site.Controllers.Surface
         private readonly ILogger<RegisterSurfaceController> _logger;
         private readonly IEmailSender _emailSender;
         private readonly GlobalSettings _globalSettings;
+        private readonly IEventAggregator _eventAggregator;
 
         public readonly static DateTime EarlyAdopterThreshold = new DateTime(2022, 11, 5);
 
@@ -55,7 +58,8 @@ namespace Quiz.Site.Controllers.Surface
             INotificationRepository notificationRepository,
             ILogger<RegisterSurfaceController> logger,
             IEmailSender emailSender,
-            IOptions<GlobalSettings> globalSettings
+            IOptions<GlobalSettings> globalSettings,
+            IEventAggregator eventAggregator
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberSignInManager = memberSignInManager ?? throw new ArgumentNullException(nameof(memberSignInManager));
@@ -66,6 +70,7 @@ namespace Quiz.Site.Controllers.Surface
             _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
+            _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
             _globalSettings = globalSettings?.Value ?? throw new ArgumentNullException(nameof(globalSettings));
         }
 
@@ -112,13 +117,15 @@ namespace Quiz.Site.Controllers.Surface
                 _memberService.Save(member);
 
                 _memberService.AssignRoles(new[] { member.Username }, new[] { "Member" });
+                
+                await _eventAggregator.PublishAsync(new MemberRegisteredNotification(member));
             }
 
             TempData["Success"] = true;
 
             var result = await _memberSignInManager.PasswordSignInAsync(
                 model.Email, model.Password, isPersistent: false, lockoutOnFailure: true);
-
+            
             if (result.Succeeded && DateTime.Now.Date < EarlyAdopterThreshold.Date)
             {
                 var member = _accountService.GetMemberFromUser(await _memberManager.GetCurrentMemberAsync());
