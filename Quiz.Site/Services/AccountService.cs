@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using Quiz.Site.Models;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
@@ -13,19 +14,29 @@ namespace Quiz.Site.Services
         private readonly IMemberGroupService _memberGroupService;
         private readonly IMediaUploadService _mediaUploadService;
         private readonly IMemberService _memberService;
+        private readonly IMediaService _mediaService;
+        private readonly IQuizResultRepository _quizResultRepository;
+        private readonly INotificationRepository _notificationRepository;
+        private readonly IIdKeyMap _IIdKeyMap;
         private readonly IUmbracoContextFactory _umbracoContextFactory;
         private readonly ILogger<AccountService> _logger;
 
         public AccountService(IMemberGroupService memberGroupService,
             IMediaUploadService mediaUploadService, IMemberService memberService,
-            IUmbracoContextFactory umbracoContextFactory,
+            IUmbracoContextFactory umbracoContextFactory, IMediaService mediaService,
+            IIdKeyMap IIdKeyMap, IQuizResultRepository quizResultRepository,
+            INotificationRepository notificationRepository,
             ILogger<AccountService> logger)
         {
             _memberGroupService = memberGroupService;
             _mediaUploadService = mediaUploadService;
             _memberService = memberService;
             _umbracoContextFactory = umbracoContextFactory;
+            _mediaService = mediaService;
             _logger = logger;
+            _IIdKeyMap = IIdKeyMap;
+            _quizResultRepository = quizResultRepository;
+            _notificationRepository = notificationRepository;
         }
 
 
@@ -101,6 +112,55 @@ namespace Quiz.Site.Services
             }
 
             _memberService.Save(member);
+        }
+
+        public void DeleteProfile(DeleteProfileViewModel model, ContentModels.Member memberModel, IMember member)
+        {
+            try
+            {
+                //remove the profile image first
+                var avatar = member.GetValue<GuidUdi>("avatar");
+
+                if (avatar != null)
+                {
+                    var avatarId = _IIdKeyMap.GetIdForUdi(member.GetValue<GuidUdi>("avatar")).Result;
+                    var mediaItem = _mediaService.GetById(avatarId);
+                    //if not default item
+                    if(mediaItem != null)
+                    {
+                        _mediaService.Delete(mediaItem);
+                    }
+                }
+
+                //remove the quiz results
+                var quizes = _quizResultRepository.GetAllByMemberId(member.Id);
+                
+                if(quizes.Any())
+                {
+                    foreach (var quiz in quizes)
+                    {
+                        _quizResultRepository.Delete(quiz.Id);
+                    }
+                }
+
+                //remove the notifications
+                var notifications = _notificationRepository.GetAllByMemberId(member.Id);
+
+                if (notifications.Any())
+                {
+                    foreach(var notif in notifications)
+                    {
+                        _notificationRepository.Delete(notif.Id);
+                    }
+                }
+
+                //finally delete the member completely
+                //_memberService.Delete(member);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error when deleting member profile");
+            }
         }
     }
 }

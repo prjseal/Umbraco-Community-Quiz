@@ -107,7 +107,7 @@ public class NotificationRepository : INotificationRepository
     {
         using (var scope = _scopeProvider.CreateScope())
         {
-            var result = scope.Database.Delete<Notification>("WHERE [Id] = @Id", new { id });
+            var result = scope.Database.Delete<Notification>("WHERE [Id] = @Id", new { Id = id });
             scope.Complete();
 
             return result;
