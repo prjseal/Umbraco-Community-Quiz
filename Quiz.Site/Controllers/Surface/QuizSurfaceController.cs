@@ -143,7 +143,7 @@ namespace Quiz.Site.Controllers.Surface
                 _memoryCache.Remove(CacheKey.LeaderBoard);
             }
 
-            TempData["Success"] = true;
+            TempData["QuizSubmitSuccess"] = true;
             TempData["CompletedQuiz"] = JsonConvert.SerializeObject(quiz);
 
             return RedirectToCurrentUmbracoPage();

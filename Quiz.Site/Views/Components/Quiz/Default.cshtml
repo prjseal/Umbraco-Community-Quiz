@@ -10,7 +10,7 @@
 @if (Model == null || Model.Questions == null || !Model.Questions.Any()) return;
 
 @{
-	var success = TempData["Success"];
+	var success = TempData["QuizSubmitSuccess"];
 	var justCompletedIt = success != null && !string.IsNullOrWhiteSpace(success.ToString()); 
 	var umbracoPage = Umbraco.AssignedContentItem;
 	var quizUdi = Umbraco.AssignedContentItem.GetUdiObject().ToString();

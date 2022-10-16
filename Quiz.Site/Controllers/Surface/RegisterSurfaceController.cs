@@ -124,7 +124,7 @@ namespace Quiz.Site.Controllers.Surface
                 return RedirectToCurrentUmbracoPage();
             }
 
-            TempData["Success"] = true;
+            TempData["RegisterSuccess"] = true;
 
             var result = await _memberSignInManager.PasswordSignInAsync(
                 model.Email, model.Password, isPersistent: false, lockoutOnFailure: true);
