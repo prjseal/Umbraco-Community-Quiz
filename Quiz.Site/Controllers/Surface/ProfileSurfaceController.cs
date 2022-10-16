@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Notifications;
+using Quiz.Site.Notifications.Profile;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
@@ -149,23 +150,24 @@ namespace Quiz.Site.Controllers.Surface
                         _logger.LogError($" - {item.Key}: {item.Value}");
                     }
                 }
+                await _eventAggregator.PublishAsync(new ProfileUpdatingFailedNotification("Edit Profile Model State Invalid"));
                 return RedirectToCurrentUmbracoPage();
             }
-
-            var user = await _memberManager.GetCurrentMemberAsync();
-
+            
             var member = _accountService.GetMemberFromUser(await _memberManager.GetCurrentMemberAsync());
 
-            if (member == null)
+            if (member is null)
             {
+                await _eventAggregator.PublishAsync(new ProfileUpdatingFailedNotification("Member is null"));
                 _logger.LogError("Member is null");
                 return RedirectToCurrentUmbracoPage();
             }
 
             var memberModel = _accountService.GetMemberModelFromMember(member);
 
-            if (memberModel == null)
+            if (memberModel is null)
             {
+                await _eventAggregator.PublishAsync(new ProfileUpdatingFailedNotification("MemberModel is null"));
                 _logger.LogError("MemberModel is null");
                 return RedirectToCurrentUmbracoPage();
             }
@@ -191,11 +193,7 @@ namespace Quiz.Site.Controllers.Surface
                     TempData["ShowToast"] = true;
                 }
             }
-
-            var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
-
             
-
             return RedirectToCurrentUmbracoPage();
         }
     }

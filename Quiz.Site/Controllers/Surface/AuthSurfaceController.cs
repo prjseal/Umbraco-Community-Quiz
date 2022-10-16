@@ -78,6 +78,16 @@ namespace Quiz.Site.Controllers.Surface
             SignInResult result = await _memberSignInManager.PasswordSignInAsync(
                 model.Username, model.Password, isPersistent: model.RememberMe, lockoutOnFailure: true);
 
+            if (!result.Succeeded)
+            {
+                await _eventAggregator.PublishAsync(new MemberLoggingInFailedNotification($"Member login unsuccessful for member {model.Username}"));
+            }
+            else
+            {
+                var member = _memberService.GetByUsername(model.Username);
+                await _eventAggregator.PublishAsync(new MemberLoggedInNotification(member));
+            }
+
             var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
 
             return RedirectToUmbracoPage(profilePage);
@@ -97,6 +107,7 @@ namespace Quiz.Site.Controllers.Surface
         {
             if (!ModelState.IsValid)
             {
+                await _eventAggregator.PublishAsync(new MemberRegisteringFailedNotification("ModelState Invalid"));
                 return CurrentUmbracoPage();
             }
 
@@ -104,6 +115,7 @@ namespace Quiz.Site.Controllers.Surface
 
             if (existingMember != null)
             {
+                await _eventAggregator.PublishAsync(new MemberRegisteringFailedNotification("Member has already been registered"));
                 _logger.LogInformation("Register: Member has already been registered");
             }
             else

@@ -4,6 +4,7 @@ using Quiz.Site.Enums;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Notifications;
+using Quiz.Site.Notifications.Question;
 using Quiz.Site.Services;
 using System.Security.Cryptography;
 using Umbraco.Cms.Core;
@@ -75,6 +76,7 @@ namespace Quiz.Site.Controllers.Surface
         {
             if (!ModelState.IsValid)
             {
+                await _eventAggregator.PublishAsync(new QuestionCreatingFailedNotification("ModelState Invalid"));
                 return CurrentUmbracoPage();
             }
 
@@ -95,6 +97,7 @@ namespace Quiz.Site.Controllers.Surface
 
             if (udi == null)
             {
+                await _eventAggregator.PublishAsync(new QuestionCreatingFailedNotification("Member is not logged in"));
                 ModelState.AddModelError("", "Not logged in");
                 return CurrentUmbracoPage();
             }
