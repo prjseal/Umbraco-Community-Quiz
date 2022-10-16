@@ -87,6 +87,7 @@ namespace Quiz.Site.Controllers.Surface
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
             _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
+            _emailBodyService = emailBodyService;
             this.globalSettings = globalSettings;
             _globalSettings = globalSettings?.Value ?? throw new ArgumentNullException(nameof(globalSettings));
         }
