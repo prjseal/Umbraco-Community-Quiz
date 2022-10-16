@@ -20,7 +20,7 @@ namespace Quiz.Site.Controllers
         private readonly IQuestionService _questionService;
         private readonly IQuizResultService _quizResultService;
 
-        public QuizPageController(IQuestionRepository quesitonRepository,
+        public QuizPageController(IQuestionRepository questionRepository,
             ILogger<ProfilePageController> logger,
             ICompositeViewEngine compositeViewEngine,
             IUmbracoContextAccessor umbracoContextAccessor,
@@ -30,7 +30,7 @@ namespace Quiz.Site.Controllers
             IQuizResultService quizResultService)
             : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
-            _questionRepository = quesitonRepository;
+            _questionRepository = questionRepository;
             _memberManager = memberManager;
             _memberService = memberService;
             _questionService = questionService;
