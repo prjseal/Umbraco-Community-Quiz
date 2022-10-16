@@ -6,6 +6,7 @@ using Quiz.Site.Enums;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Notifications;
+using Quiz.Site.Notifications.Quiz;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
@@ -80,6 +81,7 @@ namespace Quiz.Site.Controllers.Surface
         {
             if (!ModelState.IsValid)
             {
+                await _eventAggregator.PublishAsync(new QuizCompletingFailedNotification("ModelState Invalid"));
                 return CurrentUmbracoPage();
             }
 

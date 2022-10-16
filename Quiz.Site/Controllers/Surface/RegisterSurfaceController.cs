@@ -99,6 +99,7 @@ namespace Quiz.Site.Controllers.Surface
         {
             if (!ModelState.IsValid)
             {
+                await _eventAggregator.PublishAsync(new MemberRegisteringFailedNotification("ModelState Invalid"));
                 return CurrentUmbracoPage();
             }
 
@@ -106,6 +107,7 @@ namespace Quiz.Site.Controllers.Surface
 
             if (existingMember != null)
             {
+                await _eventAggregator.PublishAsync(new MemberRegisteringFailedNotification("Member has already been registered"));
                 await SendAlreadyRegisteredEmail(model);
                 _logger.LogInformation("Register: Member has already been registered");
                 ModelState.AddModelError("General", "There was an issue registering your account.");
@@ -117,6 +119,7 @@ namespace Quiz.Site.Controllers.Surface
 
             if(!hasCreatedMember)
             {
+                await _eventAggregator.PublishAsync(new MemberRegisteringFailedNotification("An issue occured registering the member"));
                 ModelState.AddModelError("General", "There was an issue registering your account.");
                 return RedirectToCurrentUmbracoPage();
             }

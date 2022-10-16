@@ -1,7 +1,7 @@
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Notifications;
 
-namespace Quiz.Site.Notifications;
+namespace Quiz.Site.Notifications.Quiz;
 
 public class QuizCompletedNotification : INotification
 {
