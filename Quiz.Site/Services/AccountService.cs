@@ -155,7 +155,7 @@ namespace Quiz.Site.Services
                 }
 
                 //finally delete the member completely
-                //_memberService.Delete(member);
+                _memberService.Delete(member);
             }
             catch (Exception ex)
             {
