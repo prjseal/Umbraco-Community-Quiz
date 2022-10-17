@@ -60,10 +60,12 @@ public class NotificationRepository : INotificationRepository
 
     public IEnumerable<Notification> GetAllByMemberId(int memberId)
     {
+        IEnumerable<Notification> records = null;
         using (var scope = _scopeProvider.CreateScope())
         {
             var db = scope.Database;
-            var records = db.Query<Notification>("SELECT * FROM Notification WHERE [MemberId] = @memberId ORDER BY [DateCreated] DESC", new { memberId });
+            records = db.Query<Notification>("SELECT * FROM Notification WHERE [MemberId] = @memberId ORDER BY [DateCreated] DESC", new { memberId });
+            scope.Complete();
 
             return records;
         }
@@ -103,14 +105,12 @@ public class NotificationRepository : INotificationRepository
         return item;
     }
 
-    public int Delete(int id)
+    public void Delete(int id)
     {
         using (var scope = _scopeProvider.CreateScope())
         {
-            var result = scope.Database.Delete<Notification>("WHERE [Id] = @Id", new { Id = id });
+            var records = scope.Database.Delete<Notification>("WHERE [Id] = @Id", new { Id = id });
             scope.Complete();
-
-            return result;
         }
     }
 }
