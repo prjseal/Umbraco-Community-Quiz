@@ -4,10 +4,16 @@
     var homePage = Umbraco.AssignedContentItem.AncestorOrSelf<HomePage>();
     var profilePage = homePage.FirstChildOfType(ProfilePage.ModelTypeAlias);
     var leaderboardPage = homePage.FirstChildOfType(LeaderboardPage.ModelTypeAlias);
+    var quizListPage = homePage.FirstChildOfType(QuizListPage.ModelTypeAlias);
+    var latestQuizPage = quizListPage.Children.OrderByDescending(x => x.CreateDate).FirstOrDefault();
 
     var navLinks = new List<IPublishedContent>();
     navLinks.Add(profilePage);
     navLinks.Add(leaderboardPage);
+    if(latestQuizPage != null)
+    {
+        navLinks.Add(latestQuizPage);    
+    }
 }
 
 <div class="container position-sticky z-index-sticky top-0">
@@ -36,26 +42,6 @@
                                     </a>
                                 </li>
                             }
-                            @*<li class="nav-item mx-2">
-                                <a class="nav-link ps-2 d-flex justify-content-between cursor-pointer align-items-center " id="dropdownMenuPages" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Pages
-                                </a>
-                            </li>
-                            <li class="nav-item mx-2">
-                                <a class="nav-link ps-2 d-flex justify-content-between cursor-pointer align-items-center " id="dropdownMenuPages" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Pages
-                                </a>
-                            </li>
-                            <li class="nav-item mx-2">
-                                <a class="nav-link ps-2 d-flex justify-content-between cursor-pointer align-items-center " id="dropdownMenuPages" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Pages
-                                </a>
-                            </li>
-                            <li class="nav-item mx-2">
-                                <a class="nav-link ps-2 d-flex justify-content-between cursor-pointer align-items-center " id="dropdownMenuPages" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Pages
-                                </a>
-                            </li>*@
                         </ul>
                         <ul class="navbar-nav d-lg-block d-none">
                             <li class="nav-item">
