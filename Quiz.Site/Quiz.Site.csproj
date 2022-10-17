@@ -28,6 +28,10 @@
     <ProjectReference Include="..\Quiz.ContentModels\Quiz.ContentModels.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="NotificationHandlers" />
+  </ItemGroup>
+
   <!-- Keep this as false if ModelsBuilder mode is InMemoryAuto -->
   <PropertyGroup>
     <RazorCompileOnBuild>true</RazorCompileOnBuild>

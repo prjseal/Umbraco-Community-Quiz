@@ -10,7 +10,7 @@
 @if (Model == null || Model.Questions == null || !Model.Questions.Any()) return;
 
 @{
-	var success = TempData["Success"];
+	var success = TempData["QuizSubmitSuccess"];
 	var justCompletedIt = success != null && !string.IsNullOrWhiteSpace(success.ToString()); 
 	var umbracoPage = Umbraco.AssignedContentItem;
 	var quizUdi = Umbraco.AssignedContentItem.GetUdiObject().ToString();
@@ -27,14 +27,14 @@
 			<h2>Well Done!</h2>
 			<h3>You scored @quizResult.Score out of @quizResult.Total</h3>
 			<p>See all of the correct answers</p>
-			<a class="btn btn-primary btn-block" href="#quesiton1">Let's go <i class="fas fa-chevron-right mx-1" aria-hidden="true"></i> </a>
+			<a class="btn btn-primary btn-block" href="#question1">Let's go <i class="fas fa-chevron-right mx-1" aria-hidden="true"></i> </a>
 		}
 		else
 		{
 			<h2>You already completed this quiz.</h2>
 			<h3>You scored @quizResult.Score out of @quizResult.Total</h3>
 			<p>See all of the correct answers</p>
-			<a class="btn btn-primary btn-block" href="#quesiton1">Let's go <i class="fas fa-chevron-right mx-1" aria-hidden="true"></i> </a>
+			<a class="btn btn-primary btn-block" href="#question1">Let's go <i class="fas fa-chevron-right mx-1" aria-hidden="true"></i> </a>
 			
 		}
 	</div>
@@ -47,7 +47,7 @@
 	@for(var q = 0; q < questionCount; q++)
 	{
 		var answered = Model?.Questions[q]?.IsCorrect.HasValue ?? false;
-		<div class="form-group min-vh-90 py-5 mt-5" id="quesiton@(q + 1)">
+		<div class="form-group min-vh-90 py-5 mt-5" id="question@(q + 1)">
 			@if(q == 0)
 			{
 				if(Model.CompletedPreviously)
@@ -96,15 +96,15 @@
 				<div class="form-group d-flex justify-content-around mt-3">
 					@if(q >= 1)
 					{
-						<a class="btn btn-primary btn-block btn-lg d-flex" href="#quesiton@(q)"><i class="fas fa-chevron-left mx-1"></i> Previous</a>
+						<a class="btn btn-primary btn-block btn-lg d-flex" href="#question@(q)"><i class="fas fa-chevron-left mx-1"></i> Previous</a>
 					}
-					<a class="btn btn-primary btn-block btn-lg mx-1 d-flex" href="#quesiton@(q + 2)">Next <i class="fas fa-chevron-right mx-1"></i> </a>
+					<a class="btn btn-primary btn-block btn-lg mx-1 d-flex" href="#question@(q + 2)">Next <i class="fas fa-chevron-right mx-1"></i> </a>
 				</div>
 			}
 			else
 			{
 				<div class="form-group d-flex justify-content-around mt-3">
-					<a class="btn btn-primary btn-block btn-lg d-flex" href="#quesiton@(q)"><i class="fas fa-chevron-left mx-1"></i> Previous</a>
+					<a class="btn btn-primary btn-block btn-lg d-flex" href="#question@(q)"><i class="fas fa-chevron-left mx-1"></i> Previous</a>
 					@if(!(justCompletedIt || Model.CompletedPreviously))
 					{
 						<button class="btn btn-success btn-block btn-lg mx-1" type="submit">Submit</button>

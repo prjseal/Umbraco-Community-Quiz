@@ -5,9 +5,12 @@ using Newtonsoft.Json;
 using Quiz.Site.Enums;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
+using Quiz.Site.Notifications;
+using Quiz.Site.Notifications.Quiz;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
+using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Mail;
 using Umbraco.Cms.Core.Routing;
@@ -33,6 +36,7 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IBadgeService _badgeService;
         private readonly INotificationRepository _notificationRepository;
         private readonly IMemoryCache _memoryCache;
+        private readonly IEventAggregator _eventAggregator;
 
         public QuizSurfaceController(
             //these are required by the base controller
@@ -53,7 +57,8 @@ namespace Quiz.Site.Controllers.Surface
             IQuizResultRepository quizResultRepository,
             IBadgeService badgeService,
             INotificationRepository notificationRepository,
-            IMemoryCache memoryCache
+            IMemoryCache memoryCache,
+            IEventAggregator eventAggregator
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
@@ -67,6 +72,7 @@ namespace Quiz.Site.Controllers.Surface
             _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
             _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
             _memoryCache = memoryCache ?? throw new ArgumentException(nameof(memoryCache));
+            _eventAggregator = eventAggregator ?? throw new ArgumentException(nameof(eventAggregator));
         }
 
         [HttpPost]
@@ -75,6 +81,7 @@ namespace Quiz.Site.Controllers.Surface
         {
             if (!ModelState.IsValid)
             {
+                await _eventAggregator.PublishAsync(new QuizCompletingFailedNotification("ModelState Invalid"));
                 return CurrentUmbracoPage();
             }
 
@@ -109,6 +116,9 @@ namespace Quiz.Site.Controllers.Surface
             };
 
             _quizResultRepository.Create(quizResult);
+            
+            await _eventAggregator.PublishAsync(new QuizCompletedNotification(memberItem, quizResult.Total, quizResult.Score));
+
             if(quizResult.Score > 0 && quizResult.Score == quizResult.Total)
             {
                 var badge = _badgeService.GetBadgeByName("Perfect Score");
@@ -133,7 +143,7 @@ namespace Quiz.Site.Controllers.Surface
                 _memoryCache.Remove(CacheKey.LeaderBoard);
             }
 
-            TempData["Success"] = true;
+            TempData["QuizSubmitSuccess"] = true;
             TempData["CompletedQuiz"] = JsonConvert.SerializeObject(quiz);
 
             return RedirectToCurrentUmbracoPage();

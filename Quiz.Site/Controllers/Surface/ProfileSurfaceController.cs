@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
+using Quiz.Site.Notifications;
+using Quiz.Site.Notifications.Profile;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
+using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Mail;
 using Umbraco.Cms.Core.Models.Email;
@@ -32,6 +35,7 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IAccountService _accountService;
         private readonly IBadgeService _badgeService;
         private readonly INotificationRepository _notificationRepository;
+        private readonly IEventAggregator _eventAggregator;
 
         public ProfileSurfaceController(
             //these are required by the base controller
@@ -50,7 +54,8 @@ namespace Quiz.Site.Controllers.Surface
             IOptions<GlobalSettings> globalSettings,
             IAccountService accountService,
             IBadgeService badgeService,
-            INotificationRepository notificationRepository
+            INotificationRepository notificationRepository,
+            IEventAggregator eventAggregator
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
@@ -62,6 +67,7 @@ namespace Quiz.Site.Controllers.Surface
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
             _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
+            _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
         }
 
         [HttpPost]
@@ -148,23 +154,24 @@ namespace Quiz.Site.Controllers.Surface
                         _logger.LogError($" - {item.Key}: {item.Value}");
                     }
                 }
+                await _eventAggregator.PublishAsync(new ProfileUpdatingFailedNotification("Edit Profile Model State Invalid"));
                 return RedirectToCurrentUmbracoPage();
             }
-
-            var user = await _memberManager.GetCurrentMemberAsync();
-
+            
             var member = _accountService.GetMemberFromUser(await _memberManager.GetCurrentMemberAsync());
 
-            if (member == null)
+            if (member is null)
             {
+                await _eventAggregator.PublishAsync(new ProfileUpdatingFailedNotification("Member is null"));
                 _logger.LogError("Member is null");
                 return RedirectToCurrentUmbracoPage();
             }
 
             var memberModel = _accountService.GetMemberModelFromMember(member);
 
-            if (memberModel == null)
+            if (memberModel is null)
             {
+                await _eventAggregator.PublishAsync(new ProfileUpdatingFailedNotification("MemberModel is null"));
                 _logger.LogError("MemberModel is null");
                 return RedirectToCurrentUmbracoPage();
             }
@@ -172,6 +179,8 @@ namespace Quiz.Site.Controllers.Surface
             _logger.LogInformation("Member Model is Not Null");
             
             _accountService.UpdateProfile(model, memberModel, member);
+
+            await _eventAggregator.PublishAsync(new ProfileUpdatedNotification(member));
 
             var updateProfileBadge = _badgeService.GetBadgeByName("Updated Profile");
             if(!_badgeService.HasBadge(memberModel, updateProfileBadge))
@@ -188,11 +197,7 @@ namespace Quiz.Site.Controllers.Surface
                     TempData["ShowToast"] = true;
                 }
             }
-
-            var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
-
             
-
             return RedirectToCurrentUmbracoPage();
         }
 

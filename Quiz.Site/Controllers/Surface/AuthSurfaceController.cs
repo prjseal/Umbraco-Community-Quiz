@@ -5,10 +5,12 @@ using Microsoft.Extensions.Options;
 using Quiz.Site.Extensions;
 using Quiz.Site.Filters;
 using Quiz.Site.Models;
+using Quiz.Site.Notifications;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
+using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Mail;
 using Umbraco.Cms.Core.Models;
@@ -34,7 +36,8 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IBadgeService _badgeService;
         private readonly INotificationRepository _notificationRepository;
         private readonly ILogger<AuthSurfaceController> _logger;
-
+        private readonly IEventAggregator _eventAggregator;
+        
         public AuthSurfaceController(
             //these are required by the base controller
             IUmbracoContextAccessor umbracoContextAccessor,
@@ -50,6 +53,7 @@ namespace Quiz.Site.Controllers.Surface
             IAccountService accountService,
             IBadgeService badgeService,
             INotificationRepository notificationRepository,
+            IEventAggregator eventAggregator,
             ILogger<AuthSurfaceController> logger) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberSignInManager = memberSignInManager ?? throw new ArgumentNullException(nameof(memberSignInManager));
@@ -58,6 +62,7 @@ namespace Quiz.Site.Controllers.Surface
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
             _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
+            _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -72,6 +77,16 @@ namespace Quiz.Site.Controllers.Surface
 
             SignInResult result = await _memberSignInManager.PasswordSignInAsync(
                 model.Username, model.Password, isPersistent: model.RememberMe, lockoutOnFailure: true);
+
+            if (!result.Succeeded)
+            {
+                await _eventAggregator.PublishAsync(new MemberLoggingInFailedNotification($"Member login unsuccessful for member {model.Username}"));
+            }
+            else
+            {
+                var member = _memberService.GetByUsername(model.Username);
+                await _eventAggregator.PublishAsync(new MemberLoggedInNotification(member));
+            }
 
             var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
 
@@ -92,6 +107,7 @@ namespace Quiz.Site.Controllers.Surface
         {
             if (!ModelState.IsValid)
             {
+                await _eventAggregator.PublishAsync(new MemberRegisteringFailedNotification("ModelState Invalid"));
                 return CurrentUmbracoPage();
             }
 
@@ -99,6 +115,7 @@ namespace Quiz.Site.Controllers.Surface
 
             if (existingMember != null)
             {
+                await _eventAggregator.PublishAsync(new MemberRegisteringFailedNotification("Member has already been registered"));
                 _logger.LogInformation("Register: Member has already been registered");
             }
             else
@@ -127,6 +144,8 @@ namespace Quiz.Site.Controllers.Surface
                 _memberService.Save(member);
 
                 _memberService.AssignRoles(new[] { member.Username }, new[] { "Member" });
+
+                await _eventAggregator.PublishAsync(new MemberRegisteredNotification(member));
                 
                 if (DateTime.Now.Date < RegisterSurfaceController.EarlyAdopterThreshold.Date)
                 {
