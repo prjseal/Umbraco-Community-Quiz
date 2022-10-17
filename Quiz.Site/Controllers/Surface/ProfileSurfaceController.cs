@@ -19,6 +19,7 @@ using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Web.Common.PublishedModels;
+using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
 
 namespace Quiz.Site.Controllers.Surface
@@ -27,6 +28,7 @@ namespace Quiz.Site.Controllers.Surface
     {
         private readonly IMemberManager _memberManager;
         private readonly IMemberService _memberService;
+        private readonly IMemberSignInManager _memberSignInManager;
         private readonly ILogger<ProfileSurfaceController> _logger;
         private readonly IEmailSender _emailSender;
         private readonly GlobalSettings _globalSettings;
@@ -46,6 +48,7 @@ namespace Quiz.Site.Controllers.Surface
             //these are dependencies we've added
             IMemberManager memberManager,
             IMemberService memberService,
+            IMemberSignInManager memberSignInManager,
             ILogger<ProfileSurfaceController> logger,
             IEmailSender emailSender,
             IOptions<GlobalSettings> globalSettings,
@@ -56,6 +59,7 @@ namespace Quiz.Site.Controllers.Surface
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
+            _memberSignInManager = memberSignInManager ?? throw new ArgumentNullException(nameof(memberSignInManager));
             _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
@@ -195,6 +199,53 @@ namespace Quiz.Site.Controllers.Surface
             }
             
             return RedirectToCurrentUmbracoPage();
+        }
+
+        public async Task<IActionResult> DeleteProfile(DeleteProfileViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Delete Profile Model State Invalid");
+                var invalidFields = ModelState.ToErrorDictionary();
+                if (invalidFields != null && invalidFields.Any())
+                {
+                    foreach (var item in invalidFields)
+                    {
+                        _logger.LogError($" - {item.Key}: {item.Value}");
+                    }
+                }
+                return RedirectToCurrentUmbracoPage();
+            }
+
+            var user = await _memberManager.GetCurrentMemberAsync();
+
+            var member = _accountService.GetMemberFromUser(await _memberManager.GetCurrentMemberAsync());
+
+            if (member == null)
+            {
+                _logger.LogError("Member is null");
+                return RedirectToCurrentUmbracoPage();
+            }
+
+            var memberModel = _accountService.GetMemberModelFromMember(member);
+
+            if (memberModel == null)
+            {
+                _logger.LogError("MemberModel is null");
+                return RedirectToCurrentUmbracoPage();
+            }
+
+            _logger.LogInformation("Member Model is Not Null");
+
+            //delete the physical account 
+            _accountService.DeleteProfile(model, memberModel, member);
+            //sign them out as well
+            await _memberSignInManager.SignOutAsync();
+
+
+            var homePage = CurrentPage.Root();
+
+            return RedirectToUmbracoPage(homePage.Key);
         }
     }
 }

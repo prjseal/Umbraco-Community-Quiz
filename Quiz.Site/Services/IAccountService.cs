@@ -16,5 +16,7 @@ namespace Quiz.Site.Services
         IMember GetMemberFromUser(MemberIdentityUser user);
 
         void UpdateProfile(EditProfileViewModel model, ContentModels.Member memberModel, IMember member);
+
+        void DeleteProfile(DeleteProfileViewModel model, ContentModels.Member memberModel, IMember member);
     }
 }

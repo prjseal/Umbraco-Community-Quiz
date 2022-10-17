@@ -20,7 +20,7 @@ public interface IQuizResultRepository
 
     QuizResult Update(QuizResult quizResult);
 
-    int Delete(int id);
+    public void Delete(int Id);
 
     IEnumerable<PlayerRecord> GetPlayerRecords();
 }

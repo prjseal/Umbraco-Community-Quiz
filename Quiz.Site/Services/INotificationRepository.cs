@@ -20,5 +20,5 @@ public interface INotificationRepository
 
     Notification Update(Notification Notification);
 
-    int Delete(int id);
+    void Delete(int id);
 }
