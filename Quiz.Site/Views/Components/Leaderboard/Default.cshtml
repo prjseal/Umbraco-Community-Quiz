@@ -7,16 +7,9 @@
 @using Umbraco.Cms.Core.Security
 @using Umbraco.Cms.Core.Services
 
-@inject IMemberManager memberManager
-
 @if (Model == null && Model.Any())
 {
     return;
-}
-
-@{
-    var defaultMediaItem = Umbraco.Media(Udi.Create("media", new Guid("65da644d-3fba-41c8-8173-2a924d96bba4")));
-    var fallbackImageUrl = defaultMediaItem.GetCropUrl(100, 100);
 }
 
 <div class="table-responsive">
@@ -40,29 +33,6 @@
                 foreach (var player in Model)
                 {
                     var playerPercentage = Math.Round((player.Percentage * 100f), 1);
-                    IPublishedContent memberContent = null;
-                    var member = await memberManager.FindByIdAsync(player.MemberId.ToString());
-                    if (member != null)
-                    {
-                        memberContent = memberManager.AsPublishedMember(member);
-                    }
-                    var avatarImage = memberContent.Value<MediaWithCrops>("avatar");
-                    var avatarImageUrl = "";
-                    if (avatarImage != null)
-                    {
-                        avatarImageUrl = avatarImage.GetCropUrl(50, 50);
-                    }
-                    else
-                    {
-                        avatarImageUrl = fallbackImageUrl;
-                    }
-
-                    var badgeCount = 0;
-                    if(memberContent.HasProperty("badges") && memberContent.HasValue("badges"))
-                    {
-                        var badges = memberContent.Value<IEnumerable<IPublishedContent>>("badges");
-                        badgeCount = badges != null && badges.Any() ? badges.Count() : 0;
-                    }
                     <tr>
                         <td class="font-weight-bold px-4">
                             <div class="d-flex justify-content-start">
@@ -71,13 +41,13 @@
                         </td>
                         <td>
                             <div class="d-flex">
-                                <img style="width:50px;" class="ms-3 rounded-circle" src="@avatarImageUrl" alt="@memberContent.Name">
-                                <h6 class="ms-3 my-auto">@memberContent.Name</h6>
+                                <img style="width:50px;" class="ms-3 rounded-circle" src="@(player.AvatarUrl)" alt="@player.Name">
+                                <h6 class="ms-3 my-auto">@player.Name</h6>
                             </div>
                         </td>
                         <td class="font-weight-bold">
                             <div class="d-flex align-content-center justify-content-center">
-                                <span class="my-2 text-center  align-middle">@badgeCount</span>
+                                <span class="my-2 text-center  align-middle">@player.Badges</span>
                             </div>
                         </td>
                         <td class="font-weight-bold">
