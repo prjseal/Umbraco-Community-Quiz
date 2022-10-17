@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.HttpOverrides;
+using Quiz.Site.Middleware;
 
 namespace Quiz.Site
 {
@@ -35,6 +36,13 @@ namespace Quiz.Site
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             });
 
+            services.AddHsts(options =>
+            {
+                options.MaxAge = TimeSpan.FromDays(90);
+                options.IncludeSubDomains = true;
+                options.Preload = true;
+            });
+
             services.AddUmbraco(_env, _config)
                 .AddBackOffice()
                 .AddWebsite()
@@ -59,8 +67,9 @@ namespace Quiz.Site
             else
             {
                 app.UseExceptionHandler("/error.html");
+                app.UseHsts();
             }
-
+            app.UseMiddleware<SecurityHeadersMiddleware>();
 
             app.UseUmbraco()
                 .WithMiddleware(u => {
