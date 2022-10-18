@@ -7,6 +7,6 @@ public class RegisterConfigurationsComposer : IComposer
 {
     public void Compose(IUmbracoBuilder builder)
     {
-        builder.Services.Configure<hCaptchaConfiguration>((IConfiguration)builder.Config.GetSection("hCaptcha"));
+        builder.Services.Configure<hCaptchaConfiguration>(builder.Config.GetSection("hCaptcha"));        
     }
 }

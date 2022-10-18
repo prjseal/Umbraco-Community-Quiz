@@ -84,6 +84,14 @@ namespace Quiz.Site.Services
             }
         }
 
+
+
+        public ContentModels.Member GetMemberModelFromId(int memberId)
+        {
+            var member = _memberService.GetById(memberId);
+            return GetMemberModelFromMember(member);
+        }
+
         public void UpdateProfile(EditProfileViewModel model, ContentModels.Member memberModel, IMember member)
         {
             member.Name = model.Name;

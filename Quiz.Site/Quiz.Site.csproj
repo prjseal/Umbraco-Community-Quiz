@@ -4,11 +4,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="NotificationHandlers\**" />
+    <Content Remove="NotificationHandlers\**" />
+    <EmbeddedResource Remove="NotificationHandlers\**" />
+    <None Remove="NotificationHandlers\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Konstrukt" Version="1.5.2" />
     <PackageReference Include="Our.Umbraco.Community.Contentment" Version="4.1.5" />
     <PackageReference Include="Our.Umbraco.TagHelpers" Version="0.8.0" />
+    <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta18" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta15" />
     <PackageReference Include="Umbraco.Cms" Version="10.2.1" />
     <PackageReference Include="uSync" Version="10.2.1" />
   </ItemGroup>
@@ -26,10 +34,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Quiz.ContentModels\Quiz.ContentModels.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="NotificationHandlers" />
   </ItemGroup>
 
   <!-- Keep this as false if ModelsBuilder mode is InMemoryAuto -->

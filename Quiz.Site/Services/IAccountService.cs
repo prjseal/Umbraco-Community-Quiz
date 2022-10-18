@@ -13,6 +13,8 @@ namespace Quiz.Site.Services
 
         ContentModels.Member GetMemberModelFromMember(IMember member);
 
+        ContentModels.Member GetMemberModelFromId(int memberId);
+
         IMember GetMemberFromUser(MemberIdentityUser user);
 
         void UpdateProfile(EditProfileViewModel model, ContentModels.Member memberModel, IMember member);
