@@ -17,4 +17,6 @@
 	var member = await memberManager.GetCurrentMemberAsync();
 }
 
-@await Component.InvokeAsync("MemberQuestions", member)
+<div class="card">
+    @await Component.InvokeAsync("MemberQuestions", member)
+</div>

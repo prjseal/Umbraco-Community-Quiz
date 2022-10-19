@@ -23,4 +23,6 @@ public interface IQuizResultRepository
     public void Delete(int Id);
 
     IEnumerable<PlayerRecord> GetPlayerRecords();
+
+    PlayerRecord GetPlayerRecordByMemberId(int memberId);
 }

@@ -127,4 +127,14 @@ public class QuizResultRepository : IQuizResultRepository
             return results;
         }
     }
+
+    public PlayerRecord GetPlayerRecordByMemberId(int memberId)
+    {
+        using (var scope = _scopeProvider.CreateScope())
+        {
+            var result = scope.Database.Fetch<PlayerRecord>("SELECT memberId as 'MemberId', SUM(score) as 'Correct', SUM(total) as Total, COUNT(score) as 'Quizzes', MAX(datecreated) as 'DateOfLastQuiz' FROM QuizResult WHERE memberId = @memberId", new { memberId }).FirstOrDefault();
+            scope.Complete();
+            return result;
+        }
+    }
 }

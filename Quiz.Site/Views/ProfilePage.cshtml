@@ -10,4 +10,5 @@
 	var member = await memberManager.GetCurrentMemberAsync();
 }
 
+@await Component.InvokeAsync("ProfileResults", member)
 @await Component.InvokeAsync("MyBadges", member)

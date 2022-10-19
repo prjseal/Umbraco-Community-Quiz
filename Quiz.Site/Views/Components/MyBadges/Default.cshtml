@@ -29,68 +29,70 @@
         hasBadges = badges != null && badges.Any();
     }
 }
-<div class="row">
-    <h3 class="px-5 mt-3">My Badges</h3>
-</div>
-<div class="table-responsive">
-    <table class="table table-flush" id="datatable-search">
-        <thead class="thead-light">
-            <tr>
-                <th>Badge</th>
-                <th>Awarded For</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (hasBadges)
-            {
-                var index = 1;
-
-                foreach (var badge in badges)
+<div class="card">
+    <div class="row">
+        <h3 class="px-5 mt-3">My Badges</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-flush" id="datatable-search">
+            <thead class="thead-light">
+                <tr>
+                    <th>Badge</th>
+                    <th>Awarded For</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (hasBadges)
                 {
-                    var badgeItem = (BadgePage)badge;
+                    var index = 1;
 
-                    var badgeImage = badgeItem.Image;
-                    var badgeImageUrl = "";
-                    if (badgeImage != null)
+                    foreach (var badge in badges)
                     {
-                        badgeImageUrl = badgeImage.GetCropUrl(100, 100);
-                    }
-                    else
-                    {
-                        badgeImageUrl = fallbackImageUrl;
-                    }
-                    <tr>
-                        <td>
-                            @if(!badgeItem.Colour.IsNullOrWhiteSpace())
-                            {
-                                <style>
-                                    .svg-@badge.Key path{
-                                        fill: @badgeItem.Colour
-                                    }
-                                </style>
-                            }
-                            <div class="d-flex">
-                                <div class="ms-3 svg-@badge.Key" style="width: 50px; height: auto;">
-                                    <our-svg media-item="@badgeImage"></our-svg>
+                        var badgeItem = (BadgePage)badge;
+
+                        var badgeImage = badgeItem.Image;
+                        var badgeImageUrl = "";
+                        if (badgeImage != null)
+                        {
+                            badgeImageUrl = badgeImage.GetCropUrl(100, 100);
+                        }
+                        else
+                        {
+                            badgeImageUrl = fallbackImageUrl;
+                        }
+                        <tr>
+                            <td>
+                                @if(!badgeItem.Colour.IsNullOrWhiteSpace())
+                                {
+                                    <style>
+                                        .svg-@badge.Key path{
+                                            fill: @badgeItem.Colour
+                                        }
+                                    </style>
+                                }
+                                <div class="d-flex">
+                                    <div class="ms-3 svg-@badge.Key" style="width: 50px; height: auto;">
+                                        <our-svg media-item="@badgeImage"></our-svg>
+                                    </div>
+                                    @* <img  src="@badgeImageUrl" alt="@badge.Name"> *@
+                                    <h6 class="ms-3 my-auto">@badge.Name</h6>
                                 </div>
-                                @* <img  src="@badgeImageUrl" alt="@badge.Name"> *@
-                                <h6 class="ms-3 my-auto">@badge.Name</h6>
-                            </div>
-                        </td>
-                        <td class="font-weight-bold">
-                            <div class="d-flex">
-                                <div class="my-2 px-3">@badgeItem.Description</div>
-                            </div>
-                        </td>
-                    </tr>
-                    index++;
+                            </td>
+                            <td class="font-weight-bold">
+                                <div class="d-flex">
+                                    <div class="my-2 px-3">@badgeItem.Description</div>
+                                </div>
+                            </td>
+                        </tr>
+                        index++;
+                    }
                 }
-            }
-            else
-            {
-                <tr><td colspan="4" class="text-xs font-weight-bold px-4 py-3">You haven't earned any badges yet.</td></tr>
-            }
+                else
+                {
+                    <tr><td colspan="4" class="text-xs font-weight-bold px-4 py-3">You haven't earned any badges yet.</td></tr>
+                }
 
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </div>
