@@ -132,7 +132,7 @@ public class QuizResultRepository : IQuizResultRepository
     {
         using (var scope = _scopeProvider.CreateScope())
         {
-            var result = scope.Database.Fetch<PlayerRecord>("SELECT memberId as 'MemberId', SUM(score) as 'Correct', SUM(total) as Total, COUNT(score) as 'Quizzes', MAX(datecreated) as 'DateOfLastQuiz' FROM QuizResult WHERE memberId = @memberId", new { memberId }).FirstOrDefault();
+            var result = scope.Database.Fetch<PlayerRecord>("SELECT memberId as 'MemberId', SUM(score) as 'Correct', SUM(total) as Total, COUNT(score) as 'Quizzes', MAX(datecreated) as 'DateOfLastQuiz' FROM QuizResult WHERE memberId = @memberId GROUP By memberId", new { memberId }).FirstOrDefault();
             scope.Complete();
             return result;
         }
