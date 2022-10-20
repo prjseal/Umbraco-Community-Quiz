@@ -1,4 +1,4 @@
-﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<MyBadgesViewModel>
 @using Quiz.Site.Extensions
 @using Quiz.Site.Models
 @using Quiz.Site.Enums
@@ -10,25 +10,9 @@
 
 @{
     var defaultMediaItem = Umbraco.Media(Udi.Create("media", new Guid("65da644d-3fba-41c8-8173-2a924d96bba4")));
-    var fallbackImageUrl = defaultMediaItem.GetCropUrl(100, 100);
-
-    IPublishedContent memberContent = null;
-    var member = await memberManager.GetCurrentMemberAsync();
-    if (member != null)
-    {
-        memberContent = memberManager.AsPublishedMember(member);
-    }
-    var hasBadges = false;
-    IEnumerable<IPublishedContent> badges = null;
-    if(memberContent != null)
-    {
-        if(memberContent.HasValue("badges"))
-        {
-            badges = memberContent.Value<IEnumerable<IPublishedContent>>("badges");
-        }
-        hasBadges = badges != null && badges.Any();
-    }
+    var fallbackImageUrl = defaultMediaItem.GetCropUrl(50, 50);
 }
+
 <div class="card">
     <div class="row">
         <h3 class="px-5 mt-3">My Badges</h3>
@@ -42,45 +26,38 @@
                 </tr>
             </thead>
             <tbody>
-                @if (hasBadges)
+                @if (Model.Badges != null && Model.Badges.Any())
                 {
                     var index = 1;
-
-                    foreach (var badge in badges)
+                    foreach (var badge in Model.Badges)
                     {
-                        var badgeItem = (BadgePage)badge;
-
-                        var badgeImage = badgeItem.Image;
-                        var badgeImageUrl = "";
-                        if (badgeImage != null)
-                        {
-                            badgeImageUrl = badgeImage.GetCropUrl(100, 100);
-                        }
-                        else
-                        {
-                            badgeImageUrl = fallbackImageUrl;
-                        }
                         <tr>
                             <td>
-                                @if(!badgeItem.Colour.IsNullOrWhiteSpace())
+                                @if(!badge.Colour.IsNullOrWhiteSpace())
                                 {
                                     <style>
                                         .svg-@badge.Key path{
-                                            fill: @badgeItem.Colour
+                                            fill: @badge.Colour
                                         }
                                     </style>
                                 }
-                                <div class="d-flex">
+                                <div class="d-flex mt-3">
                                     <div class="ms-3 svg-@badge.Key" style="width: 50px; height: auto;">
-                                        <our-svg media-item="@badgeImage"></our-svg>
+                                        @if(badge.Image != null)
+                                        {
+                                            <our-svg media-item="@badge.Image"></our-svg>
+                                        }
+                                        else
+                                        {
+                                            <img src="@fallbackImageUrl" alt="@badge.Name" />
+                                        }
                                     </div>
-                                    @* <img  src="@badgeImageUrl" alt="@badge.Name"> *@
                                     <h6 class="ms-3 my-auto">@badge.Name</h6>
                                 </div>
                             </td>
                             <td class="font-weight-bold">
-                                <div class="d-flex">
-                                    <div class="my-2 px-3">@badgeItem.Description</div>
+                                <div class="d-flex mt-3">
+                                    <div class="my-2 px-3">@badge.Description</div>
                                 </div>
                             </td>
                         </tr>
@@ -91,7 +68,6 @@
                 {
                     <tr><td colspan="4" class="text-xs font-weight-bold px-4 py-3">You haven't earned any badges yet.</td></tr>
                 }
-
             </tbody>
         </table>
     </div>

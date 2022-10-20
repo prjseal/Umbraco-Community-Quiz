@@ -2,11 +2,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using Quiz.Site.Enums;
 using Quiz.Site.Services;
-using Umbraco.Cms.Core;
-using Umbraco.Cms.Core.Models;
-using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Security;
-using Umbraco.Cms.Core.Services;
 
 namespace Quiz.Site.Components
 {
@@ -16,13 +12,15 @@ namespace Quiz.Site.Components
         private readonly IQuizResultRepository _quizResultRepository;
         private readonly IMemoryCache _memoryCache;
         private readonly IMemberManager _memberManager;
+        private readonly IAccountService _accountService;
 
         public LeaderboardViewComponent(IQuizResultRepository quizResultRepository, IMemoryCache memoryCache, 
-            IMemberManager memberManager)
+            IMemberManager memberManager, IAccountService accountService)
         {
             _quizResultRepository = quizResultRepository;
             _memoryCache = memoryCache;
             _memberManager = memberManager;        
+            _accountService = accountService;
         }
 
         public async Task<IViewComponentResult> InvokeAsync(string fallbackImageUrl)
@@ -34,32 +32,18 @@ namespace Quiz.Site.Components
                 foreach (var record in playerRecords)
                 {
                     var member = await _memberManager.FindByIdAsync(record.MemberId);
-                    IPublishedContent memberContent = null;
-                    record.Badges = 0;
-                    record.AvatarUrl = fallbackImageUrl;
+                    
                     if (member != null)
                     {
-                        var badgeCount = 0;
-                        memberContent = _memberManager.AsPublishedMember(member);
-                        if(memberContent != null)
-                        {
-                            record.Name = memberContent.Name;
+                        var memberContent = _memberManager.AsPublishedMember(member);
+                        if (memberContent == null) continue;
 
-                            if (memberContent.HasProperty("badges") && memberContent.HasValue("badges"))
-                            {
-                                var badges = memberContent.Value<IEnumerable<IPublishedContent>>("badges");
-                                badgeCount = badges != null && badges.Any() ? badges.Count() : 0;
-                            }
+                        var enrichedProfile = _accountService.GetEnrichedProfile(memberContent);
+                        if (enrichedProfile == null) continue;
 
-                            var avatarImage = memberContent.Value<MediaWithCrops>("avatar");
-                            var avatarImageUrl = "";
-                            if (avatarImage != null)
-                            {
-                                avatarImageUrl = avatarImage.GetCropUrl(50, 50);
-                                record.AvatarUrl = avatarImageUrl;
-                            }
-                        }
-                        record.Badges = badgeCount;
+                        record.Badges = enrichedProfile.Badges?.Count() ?? 0;
+                        record.AvatarUrl = enrichedProfile.Avatar?.GetCropUrl(50, 50) ?? fallbackImageUrl;
+                        record.Name = enrichedProfile.Name;
                     }
                 }
 

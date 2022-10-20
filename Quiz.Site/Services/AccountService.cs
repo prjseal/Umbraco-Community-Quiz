@@ -2,9 +2,11 @@
 using Quiz.Site.Models;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Web.Common.PublishedModels;
 using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 
 namespace Quiz.Site.Services
@@ -39,6 +41,14 @@ namespace Quiz.Site.Services
             _notificationRepository = notificationRepository;
         }
 
+        public ProfileViewModel GetEnrichedProfile(IPublishedContent member)
+        {
+            if (member == null) return null;
+
+            ContentModels.Member memberModel = (ContentModels.Member)member;
+
+            return GetEnrichedProfile(memberModel);
+        }
 
         public ProfileViewModel GetEnrichedProfile(ContentModels.Member member)
         {
@@ -46,15 +56,10 @@ namespace Quiz.Site.Services
 
             var profile = new ProfileViewModel
             {
-                //FirstName = member.FirstName,
-                //LastName = member.LastName,
                 Name = member.Name,
                 Email = member.Value<string>("email"),
-                //JobTitle = member.JobTitle,
-                //FavouriteColour = member.FavouriteColour,
-                //Skills = member.Skills,
+                Badges = member.Badges?.Select(x => (BadgePage)x) ?? Enumerable.Empty<BadgePage>(),
                 Avatar = member.Avatar
-                //Gallery = member.Gallery
             };
 
             return profile;
