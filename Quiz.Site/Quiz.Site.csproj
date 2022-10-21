@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="GravatarHelper.AspNetCore" Version="1.1.0" />
     <PackageReference Include="Konstrukt" Version="1.5.2" />
     <PackageReference Include="Our.Umbraco.Community.Contentment" Version="4.1.5" />
     <PackageReference Include="Our.Umbraco.TagHelpers" Version="0.8.0" />
