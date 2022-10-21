@@ -14,7 +14,7 @@ namespace Quiz.Site.Models
 
         internal string? GravatarUrl {
             get {
-                var url = GravatarHelper.Common.GravatarHelper.CreateGravatarUrl(Email, 80, GravatarHelper.Common.GravatarHelper.DefaultImageIdenticon, GravatarRating.G, true, true, true);
+                var url = GravatarHelper.Common.GravatarHelper.CreateGravatarUrl(Email, 100, GravatarHelper.Common.GravatarHelper.DefaultImageIdenticon, GravatarRating.G, true, true, true);
                 return url;
             }
         }
