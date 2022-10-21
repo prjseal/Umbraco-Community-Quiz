@@ -1,6 +1,11 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ProfileViewModel>
 
 @using Quiz.Site.Models
+@using Umbraco.Cms.Core
+@{
+    var defaultMediaItem = Umbraco.Media(Udi.Create("media", new Guid("65da644d-3fba-41c8-8173-2a924d96bba4")));
+    var fallbackImageUrl = defaultMediaItem.GetCropUrl(100, 100);
+}
 
 @if (!User.Identity.IsAuthenticated)
 {
@@ -14,7 +19,7 @@ else
 {
     <dl>
         <dt>Avatar:</dt>
-        <dd><img class="rounded" src="@(Model.Avatar?.GetCropUrl(120,120) ?? "")" /></dd>
+        <dd><img class="rounded" src="@(Model.AvatarUrl ?? fallbackImageUrl)" /></dd>
         <dt>Name:</dt>
         <dd>@Model.Name</dd>
     </dl>

@@ -42,7 +42,7 @@ namespace Quiz.Site.Components
                         if (enrichedProfile == null) continue;
 
                         record.Badges = enrichedProfile.Badges?.Count() ?? 0;
-                        record.AvatarUrl = enrichedProfile.Avatar?.GetCropUrl(50, 50) ?? fallbackImageUrl;
+                        record.AvatarUrl = enrichedProfile.AvatarUrl ?? fallbackImageUrl;
                         record.Name = enrichedProfile.Name;
                     }
                 }
