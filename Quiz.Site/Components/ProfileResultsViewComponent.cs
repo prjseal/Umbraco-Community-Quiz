@@ -28,7 +28,10 @@ namespace Quiz.Site.Components
 
             var playerRecord = _quizResultRepository.GetPlayerRecordByMemberId(member.Id);
 
-            playerRecord.Badges = enrichedProfile.Badges.Count();
+            if (playerRecord != null)
+            {
+                playerRecord.Badges = enrichedProfile.Badges.Count();
+            }
 
             model.Profile = enrichedProfile;
             model.PlayerRecord = playerRecord;

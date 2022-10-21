@@ -1,4 +1,4 @@
-@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ProfileResultsViewModel>
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ProfileResultsViewModel>
 @using Quiz.Site.Extensions
 @using Quiz.Site.Models
 @using Quiz.Site.Enums
@@ -34,19 +34,55 @@
                 <div class="d-flex align-items-start justify-content-around">
                     <div class="row">
                         <p class="text-sm mb-0 text-uppercase font-weight-bold">Quizzes</p>
-                        <h5 class="font-weight-bolder mb-0">@Model.PlayerRecord.Quizzes</h5>
+                        <h5 class="font-weight-bolder mb-0">
+                            @if (Model.PlayerRecord == null)
+                            {
+                                <text>0</text>
+                            }
+                            else
+                            {
+                                @Model.PlayerRecord.Quizzes
+                            }
+                            </h5>
                     </div>
                     <div class="row">
                         <p class="text-sm mb-0 text-uppercase font-weight-bold">Correct</p>
-                        <h5 class="font-weight-bolder mb-0">@Model.PlayerRecord.Correct</h5>
+                        <h5 class="font-weight-bolder mb-0">
+                            @if (Model.PlayerRecord == null)
+                            {
+                                <text>0</text>
+                            }
+                            else
+                            {
+                                @Model.PlayerRecord.Correct
+                            }
+                        </h5>
                     </div>
                     <div class="row">
                         <p class="text-sm mb-0 text-uppercase font-weight-bold">Out of</p>
-                        <h5 class="font-weight-bolder mb-0">@Model.PlayerRecord.Total</h5>
+                        <h5 class="font-weight-bolder mb-0">
+                            @if (Model.PlayerRecord == null)
+                            {
+                                <text>0</text>
+                            }
+                            else
+                            {
+                                @Model.PlayerRecord.Total
+                            }
+                        </h5>
                     </div>
                     <div class="row">
                         <p class="text-sm mb-0 text-uppercase font-weight-bold">%</p>
-                        <h5 class="font-weight-bolder mb-0">@Math.Round((Model.PlayerRecord.Percentage * 100f), 1)</h5>
+                        <h5 class="font-weight-bolder mb-0">
+                            @if (Model.PlayerRecord == null)
+                            {
+                                <text>0%</text>
+                            }
+                            else
+                            {
+                                @Math.Round((Model.PlayerRecord.Percentage * 100f), 1)
+                            }
+                        </h5>
                     </div>
                 </div>
             </div>

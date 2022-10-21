@@ -5,7 +5,11 @@
     var profilePage = homePage.FirstChildOfType(ProfilePage.ModelTypeAlias);
     var leaderboardPage = homePage.FirstChildOfType(LeaderboardPage.ModelTypeAlias);
     var quizListPage = homePage.FirstChildOfType(QuizListPage.ModelTypeAlias);
-    var latestQuizPage = quizListPage.Children.OrderByDescending(x => x.CreateDate).FirstOrDefault();
+    IPublishedContent latestQuizPage = null;
+    if (quizListPage != null)
+    {
+        latestQuizPage = quizListPage.Children.OrderByDescending(x => x.CreateDate).FirstOrDefault();
+    }
 
     var navLinks = new List<IPublishedContent>();
     navLinks.Add(profilePage);
