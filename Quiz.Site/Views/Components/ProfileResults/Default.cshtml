@@ -34,19 +34,22 @@
                 <div class="d-flex align-items-start justify-content-around">
                     <div class="row">
                         <p class="text-sm mb-0 text-uppercase font-weight-bold">Quizzes</p>
-                        <h5 class="font-weight-bolder mb-0">@Model.PlayerRecord.Quizzes</h5>
+                        <h5 class="font-weight-bolder mb-0">@(Model?.PlayerRecord?.Quizzes ?? 0)</h5>
                     </div>
                     <div class="row">
                         <p class="text-sm mb-0 text-uppercase font-weight-bold">Correct</p>
-                        <h5 class="font-weight-bolder mb-0">@Model.PlayerRecord.Correct</h5>
+                        <h5 class="font-weight-bolder mb-0">@(Model?.PlayerRecord?.Correct ?? 0)</h5>
                     </div>
                     <div class="row">
                         <p class="text-sm mb-0 text-uppercase font-weight-bold">Out of</p>
-                        <h5 class="font-weight-bolder mb-0">@Model.PlayerRecord.Total</h5>
+                        <h5 class="font-weight-bolder mb-0">@(Model?.PlayerRecord?.Total ?? 0)</h5>
                     </div>
                     <div class="row">
                         <p class="text-sm mb-0 text-uppercase font-weight-bold">%</p>
-                        <h5 class="font-weight-bolder mb-0">@Math.Round((Model.PlayerRecord.Percentage * 100f), 1)</h5>
+                        @{
+                            var percentage = Model?.PlayerRecord?.Percentage ?? 0f;
+                        }
+                        <h5 class="font-weight-bolder mb-0">@Math.Round((percentage * 100f), 1)</h5>
                     </div>
                 </div>
             </div>
