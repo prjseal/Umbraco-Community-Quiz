@@ -1,8 +1,28 @@
-﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+﻿@using Quiz.Site.Extensions
+@using Quiz.Site.Services
+@using Umbraco.Cms.Core.Security
+@using Umbraco.Cms.Web.Common.PublishedModels;
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.HomePage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+
+@inject IMemberManager memberManager;
+@inject IAccountService accountService;
+@inject IQuizResultRepository quizResultRepository;
+
 @{
-	Layout = "Master.cshtml";
+    Layout = "Master.cshtml";
+    var homePage = Umbraco.AssignedContentItem.AncestorOrSelf<HomePage>();
+    var profilePage = homePage.FirstChildOfType(ProfilePage.ModelTypeAlias);
+    var leaderboardPage = homePage.FirstChildOfType(LeaderboardPage.ModelTypeAlias);
+    var quizListPage = homePage.FirstChildOfType(QuizListPage.ModelTypeAlias);
+    var quizUdis = quizListPage.Children.OrderBy(x => x.CreateDate).Select(x => x.GetUdiObject().ToString()); 
+    var latestQuizPage = quizListPage.Children.OrderByDescending(x => x.CreateDate).FirstOrDefault();
+
+    var user = await memberManager.GetCurrentMemberAsync();
+    var member = accountService.GetMemberModelFromUser(user);
+    var enrichedProfile = accountService.GetEnrichedProfile(member);
+
+    var results = quizResultRepository.GetAllByMemberId(member.Id);
 }
 
 <main class="main-content  mt-0">
@@ -21,8 +41,13 @@
                                 }
                                 else
                                 {
-                                    <h4>Umbraco Community Quiz</h4>
-                                    <p>Go to your <a class="my-4" href="/profile/">Profile</a></p>
+                                    <h4>Hello @enrichedProfile.Name.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries)[0]</h4>
+                                    
+                                    @if(enrichedProfile.Avatar == null)
+                                    {
+                                        <p>You haven't uploaded an avatar yet, you can do that <a href="/edit-profile/">here</a></p>
+                                    }
+                                    <p>Check out the <a href="/leaderboard/">leaderboard</a></p>
                                 }
                             </div>
                         </div>
