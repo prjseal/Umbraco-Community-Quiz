@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using Quiz.Site.Enums;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Notifications;
@@ -36,6 +38,7 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IBadgeService _badgeService;
         private readonly INotificationRepository _notificationRepository;
         private readonly IEventAggregator _eventAggregator;
+        private readonly IMemoryCache _memoryCache;
 
         public ProfileSurfaceController(
             //these are required by the base controller
@@ -55,7 +58,8 @@ namespace Quiz.Site.Controllers.Surface
             IAccountService accountService,
             IBadgeService badgeService,
             INotificationRepository notificationRepository,
-            IEventAggregator eventAggregator
+            IEventAggregator eventAggregator,
+            IMemoryCache memoryCache
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
@@ -68,6 +72,7 @@ namespace Quiz.Site.Controllers.Surface
             _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
             _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
             _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
+            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         }
 
         [HttpPost]
@@ -197,7 +202,12 @@ namespace Quiz.Site.Controllers.Surface
                     TempData["ShowToast"] = true;
                 }
             }
-            
+
+            if (_memoryCache.TryGetValue(CacheKey.LeaderBoard, out _))
+            {
+                _memoryCache.Remove(CacheKey.LeaderBoard);
+            }
+
             return RedirectToCurrentUmbracoPage();
         }
 

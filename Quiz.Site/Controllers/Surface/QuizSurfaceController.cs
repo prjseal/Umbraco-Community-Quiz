@@ -115,7 +115,12 @@ namespace Quiz.Site.Controllers.Surface
                 Total = questionCount
             };
 
-            _quizResultRepository.Create(quizResult);
+            var existingRecord = _quizResultRepository.GetByMemberIdAndQuizId(memberItem.Id, quizUdi.ToString());
+
+            if(existingRecord == null || existingRecord.Id <= 0)
+            {
+                _quizResultRepository.Create(quizResult);
+            }
             
             await _eventAggregator.PublishAsync(new QuizCompletedNotification(memberItem, quizResult.Total, quizResult.Score));
 
