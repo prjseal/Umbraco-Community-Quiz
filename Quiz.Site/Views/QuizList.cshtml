@@ -1,6 +1,20 @@
 ﻿@using Umbraco.Cms.Web.Common.PublishedModels;
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.QuizListPage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Cms.Core.Security
+
+@inject IMemberManager memberManager
+
 @{
-	Layout = "Master.cshtml";
+	if(User.Identity != null && !User.Identity.IsAuthenticated)
+    {
+        this.Context.Response.Redirect("/");        
+        IgnoreBody();
+        return;
+    }
+
+	Layout = "DashboardMaster.cshtml";
+	var member = await memberManager.GetCurrentMemberAsync();
 }
+
+@await Component.InvokeAsync("QuizList", new { user = member, quizListPage = Model })

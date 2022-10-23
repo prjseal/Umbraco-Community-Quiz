@@ -5,14 +5,13 @@
     var profilePage = homePage.FirstChildOfType(ProfilePage.ModelTypeAlias);
     var leaderboardPage = homePage.FirstChildOfType(LeaderboardPage.ModelTypeAlias);
     var quizListPage = homePage.FirstChildOfType(QuizListPage.ModelTypeAlias);
-    var latestQuizPage = quizListPage.Children.OrderByDescending(x => x.CreateDate).FirstOrDefault();
 
     var navLinks = new List<IPublishedContent>();
     navLinks.Add(profilePage);
     navLinks.Add(leaderboardPage);
-    if(latestQuizPage != null)
+    if(quizListPage != null)
     {
-        navLinks.Add(latestQuizPage);    
+        navLinks.Add(quizListPage);    
     }
 }
 
