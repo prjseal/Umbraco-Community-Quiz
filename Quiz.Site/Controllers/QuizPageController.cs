@@ -68,7 +68,7 @@ namespace Quiz.Site.Controllers
 
                 quiz.Questions = _questionService.GetListOfQuestions(questionIds);
 
-                if ((completedQuiz is null || completedQuiz.QuizId != quizPage.Id) && completedPreviously)
+                if (completedPreviously)
                 {
                     SetAllCorrectAnswers(quiz.Questions);
                 }
