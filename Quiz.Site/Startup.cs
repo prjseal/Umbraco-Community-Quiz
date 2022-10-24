@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Quiz.Site.Middleware;
+using Quiz.Site.NotificationHandlers.BadgeHandlers;
+using Quiz.Site.Notifications;
+using Quiz.Site.Notifications.Member;
 
 namespace Quiz.Site
 {

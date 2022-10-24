@@ -4,12 +4,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="NotificationHandlers\**" />
-    <Content Remove="NotificationHandlers\**" />
-    <EmbeddedResource Remove="NotificationHandlers\**" />
-    <None Remove="NotificationHandlers\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Konstrukt" Version="1.5.2" />

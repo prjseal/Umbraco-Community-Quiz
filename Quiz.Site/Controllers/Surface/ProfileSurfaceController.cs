@@ -187,22 +187,6 @@ namespace Quiz.Site.Controllers.Surface
 
             await _eventAggregator.PublishAsync(new ProfileUpdatedNotification(member));
 
-            var updateProfileBadge = _badgeService.GetBadgeByName("Updated Profile");
-            if(!_badgeService.HasBadge(memberModel, updateProfileBadge))
-            {
-                if(_badgeService.AddBadgeToMember(member, updateProfileBadge))
-                {
-                    _notificationRepository.Create(new Notification()
-                    {
-                        BadgeId = updateProfileBadge.GetUdiObject().ToString(),
-                        MemberId = memberModel.Id,
-                        Message = "New badge earned - " + updateProfileBadge.Name
-                    });
-
-                    TempData["ShowToast"] = true;
-                }
-            }
-
             if (_memoryCache.TryGetValue(CacheKey.LeaderBoard, out _))
             {
                 _memoryCache.Remove(CacheKey.LeaderBoard);

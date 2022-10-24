@@ -1,5 +1,4 @@
-﻿
-using NPoco;
+﻿using NPoco;
 
 using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
 

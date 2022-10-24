@@ -121,22 +121,6 @@ namespace Quiz.Site.Controllers.Surface
             
             await _eventAggregator.PublishAsync(new QuestionCreatedNotification(member));
 
-            var teacherBadge = _badgeService.GetBadgeByName("Teacher");
-            if (!_badgeService.HasBadge(memberModel, teacherBadge))
-            {
-                if (_badgeService.AddBadgeToMember(member, teacherBadge))
-                {
-                    _notificationRepository.Create(new Models.Notification()
-                    {
-                        BadgeId = teacherBadge.GetUdiObject().ToString(),
-                        MemberId = memberModel.Id,
-                        Message = "New badge earned - " + teacherBadge.Name
-                    });
-
-                    TempData["ShowToast"] = true;
-                }
-            }
-
             var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
 
             return RedirectToUmbracoPage(profilePage);
