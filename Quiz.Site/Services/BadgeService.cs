@@ -3,6 +3,8 @@ using Newtonsoft.Json.Linq;
 using Quiz.Site.Extensions;
 using Quiz.Site.Helpers;
 using Quiz.Site.Models.Badges;
+using Quiz.Site.Notifications.Badge;
+using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
@@ -13,10 +15,12 @@ public class BadgeService : IBadgeService
 {
     private readonly IMemberService _memberService;
     private readonly IUmbracoContextFactory _umbracoContextFactory;
+    private readonly IEventAggregator _eventAggregator;
 
-    public BadgeService(IMemberService memberService, IUmbracoContextFactory umbracoContextFactory)
+    public BadgeService(IMemberService memberService, IEventAggregator eventAggregator, IUmbracoContextFactory umbracoContextFactory)
     {
         _memberService = memberService;
+        _eventAggregator = eventAggregator;
         _umbracoContextFactory = umbracoContextFactory;
     }
     
@@ -48,7 +52,7 @@ public class BadgeService : IBadgeService
        var success =  AssignBadgeToMember(member, badge);
        if (success && pushNotification)
        {
-           //TODO Push BadgeAssigned Notification to further handle user-visible notifications
+           _eventAggregator.Publish(new BadgeAssignedNotification(badge, member));
        }
 
        return success;

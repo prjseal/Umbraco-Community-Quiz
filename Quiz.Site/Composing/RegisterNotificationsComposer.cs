@@ -1,4 +1,5 @@
 ﻿using Quiz.Site.NotificationHandlers.BadgeHandlers;
+using Quiz.Site.Notifications.Badge;
 using Quiz.Site.Notifications.Member;
 using Quiz.Site.Notifications.Profile;
 using Quiz.Site.Notifications.Question;
@@ -16,5 +17,7 @@ public class RegisterNotificationsComposer : IComposer
         builder.AddNotificationHandler<QuizCompletedNotification, PerfectScoreBadgeNotificationHandler>();
         builder.AddNotificationHandler<QuestionCreatedNotification, TeacherBadgeNotificationHandler>();
         builder.AddNotificationHandler<ProfileUpdatedNotification, UpdatedProfileBadgeNotificationHandler>();
+        
+        builder.AddNotificationHandler<BadgeAssignedNotification, BadgeAssignedNotificationHandler>();
     }
 }
