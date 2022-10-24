@@ -123,26 +123,7 @@ namespace Quiz.Site.Controllers.Surface
             }
             
             await _eventAggregator.PublishAsync(new QuizCompletedNotification(memberItem, quizResult.Total, quizResult.Score));
-
-            if(quizResult.Score > 0 && quizResult.Score == quizResult.Total)
-            {
-                var badge = _badgeService.GetBadgeByName("Perfect Score");
-                if (!_badgeService.HasBadge(memberModel, badge))
-                {
-                    if (_badgeService.AddBadgeToMember(memberItem, badge))
-                    {
-                        _notificationRepository.Create(new Notification()
-                        {
-                            BadgeId = badge.GetUdiObject().ToString(),
-                            MemberId = memberModel.Id,
-                            Message = "New badge earned - " + badge.Name
-                        });
-
-                        TempData["ShowToast"] = true;
-                    }
-                }
-            }
-
+            
             if (_memoryCache.TryGetValue(CacheKey.LeaderBoard, out _))
             {
                 _memoryCache.Remove(CacheKey.LeaderBoard);

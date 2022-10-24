@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Quiz.Site.Extensions;
+using Quiz.Site.Helpers;
+using Quiz.Site.Models.Badges;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Services;
@@ -18,62 +20,62 @@ public class BadgeService : IBadgeService
         _memberService = memberService;
         _umbracoContextFactory = umbracoContextFactory;
     }
-
-    public IPublishedContent GetBadgeByName(string badgeName)
+    
+    public BadgePage? GetBadgeByName(string name)
     {
-        IPublishedContent badge = null;
-        using (var umbracoContextReference = _umbracoContextFactory.EnsureUmbracoContext())
-        {
-            var contentQuery = umbracoContextReference.UmbracoContext.Content; 
-            var homePage = contentQuery.GetAtRoot().FirstOrDefault();
-            if (homePage == null) return null;
-            var badgeList = homePage?.FirstChildOfType(BadgeListPage.ModelTypeAlias) ?? null;
-            if (badgeList == null && badgeList?.Children != null ) return null;
-            badge = badgeList?.Children?.FirstOrDefault(x => string.Equals(x.Name, badgeName, StringComparison.CurrentCultureIgnoreCase)) ?? null;
-        }
-        return badge;
+        using var umbracoContextReference = _umbracoContextFactory.EnsureUmbracoContext();
+        var badges = ContentHelper.GetBadges(umbracoContextReference.UmbracoContext.Content!);
+        return badges.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.CurrentCultureIgnoreCase));
     }
 
-    public bool HasBadge(Umbraco.Cms.Web.Common.PublishedModels.Member member, IPublishedContent contentItem)
+    public bool HasBadge(IMember member, BadgePage badge)
     {
-        var udi = contentItem.GetUdiObject().ToString();
-
+        var udi = badge.GetUdiObject().ToString();
+        
         if (member == null) throw new Exception("Member is null");
+        
+        var badgesValue = member.GetValue<string>("badges");
+        var badgesArray = !string.IsNullOrWhiteSpace(badgesValue) ? JsonConvert.DeserializeObject<JArray>(badgesValue) : new JArray();;
+        
+        return badgesArray.Contains(udi);
+    }
+    
 
-        var badgeUdis = new List<string>();
-
-        if(member.Badges != null && member.Badges.Any())
+    public bool AddBadgeToMember(IMember member, IBadge badge, bool checkCondition = true)
+    {
+        if(checkCondition)
         {
-            foreach(var badge in member.Badges)
+            var conditionMet = badge.AwardCondition;
+            if(conditionMet == false)
             {
-                badgeUdis.Add(badge.GetUdiObject().ToString());
+                return false;
             }
+            return AssignBadgeToMember(member, badge);
         }
-
-        return badgeUdis?.Contains(udi) ?? false;
+        return AssignBadgeToMember(member, badge);
     }
 
-    public bool AddBadgeToMember(IMember member, IPublishedContent contentItem)
+    private bool AssignBadgeToMember(IMember member, IBadge badge)
     {
-        var badgesValue = member.GetValue<string>("badges");
-
-        JArray badgesArray = null;
-
-        if (!string.IsNullOrWhiteSpace(badgesValue))
+        var badgeItem = GetBadgeByName(badge.UniqueUmbracoName);
+        if (badgeItem is null)
         {
-            badgesArray = JsonConvert.DeserializeObject<JArray>(badgesValue);
-        }
-        else
-        {
-            badgesArray = new JArray();
+            return false;
         }
 
-        badgesArray.Add(contentItem.GetUdiObject().ToString());
+        // if (!HasBadge(member, badgeItem))
+        // {
+        //     var badgesValue = member.GetValue<string>("badges");
+        //     var badgesArray = !string.IsNullOrWhiteSpace(badgesValue) ? JsonConvert.DeserializeObject<JArray>(badgesValue) : new JArray();;
+        //     
+        //     badgesArray?.Add(badgeItem.GetUdiObject().ToString());
+        //     member.SetValue("badges", badgesArray);
+        //
+        //     _memberService.Save(member);
+        //
+        //     return true;
+        // }
 
-        member.SetValue("badges", badgesArray);
-
-        _memberService.Save(member);
-
-        return true;
+        return false;
     }
 }

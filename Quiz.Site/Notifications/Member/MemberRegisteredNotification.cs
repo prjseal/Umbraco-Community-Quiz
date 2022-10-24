@@ -1,14 +1,15 @@
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Notifications;
 
-namespace Quiz.Site.Notifications;
-
-public class MemberRegisteredNotification : INotification
+namespace Quiz.Site.Notifications.Member
 {
-    public IMember RegisteredMember { get; }
-
-    public MemberRegisteredNotification(IMember registeredMember)
+    public class MemberRegisteredNotification : INotification
     {
-        RegisteredMember = registeredMember;
+        public IMember RegisteredMember { get; }
+
+        public MemberRegisteredNotification(IMember registeredMember)
+        {
+            RegisteredMember = registeredMember;
+        }
     }
 }
