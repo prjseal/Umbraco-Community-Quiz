@@ -1,11 +1,13 @@
 ﻿@using Quiz.Site.Services
 @using Umbraco.Cms.Core.Security
 @using Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Cms.Core.Services
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 
 @inject INotificationRepository _notificationRepository;
 @inject IAccountService _accountService;
 @inject IMemberManager _memberManager;
+@inject IMemberService _memberService;
 
 @{
     Layout = null;    
@@ -13,7 +15,10 @@
     var isLoggedIn = User.Identity.IsAuthenticated;
     if(isLoggedIn)
     {
-        memberModel = _accountService.GetMemberModelFromUser(await _memberManager.GetCurrentMemberAsync());
+        var user = await _memberManager.GetCurrentMemberAsync();
+        var member = _memberService.GetByEmail(user.Email);
+        memberModel = _accountService.GetMemberModelFromMember(member);
+
     }
 }
 

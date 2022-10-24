@@ -3,9 +3,11 @@
 @using Quiz.Site.Services
 @using Umbraco.Cms.Core.Security
 @using Quiz.Site.Extensions;
+@using Umbraco.Cms.Core.Services
 @inject IAccountService accountService;
 @inject IMemberManager memberManager;
 @inject IQuizResultRepository quizResultRepository;
+@inject IMemberService _memberService;
 
 @if (Model == null || Model.Questions == null || !Model.Questions.Any()) return;
 
@@ -15,7 +17,8 @@
 	var umbracoPage = Umbraco.AssignedContentItem;
 	var quizUdi = Umbraco.AssignedContentItem.GetUdiObject().ToString();
 	var member = await memberManager.GetCurrentMemberAsync();
-	var memberModel = accountService.GetMemberModelFromUser(member);
+	var memberItem = _memberService.GetByEmail(member.Email);
+	var memberModel = accountService.GetMemberModelFromMember(memberItem);
 	var quizResult = quizResultRepository.GetByMemberIdAndQuizId(memberModel.Id, quizUdi);
 }
 

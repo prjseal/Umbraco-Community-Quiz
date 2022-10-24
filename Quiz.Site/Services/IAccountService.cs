@@ -9,8 +9,6 @@ namespace Quiz.Site.Services
     {
         ProfileViewModel GetEnrichedProfile(ContentModels.Member member);
 
-        ContentModels.Member GetMemberModelFromUser(MemberIdentityUser user);
-
         ContentModels.Member GetMemberModelFromMember(IMember member);
 
         IMember GetMemberFromUser(MemberIdentityUser user);
