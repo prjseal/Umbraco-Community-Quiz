@@ -9,6 +9,8 @@ public class EarlyAdopterBadgeNotificationHandler : INotificationHandler<MemberR
 {
     private readonly IBadgeService _badgeService;
 
+    private readonly static DateTime EarlyAdopterThreshold = new(2022, 11, 5);
+
     public EarlyAdopterBadgeNotificationHandler(IBadgeService badgeService)
     {
         _badgeService = badgeService;
@@ -16,7 +18,9 @@ public class EarlyAdopterBadgeNotificationHandler : INotificationHandler<MemberR
     
     public void Handle(MemberRegisteredNotification notification)
     {
-        var badge = new EarlyAdopterBadge();
-        _badgeService.AddBadgeToMember(notification.RegisteredMember, badge);
+        if (DateTime.Now.Date < EarlyAdopterThreshold.Date)
+        {
+            _badgeService.AddBadgeToMember(notification.RegisteredMember, new EarlyAdopterBadge());
+        }
     }
 }

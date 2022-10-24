@@ -4,7 +4,6 @@ using Quiz.Site.Extensions;
 using Quiz.Site.Helpers;
 using Quiz.Site.Models.Badges;
 using Umbraco.Cms.Core.Models;
-using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.PublishedModels;
@@ -32,27 +31,27 @@ public class BadgeService : IBadgeService
     {
         var udi = badge.GetUdiObject().ToString();
         
-        if (member == null) throw new Exception("Member is null");
-        
+        if (member == null)
+        {
+            throw new Exception("Member is null");
+        }
+
         var badgesValue = member.GetValue<string>("badges");
         var badgesArray = !string.IsNullOrWhiteSpace(badgesValue) ? JsonConvert.DeserializeObject<JArray>(badgesValue) : new JArray();;
         
-        return badgesArray.Contains(udi);
+        return badgesArray != null && badgesArray.Contains(udi);
     }
     
 
-    public bool AddBadgeToMember(IMember member, IBadge badge, bool checkCondition = true)
+    public bool AddBadgeToMember(IMember member, IBadge badge, bool pushNotification = true)
     {
-        if(checkCondition)
-        {
-            var conditionMet = badge.AwardCondition;
-            if(conditionMet == false)
-            {
-                return false;
-            }
-            return AssignBadgeToMember(member, badge);
-        }
-        return AssignBadgeToMember(member, badge);
+       var success =  AssignBadgeToMember(member, badge);
+       if (success && pushNotification)
+       {
+           //TODO Push BadgeAssigned Notification to further handle user-visible notifications
+       }
+
+       return success;
     }
 
     private bool AssignBadgeToMember(IMember member, IBadge badge)
@@ -63,19 +62,20 @@ public class BadgeService : IBadgeService
             return false;
         }
 
-        // if (!HasBadge(member, badgeItem))
-        // {
-        //     var badgesValue = member.GetValue<string>("badges");
-        //     var badgesArray = !string.IsNullOrWhiteSpace(badgesValue) ? JsonConvert.DeserializeObject<JArray>(badgesValue) : new JArray();;
-        //     
-        //     badgesArray?.Add(badgeItem.GetUdiObject().ToString());
-        //     member.SetValue("badges", badgesArray);
-        //
-        //     _memberService.Save(member);
-        //
-        //     return true;
-        // }
+        if (HasBadge(member, badgeItem))
+        {
+            return false;
+        }
 
-        return false;
+        var badgesValue = member.GetValue<string>("badges");
+        var badgesArray = !string.IsNullOrWhiteSpace(badgesValue) ? JsonConvert.DeserializeObject<JArray>(badgesValue) : new JArray();;
+            
+        badgesArray?.Add(badgeItem.GetUdiObject().ToString());
+        member.SetValue("badges", badgesArray);
+        
+        _memberService.Save(member);
+        
+        return true;
+
     }
 }

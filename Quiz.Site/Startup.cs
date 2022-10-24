@@ -51,7 +51,6 @@ namespace Quiz.Site
                 .AddWebsite()
                 .AddKonstrukt()
                 .AddComposers()
-                .AddNotificationHandler<MemberRegisteredNotification, EarlyAdopterBadgeNotificationHandler>()
                 .Build();
         }
 

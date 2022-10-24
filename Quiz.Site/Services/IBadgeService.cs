@@ -9,5 +9,5 @@ public interface IBadgeService
     BadgePage? GetBadgeByName(string badgeName);
     bool HasBadge(IMember member, BadgePage badge);
     
-    bool AddBadgeToMember(IMember member, IBadge badge, bool checkCondition = true);
+    bool AddBadgeToMember(IMember member, IBadge badge, bool pushNotification = true);
 }
