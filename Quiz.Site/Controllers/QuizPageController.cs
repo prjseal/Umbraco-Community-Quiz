@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Newtonsoft.Json;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Models.ContentModels;
@@ -26,7 +27,7 @@ namespace Quiz.Site.Controllers
             IUmbracoContextAccessor umbracoContextAccessor,
             IMemberManager memberManager,
             IMemberService memberService,
-            IQuestionService questionService, 
+            IQuestionService questionService,
             IQuizResultService quizResultService)
             : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
@@ -53,20 +54,28 @@ namespace Quiz.Site.Controllers
             var memberItem = _memberService.GetByEmail(userEmail);
 
             var completedPreviously = _quizResultService.HasCompletedThisQuizBefore(memberItem.Id, quizPage.GetUdiObject().ToString());
-
+            var completedQuiz = TempData["CompletedQuiz"] != null ? JsonConvert.DeserializeObject<QuizViewModel>(TempData["CompletedQuiz"].ToString()) : null;
 
             var quiz = new QuizViewModel();
-            quiz.CompletedPreviously = completedPreviously;
-            quiz.QuizId = quizPage.Id;
-            quiz.MemberId = memberItem.Id;
 
-            var questionIds = quizPage?.Questions?.Select(x => int.Parse(x)).ToArray();
-
-            quiz.Questions = _questionService.GetListOfQuestions(questionIds);
-
-            if(completedPreviously)
+            if (completedQuiz is null)
             {
-                SetAllCorrectAnswers(quiz.Questions);
+                quiz.CompletedPreviously = completedPreviously;
+                quiz.QuizId = quizPage.Id;
+                quiz.MemberId = memberItem.Id;
+
+                var questionIds = quizPage?.Questions?.Select(x => int.Parse(x)).ToArray();
+
+                quiz.Questions = _questionService.GetListOfQuestions(questionIds);
+
+                if ((completedQuiz is null || completedQuiz.QuizId != quizPage.Id) && completedPreviously)
+                {
+                    SetAllCorrectAnswers(quiz.Questions);
+                }
+            }
+            else
+            {
+                quiz = completedQuiz;
             }
 
             var model = new QuizPageContentModel(CurrentPage);
