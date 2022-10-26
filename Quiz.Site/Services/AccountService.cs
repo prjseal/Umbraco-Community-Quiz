@@ -97,7 +97,7 @@ namespace Quiz.Site.Services
             return GetMemberModelFromMember(member);
         }
 
-        public void UpdateProfile(EditProfileViewModel model, ContentModels.Member memberModel, IMember member)
+        public void UpdateProfile(EditProfileViewModel model, IMember member)
         {
             member.Name = model.Name;
             
@@ -127,7 +127,7 @@ namespace Quiz.Site.Services
             _memberService.Save(member);
         }
 
-        public void DeleteProfile(DeleteProfileViewModel model, ContentModels.Member memberModel, IMember member)
+        public void DeleteProfile(DeleteProfileViewModel model, IMember member)
         {
             try
             {

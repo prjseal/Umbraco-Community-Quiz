@@ -7,6 +7,6 @@ namespace Quiz.Site.Services;
 public interface IBadgeService
 {
     BadgePage? GetBadgeByName(string badgeName);
-    bool HasBadge(IMember member, BadgePage badge);
-    bool AddBadgeToMember(IMember member, IBadge badge, bool pushNotification = true);
+    bool HasBadge(IMember member, IEnumerable<BadgePage> badges, BadgePage badge);
+    bool AddBadgeToMember(IMember member, IEnumerable<BadgePage> badges, IBadge badge, bool pushNotification = true);
 }

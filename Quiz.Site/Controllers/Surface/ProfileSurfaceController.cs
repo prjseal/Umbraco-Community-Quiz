@@ -160,7 +160,7 @@ namespace Quiz.Site.Controllers.Surface
                     }
                 }
                 await _eventAggregator.PublishAsync(new ProfileUpdatingFailedNotification("Edit Profile Model State Invalid"));
-                return RedirectToCurrentUmbracoPage();
+                return CurrentUmbracoPage();
             }
             
             var member = _accountService.GetMemberFromUser(await _memberManager.GetCurrentMemberAsync());
@@ -182,10 +182,14 @@ namespace Quiz.Site.Controllers.Surface
             }
 
             _logger.LogInformation("Member Model is Not Null");
-            
-            _accountService.UpdateProfile(model, memberModel, member);
 
-            await _eventAggregator.PublishAsync(new ProfileUpdatedNotification(member));
+            var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
+            
+            _accountService.UpdateProfile(model, member);
+
+            var badges = enrichedProfile?.Badges ?? Enumerable.Empty<BadgePage>();
+
+            await _eventAggregator.PublishAsync(new ProfileUpdatedNotification(member, enrichedProfile, badges));
 
             if (_memoryCache.TryGetValue(CacheKey.LeaderBoard, out _))
             {
@@ -221,18 +225,8 @@ namespace Quiz.Site.Controllers.Surface
                 return RedirectToCurrentUmbracoPage();
             }
 
-            var memberModel = _accountService.GetMemberModelFromMember(member);
-
-            if (memberModel == null)
-            {
-                _logger.LogError("MemberModel is null");
-                return RedirectToCurrentUmbracoPage();
-            }
-
-            _logger.LogInformation("Member Model is Not Null");
-
             //delete the physical account 
-            _accountService.DeleteProfile(model, memberModel, member);
+            _accountService.DeleteProfile(model, member);
             //sign them out as well
             await _memberSignInManager.SignOutAsync();
 

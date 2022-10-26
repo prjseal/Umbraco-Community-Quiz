@@ -86,7 +86,11 @@ namespace Quiz.Site.Controllers.Surface
             else
             {
                 var member = _memberService.GetByUsername(model.Username);
-                await _eventAggregator.PublishAsync(new MemberLoggedInNotification(member));
+                var memberModel = _accountService.GetMemberModelFromMember(member);
+                var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
+                var badges = enrichedProfile?.Badges ?? Enumerable.Empty<BadgePage>();
+
+                await _eventAggregator.PublishAsync(new MemberLoggedInNotification(member, badges));
             }
 
             var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
@@ -146,7 +150,11 @@ namespace Quiz.Site.Controllers.Surface
 
                 _memberService.AssignRoles(new[] { member.Username }, new[] { "Member" });
 
-                await _eventAggregator.PublishAsync(new MemberRegisteredNotification(member));
+                var memberModel = _accountService.GetMemberModelFromMember(member);
+                var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
+                var badges = enrichedProfile?.Badges ?? Enumerable.Empty<BadgePage>();
+
+                await _eventAggregator.PublishAsync(new MemberRegisteredNotification(member, badges));
             }
 
             TempData["Success"] = true;

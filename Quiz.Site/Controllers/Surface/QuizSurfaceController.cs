@@ -121,8 +121,11 @@ namespace Quiz.Site.Controllers.Surface
             {
                 _quizResultRepository.Create(quizResult);
             }
-            
-            await _eventAggregator.PublishAsync(new QuizCompletedNotification(memberItem, quizResult.Total, quizResult.Score));
+
+            var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
+            var badges = enrichedProfile?.Badges ?? Enumerable.Empty<BadgePage>();
+
+            await _eventAggregator.PublishAsync(new QuizCompletedNotification(memberItem, quizResult.Total, quizResult.Score, badges));
             
             if (_memoryCache.TryGetValue(CacheKey.LeaderBoard, out _))
             {

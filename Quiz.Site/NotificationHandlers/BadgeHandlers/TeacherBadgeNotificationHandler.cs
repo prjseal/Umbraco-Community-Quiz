@@ -16,6 +16,6 @@ public class TeacherBadgeNotificationHandler : INotificationHandler<QuestionCrea
     
     public void Handle(QuestionCreatedNotification notification)
     {
-        _badgeService.AddBadgeToMember(notification.CreatedBy, new TeacherBadge());
+        _badgeService.AddBadgeToMember(notification.CreatedBy, notification.Badges, new TeacherBadge());
     }
 }
