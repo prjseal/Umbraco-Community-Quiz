@@ -24,6 +24,7 @@ using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
 using Notification = Quiz.Site.Models.Notification;
 using Quiz.Site.Models.EmailViewModels;
+using Quiz.Site.Notifications.Member;
 
 namespace Quiz.Site.Controllers.Surface
 {
@@ -99,6 +100,7 @@ namespace Quiz.Site.Controllers.Surface
         {
             if (!ModelState.IsValid)
             {
+                await _eventAggregator.PublishAsync(new MemberRegisteringFailedNotification("ModelState Invalid"));
                 return CurrentUmbracoPage();
             }
 
@@ -106,6 +108,7 @@ namespace Quiz.Site.Controllers.Surface
 
             if (existingMember != null)
             {
+                await _eventAggregator.PublishAsync(new MemberRegisteringFailedNotification("Member has already been registered"));
                 await SendAlreadyRegisteredEmail(model);
                 _logger.LogInformation("Register: Member has already been registered");
                 ModelState.AddModelError("General", "There was an issue registering your account.");
@@ -117,25 +120,16 @@ namespace Quiz.Site.Controllers.Surface
 
             if(!hasCreatedMember)
             {
+                await _eventAggregator.PublishAsync(new MemberRegisteringFailedNotification("An issue occured registering the member"));
                 ModelState.AddModelError("General", "There was an issue registering your account.");
                 return RedirectToCurrentUmbracoPage();
             }
 
-            TempData["Success"] = true;
+            TempData["RegisterSuccess"] = true;
 
             var result = await _memberSignInManager.PasswordSignInAsync(
                 model.Email, model.Password, isPersistent: false, lockoutOnFailure: true);
-
-            if (result.Succeeded && DateTime.Now.Date < EarlyAdopterThreshold.Date)
-            {
-                var member = _accountService.GetMemberFromUser(await _memberManager.GetCurrentMemberAsync());
-
-                if (member is not null)
-                {
-                    AssignEarlyAdopterBadge(member);
-                }
-            }
-
+            
             var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
 
             return RedirectToUmbracoPage(profilePage);
@@ -201,27 +195,6 @@ namespace Quiz.Site.Controllers.Surface
             {
                 _logger.LogError(ex, "Error When Trying To Send Already Registered Email");
                 return false;
-            }
-        }
-        
-        private void AssignEarlyAdopterBadge(IMember member)
-        {
-            var memberModel = _accountService.GetMemberModelFromMember(member);
-            var earlyAdopterBadge = _badgeService.GetBadgeByName("Early Adopter");
-            
-            if(memberModel is not null && !_badgeService.HasBadge(memberModel, earlyAdopterBadge))
-            {
-                if(_badgeService.AddBadgeToMember(member, earlyAdopterBadge))
-                {
-                    _notificationRepository.Create(new Notification()
-                    {
-                        BadgeId = earlyAdopterBadge.GetUdiObject().ToString(),
-                        MemberId = memberModel.Id,
-                        Message = "New badge earned - " + earlyAdopterBadge.Name
-                    });
-
-                    TempData["ShowToast"] = true;
-                }
             }
         }
     }

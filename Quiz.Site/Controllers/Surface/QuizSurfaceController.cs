@@ -6,6 +6,7 @@ using Quiz.Site.Enums;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Notifications;
+using Quiz.Site.Notifications.Quiz;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
@@ -80,6 +81,7 @@ namespace Quiz.Site.Controllers.Surface
         {
             if (!ModelState.IsValid)
             {
+                await _eventAggregator.PublishAsync(new QuizCompletingFailedNotification("ModelState Invalid"));
                 return CurrentUmbracoPage();
             }
 
@@ -113,35 +115,21 @@ namespace Quiz.Site.Controllers.Surface
                 Total = questionCount
             };
 
-            _quizResultRepository.Create(quizResult);
+            var existingRecord = _quizResultRepository.GetByMemberIdAndQuizId(memberItem.Id, quizUdi.ToString());
+
+            if(existingRecord == null || existingRecord.Id <= 0)
+            {
+                _quizResultRepository.Create(quizResult);
+            }
             
             await _eventAggregator.PublishAsync(new QuizCompletedNotification(memberItem, quizResult.Total, quizResult.Score));
-
-            if(quizResult.Score > 0 && quizResult.Score == quizResult.Total)
-            {
-                var badge = _badgeService.GetBadgeByName("Perfect Score");
-                if (!_badgeService.HasBadge(memberModel, badge))
-                {
-                    if (_badgeService.AddBadgeToMember(memberItem, badge))
-                    {
-                        _notificationRepository.Create(new Notification()
-                        {
-                            BadgeId = badge.GetUdiObject().ToString(),
-                            MemberId = memberModel.Id,
-                            Message = "New badge earned - " + badge.Name
-                        });
-
-                        TempData["ShowToast"] = true;
-                    }
-                }
-            }
-
+            
             if (_memoryCache.TryGetValue(CacheKey.LeaderBoard, out _))
             {
                 _memoryCache.Remove(CacheKey.LeaderBoard);
             }
 
-            TempData["Success"] = true;
+            TempData["QuizSubmitSuccess"] = true;
             TempData["CompletedQuiz"] = JsonConvert.SerializeObject(quiz);
 
             return RedirectToCurrentUmbracoPage();

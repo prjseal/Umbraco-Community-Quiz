@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using Quiz.Site.Enums;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Notifications;
+using Quiz.Site.Notifications.Profile;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
@@ -18,6 +21,7 @@ using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Web.Common.PublishedModels;
+using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
 
 namespace Quiz.Site.Controllers.Surface
@@ -26,6 +30,7 @@ namespace Quiz.Site.Controllers.Surface
     {
         private readonly IMemberManager _memberManager;
         private readonly IMemberService _memberService;
+        private readonly IMemberSignInManager _memberSignInManager;
         private readonly ILogger<ProfileSurfaceController> _logger;
         private readonly IEmailSender _emailSender;
         private readonly GlobalSettings _globalSettings;
@@ -33,6 +38,7 @@ namespace Quiz.Site.Controllers.Surface
         private readonly IBadgeService _badgeService;
         private readonly INotificationRepository _notificationRepository;
         private readonly IEventAggregator _eventAggregator;
+        private readonly IMemoryCache _memoryCache;
 
         public ProfileSurfaceController(
             //these are required by the base controller
@@ -45,16 +51,19 @@ namespace Quiz.Site.Controllers.Surface
             //these are dependencies we've added
             IMemberManager memberManager,
             IMemberService memberService,
+            IMemberSignInManager memberSignInManager,
             ILogger<ProfileSurfaceController> logger,
             IEmailSender emailSender,
             IOptions<GlobalSettings> globalSettings,
             IAccountService accountService,
             IBadgeService badgeService,
             INotificationRepository notificationRepository,
-            IEventAggregator eventAggregator
+            IEventAggregator eventAggregator,
+            IMemoryCache memoryCache
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
             _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
+            _memberSignInManager = memberSignInManager ?? throw new ArgumentNullException(nameof(memberSignInManager));
             _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
@@ -63,6 +72,7 @@ namespace Quiz.Site.Controllers.Surface
             _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
             _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
             _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
+            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         }
 
         [HttpPost]
@@ -149,6 +159,55 @@ namespace Quiz.Site.Controllers.Surface
                         _logger.LogError($" - {item.Key}: {item.Value}");
                     }
                 }
+                await _eventAggregator.PublishAsync(new ProfileUpdatingFailedNotification("Edit Profile Model State Invalid"));
+                return RedirectToCurrentUmbracoPage();
+            }
+            
+            var member = _accountService.GetMemberFromUser(await _memberManager.GetCurrentMemberAsync());
+
+            if (member is null)
+            {
+                await _eventAggregator.PublishAsync(new ProfileUpdatingFailedNotification("Member is null"));
+                _logger.LogError("Member is null");
+                return RedirectToCurrentUmbracoPage();
+            }
+
+            var memberModel = _accountService.GetMemberModelFromMember(member);
+
+            if (memberModel is null)
+            {
+                await _eventAggregator.PublishAsync(new ProfileUpdatingFailedNotification("MemberModel is null"));
+                _logger.LogError("MemberModel is null");
+                return RedirectToCurrentUmbracoPage();
+            }
+
+            _logger.LogInformation("Member Model is Not Null");
+            
+            _accountService.UpdateProfile(model, memberModel, member);
+
+            await _eventAggregator.PublishAsync(new ProfileUpdatedNotification(member));
+
+            if (_memoryCache.TryGetValue(CacheKey.LeaderBoard, out _))
+            {
+                _memoryCache.Remove(CacheKey.LeaderBoard);
+            }
+
+            return RedirectToCurrentUmbracoPage();
+        }
+
+        public async Task<IActionResult> DeleteProfile(DeleteProfileViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Delete Profile Model State Invalid");
+                var invalidFields = ModelState.ToErrorDictionary();
+                if (invalidFields != null && invalidFields.Any())
+                {
+                    foreach (var item in invalidFields)
+                    {
+                        _logger.LogError($" - {item.Key}: {item.Value}");
+                    }
+                }
                 return RedirectToCurrentUmbracoPage();
             }
 
@@ -171,32 +230,16 @@ namespace Quiz.Site.Controllers.Surface
             }
 
             _logger.LogInformation("Member Model is Not Null");
-            
-            _accountService.UpdateProfile(model, memberModel, member);
 
-            await _eventAggregator.PublishAsync(new ProfileUpdatedNotification(member));
+            //delete the physical account 
+            _accountService.DeleteProfile(model, memberModel, member);
+            //sign them out as well
+            await _memberSignInManager.SignOutAsync();
 
-            var updateProfileBadge = _badgeService.GetBadgeByName("Updated Profile");
-            if(!_badgeService.HasBadge(memberModel, updateProfileBadge))
-            {
-                if(_badgeService.AddBadgeToMember(member, updateProfileBadge))
-                {
-                    _notificationRepository.Create(new Notification()
-                    {
-                        BadgeId = updateProfileBadge.GetUdiObject().ToString(),
-                        MemberId = memberModel.Id,
-                        Message = "New badge earned - " + updateProfileBadge.Name
-                    });
 
-                    TempData["ShowToast"] = true;
-                }
-            }
+            var homePage = CurrentPage.Root();
 
-            var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
-
-            
-
-            return RedirectToCurrentUmbracoPage();
+            return RedirectToUmbracoPage(homePage.Key);
         }
     }
 }

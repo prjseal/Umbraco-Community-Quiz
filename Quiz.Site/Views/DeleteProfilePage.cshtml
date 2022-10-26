@@ -1,0 +1,38 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.DeleteProfilePage>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Cms.Core.Security
+
+@inject IMemberManager memberManager
+
+@{
+    Layout = "Master.cshtml";
+}
+
+<main class="main-content  mt-0">
+    <section>
+        <div class="page-header min-vh-100">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
+                        <div class="card card-plain py-lg-3">
+                            <div class="card-body text-left">
+                                @if (!User.Identity.IsAuthenticated)
+                                {
+                                    <h4 class="mb-0 font-weight-bolder">Please Login</h4>
+                                    <p class="mb-4">You need to be logged in before you can edit your profile. <a href="/login/">Login</a></p>
+                                }
+                                else
+                                {
+                                    <h4 class="mb-0 font-weight-bolder">Delete Profile</h4>
+                                    @await Component.InvokeAsync("DeleteProfile", await memberManager.GetCurrentMemberAsync())
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    @await Component.InvokeAsync("SideBanner")
+                </div>
+            </div>
+        </div>
+    </section>
+</main>

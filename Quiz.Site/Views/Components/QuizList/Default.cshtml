@@ -1,0 +1,73 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<QuizListViewModel>
+@using Quiz.Site.Extensions
+@using Quiz.Site.Models
+@using Quiz.Site.Enums
+@using Umbraco.Cms.Core
+@using Umbraco.Cms.Core.Models
+@using Umbraco.Cms.Core.Security
+@using Umbraco.Cms.Core.Services
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-flush" id="datatable-search">
+            <thead class="thead-light">
+                <tr>
+                    <th>Quiz</th>
+                    <th class="text-center">Complete</th>
+                    <th class="text-center">Correct</th>
+                    <th class="text-center">Out of</th>
+                    <th class="text-center">%</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Quizzes.Count() > 0)
+                {
+                    var index = 1;
+
+                    foreach (var quiz in Model.Quizzes)
+                    {
+                        var quizUdi = quiz.GetUdiObject().ToString();
+                        var result = Model.Results.Where(x => x.QuizId == quizUdi).FirstOrDefault();
+                        var completed = result != null;
+
+                        var percentage = completed && result?.Score > 0 ? (float)result.Score / (float)result.Total : 0;
+                        var formattedPercentage = Math.Round((percentage * 100f), 1);
+                        <tr>
+                            <td class="font-weight-bold">
+                                <div class="d-flex align-content-center justify-content-start">
+                                    <h6 class="ms-3 my-2 text-center  align-middle"><a href="@quiz.Url()">@quiz.Name</a></h6>
+                                </div>
+                            </td>
+                            <td class="font-weight-bold">
+                                <div class="d-flex align-content-center justify-content-center">
+                                    <span class="my-2 text-center  align-middle">@(completed ? "Yes" : "No")</span>
+                                </div>
+                            </td>
+                            <td class="font-weight-bold">
+                                <div class="d-flex align-content-center justify-content-center">
+                                    <span class="my-2 text-center  align-middle">@(completed ? result.Score : "")</span>
+                                </div>
+                            </td>
+                            <td class="font-weight-bold">
+                                <div class="d-flex align-content-center justify-content-center">
+                                    <span class="my-2 text-center  align-middle">@(completed ? result.Total : "")</span>
+                                </div>
+                            </td>
+                            <td class="font-weight-bold">
+                                <div class="d-flex align-content-center justify-content-center">
+                                    <span class="my-2 text-center  align-middle">@(completed ? formattedPercentage : "")</span>
+                                </div>
+                            </td>
+                        </tr>
+                        index++;
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="4" class="text-xs font-weight-bold px-4 py-3">You haven't completed any quizzes yet.</td></tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>

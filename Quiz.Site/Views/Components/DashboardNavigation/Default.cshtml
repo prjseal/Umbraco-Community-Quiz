@@ -11,17 +11,30 @@
     <hr class="horizontal dark mt-0">
     <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
         <ul class="navbar-nav">
-            <li class="nav-item mt-3">
-                <h6 class="ps-4  ms-2 text-uppercase text-xs font-weight-bolder opacity-6">PAGES</h6>
+            <li class="nav-item ">
+                <a class="nav-link " href="/leaderboard/">
+                    <div class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center">
+                        <i class="fas fa-list-ol text-primary text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Leaderboard</span>
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a class="nav-link " href="/quizzes/">
+                    <div class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center">
+                        <i class="fas fa-question text-success text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Quizzes</span>
+                </a>
             </li>
             <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#profileNav" class="nav-link " aria-controls="profileNav" role="button" aria-expanded="true">
+                <a data-bs-toggle="collapse" href="#profileNav" class="nav-link " aria-controls="profileNav" role="button" aria-expanded="false">
                     <div class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center">
                         <i class="fa fa-user text-warning text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Profile</span>
                 </a>
-                <div class="collapse show" id="profileNav">
+                <div class="collapse" id="profileNav">
                     <ul class="nav ms-4">
                         <li class="nav-item ">
                             <a class="nav-link " href="/profile/">
@@ -39,20 +52,14 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#quizNav" class="nav-link " aria-controls="quizNav" role="button" aria-expanded="true">
+                <a data-bs-toggle="collapse" href="#quizNav" class="nav-link " aria-controls="quizNav" role="button" aria-expanded="false">
                     <div class="icon icon-shape icon-sm text-center d-flex align-items-center justify-content-center">
-                        <i class="fas fa-question-circle text-info text-sm opacity-10"></i>
+                        <i class="fas fa-edit text-info text-sm opacity-10"></i>
                     </div>
-                    <span class="nav-link-text ms-1">Quiz</span>
+                    <span class="nav-link-text ms-1">Contribute</span>
                 </a>
-                <div class="collapse show" id="quizNav">
+                <div class="collapse" id="quizNav">
                     <ul class="nav ms-4">
-                        <li class="nav-item ">
-                            <a class="nav-link " href="/leaderboard/">
-                                <span class="sidenav-mini-icon"> L </span>
-                                <span class="sidenav-normal"> Leaderboard </span>
-                            </a>
-                        </li>
                         <li class="nav-item ">
                             <a class="nav-link " href="/submit/">
                                 <span class="sidenav-mini-icon"> S </span>
@@ -65,23 +72,12 @@
                                 <span class="sidenav-normal"> My Questions </span>
                             </a>
                         </li>
-                        @{
-                            var quizzes = Model.AncestorOrSelf<HomePage>().ChildrenOfType(QuizListPage.ModelTypeAlias).FirstOrDefault();
-                        }
-                        @if(quizzes != null && quizzes.Children != null && quizzes.Children.Any())
-                        {
-                            var index = 1;
-                            foreach(var quiz in quizzes.Children)
-                            {
-                                <li class="nav-item ">
-                                    <a class="nav-link " href="@quiz.Url()">
-                                        <span class="sidenav-mini-icon"> Q@(index) </span>
-                                        <span class="sidenav-normal"> @quiz.Name </span>
-                                    </a>
-                                </li>
-                                index++;
-                            }
-                        }
+                        <li class="nav-item ">
+                            <a class="nav-link" target="_blank" href="https://github.com/prjseal/Umbraco-Community-Quiz/">
+                                <span class="sidenav-mini-icon"> G </span>
+                                <span class="sidenav-normal"> GitHub </span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </li>
@@ -91,7 +87,7 @@
         <div class="card card-plain shadow-none" id="sidenavCard">
             <div class="card-body text-center p-3 w-100 pt-0">
                 <div class="docs-info">
-                    <p class="text-xs font-weight-bold mb-0">Hosted on:</p>
+                    <p class="text-xs font-weight-bold mb-0">Proudly hosted on:</p>
                 </div>
             </div>
             <a href="https://my.umbhost.net/aff.php?aff=1534" class="text-center">

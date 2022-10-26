@@ -1,5 +1,6 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.LeaderboardPage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Cms.Core
 
 @{
 	if(User.Identity != null && !User.Identity.IsAuthenticated)
@@ -9,7 +10,10 @@
         return;
     }
 
+    var defaultMediaItem = Umbraco.Media(Udi.Create("media", new Guid("65da644d-3fba-41c8-8173-2a924d96bba4")));
+    var fallbackImageUrl = defaultMediaItem.GetCropUrl(100, 100);
+
 	Layout = "DashboardMaster.cshtml";
 }
 
-@await Component.InvokeAsync("Leaderboard")
+@await Component.InvokeAsync("Leaderboard", fallbackImageUrl)

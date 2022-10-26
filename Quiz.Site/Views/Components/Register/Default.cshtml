@@ -4,7 +4,7 @@
 @inject IHostingEnvironment HostingEnvironment
 
 @{
-    bool submitted = bool.TryParse(TempData["Success"]?.ToString() ?? string.Empty, out var success);
+    bool submitted = bool.TryParse(TempData["RegisterSuccess"]?.ToString() ?? string.Empty, out var success);
 }
 
 @if (User.Identity.IsAuthenticated)
