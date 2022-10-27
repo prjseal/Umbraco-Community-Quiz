@@ -2,6 +2,7 @@ using Quiz.Site.Models.Badges;
 using Quiz.Site.Notifications.Member;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core.Events;
+using Umbraco.Cms.Web.Common.PublishedModels;
 
 namespace Quiz.Site.NotificationHandlers.BadgeHandlers;
 
@@ -20,7 +21,7 @@ public class EarlyAdopterBadgeNotificationHandler : INotificationHandler<MemberR
     {
         if (DateTime.Now.Date < EarlyAdopterThreshold.Date)
         {
-            _badgeService.AddBadgeToMember(notification.RegisteredMember, new EarlyAdopterBadge());
+            _badgeService.AddBadgeToMember(notification.RegisteredMember, notification.Badges, new EarlyAdopterBadge());
         }
     }
 }

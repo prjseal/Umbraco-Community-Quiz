@@ -31,25 +31,21 @@ public class BadgeService : IBadgeService
         return badges.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.CurrentCultureIgnoreCase));
     }
 
-    public bool HasBadge(IMember member, BadgePage badge)
+    public bool HasBadge(IMember member, IEnumerable<BadgePage> badges, BadgePage badge)
     {
-        var udi = badge.GetUdiObject().ToString();
-        
         if (member == null)
         {
             throw new Exception("Member is null");
         }
 
-        var badgesValue = member.GetValue<string>("badges");
-        var badgesArray = !string.IsNullOrWhiteSpace(badgesValue) ? JsonConvert.DeserializeObject<JArray>(badgesValue) : new JArray();;
-        
-        return badgesArray != null && badgesArray.Contains(udi);
+        var badgeIds = badges?.Select(x => x.Id) ?? Enumerable.Empty<int>();
+        return badgeIds != null && badgeIds.Contains(badge.Id);
     }
     
 
-    public bool AddBadgeToMember(IMember member, IBadge badge, bool pushNotification = true)
+    public bool AddBadgeToMember(IMember member, IEnumerable<BadgePage> badges, IBadge badge, bool pushNotification = true)
     {
-       var success =  AssignBadgeToMember(member, badge);
+       var success =  AssignBadgeToMember(member, badges, badge);
        if (success && pushNotification)
        {
            _eventAggregator.Publish(new BadgeAssignedNotification(badge, member));
@@ -58,7 +54,7 @@ public class BadgeService : IBadgeService
        return success;
     }
 
-    private bool AssignBadgeToMember(IMember member, IBadge badge)
+    private bool AssignBadgeToMember(IMember member, IEnumerable<BadgePage> badges, IBadge badge)
     {
         var badgeItem = GetBadgeByName(badge.UniqueUmbracoName);
         if (badgeItem is null)
@@ -66,7 +62,7 @@ public class BadgeService : IBadgeService
             return false;
         }
 
-        if (HasBadge(member, badgeItem))
+        if (HasBadge(member, badges, badgeItem))
         {
             return false;
         }

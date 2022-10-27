@@ -16,6 +16,6 @@ public class UpdatedProfileBadgeNotificationHandler : INotificationHandler<Profi
 
     public void Handle(ProfileUpdatedNotification notification)
     {
-        _badgeService.AddBadgeToMember(notification.UpdatedBy, new UpdatedProfileBadge());
+        _badgeService.AddBadgeToMember(notification.UpdatedBy, notification.Badges, new UpdatedProfileBadge());
     }
 }

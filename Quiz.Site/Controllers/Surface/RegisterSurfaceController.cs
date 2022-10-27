@@ -151,6 +151,9 @@ namespace Quiz.Site.Controllers.Surface
                     model.Password);
 
                 var member = _memberService.GetByEmail(identityUser.Email);
+                var memberModel = _accountService.GetMemberModelFromMember(member);
+                var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
+                var badges = enrichedProfile?.Badges ?? Enumerable.Empty<BadgePage>();
 
                 _logger.LogInformation("Register: Member created successfully");
 
@@ -161,7 +164,7 @@ namespace Quiz.Site.Controllers.Surface
 
                 _memberService.AssignRoles(new[] { member.Username }, new[] { "Member" });
                 
-                await _eventAggregator.PublishAsync(new MemberRegisteredNotification(member));
+                await _eventAggregator.PublishAsync(new MemberRegisteredNotification(member, badges));
 
                 return true;
             }

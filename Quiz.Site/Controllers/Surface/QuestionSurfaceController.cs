@@ -118,8 +118,11 @@ namespace Quiz.Site.Controllers.Surface
             };
 
             _questionRepository.Create(question);
-            
-            await _eventAggregator.PublishAsync(new QuestionCreatedNotification(member));
+
+            var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
+            var badges = enrichedProfile?.Badges ?? Enumerable.Empty<BadgePage>();
+
+            await _eventAggregator.PublishAsync(new QuestionCreatedNotification(member, badges));
 
             var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
 

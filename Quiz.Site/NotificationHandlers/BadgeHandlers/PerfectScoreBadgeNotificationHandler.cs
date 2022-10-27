@@ -18,7 +18,7 @@ public class PerfectScoreBadgeNotificationHandler : INotificationHandler<QuizCom
     {
         if (notification.QuizScore >= notification.QuizTotal)
         {
-            _badgeService.AddBadgeToMember(notification.CompletedBy, new PerfectScoreBadge());
+            _badgeService.AddBadgeToMember(notification.CompletedBy, notification.Badges, new PerfectScoreBadge());
         }
     }
 }
