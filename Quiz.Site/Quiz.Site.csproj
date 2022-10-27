@@ -36,6 +36,10 @@
     <ProjectReference Include="..\Quiz.ContentModels\Quiz.ContentModels.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="App_Plugins\UsedQuestions\backoffice\icons\usedQuestions.svg" />
+  </ItemGroup>
+
   <!-- Keep this as false if ModelsBuilder mode is InMemoryAuto -->
   <PropertyGroup>
     <RazorCompileOnBuild>true</RazorCompileOnBuild>
