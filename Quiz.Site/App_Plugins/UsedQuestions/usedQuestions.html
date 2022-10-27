@@ -1,0 +1,14 @@
+﻿<div ng-controller="CQ.UsedQuestions as vm">
+    <umb-box>
+        <umb-box-header title="Questions used for this quiz"></umb-box-header>
+        <umb-box-content>
+            <ul>
+                <li ng-repeat="item in vm.Questions">
+                    {{item.QuestionText}}
+                </li>
+            </ul>
+        </umb-box-content>
+    </umb-box>
+</div>
+
+
