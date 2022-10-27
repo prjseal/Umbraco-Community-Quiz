@@ -41,13 +41,16 @@ namespace Quiz.Site.Components
                         var enrichedProfile = _accountService.GetEnrichedProfile(memberContent);
                         if (enrichedProfile == null) continue;
 
+                        if (enrichedProfile.HideProfile) continue;
+
                         record.Badges = enrichedProfile.Badges?.Count() ?? 0;
                         record.AvatarUrl = enrichedProfile.Avatar?.GetCropUrl(50, 50) ?? fallbackImageUrl;
                         record.Name = enrichedProfile.Name;
                     }
                 }
 
-                playerRecords = playerRecords.OrderByDescending(x => x.Correct)
+                playerRecords = playerRecords.Where(x => !string.IsNullOrWhiteSpace(x.Name))
+                                            .OrderByDescending(x => x.Correct)
                                             .ThenByDescending(x => x.Total)
                                             .ThenBy(x => x.Quizzes)
                                             .ThenByDescending(x => x.Badges)

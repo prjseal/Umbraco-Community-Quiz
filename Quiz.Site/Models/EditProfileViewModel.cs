@@ -21,6 +21,9 @@ namespace Quiz.Site.Models
         [Display(Name = "Name")]
         public string Name { get; set; }
 
+        [Display(Name = "Hide Profile")]
+        public bool HideProfile { get; set; }
+
         //[Display(Name = "Job Title")]
         //public string JobTitle { get; set; }
 

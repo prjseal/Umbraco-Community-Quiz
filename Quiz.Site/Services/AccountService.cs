@@ -59,7 +59,8 @@ namespace Quiz.Site.Services
                 Name = member.Name,
                 Email = member.Value<string>("email"),
                 Badges = member.Badges?.Select(x => (BadgePage)x) ?? Enumerable.Empty<BadgePage>(),
-                Avatar = member.Avatar
+                Avatar = member.Avatar,
+                HideProfile = member.HideProfile
             };
 
             return profile;
@@ -100,6 +101,7 @@ namespace Quiz.Site.Services
         public void UpdateProfile(EditProfileViewModel model, IMember member)
         {
             member.Name = model.Name;
+            member.SetValue("hideProfile", model.HideProfile);
             
             try
             {

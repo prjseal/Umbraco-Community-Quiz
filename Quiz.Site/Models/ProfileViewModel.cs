@@ -9,5 +9,6 @@ namespace Quiz.Site.Models
         public string Email { get; set; }
         public IEnumerable<BadgePage> Badges { get; set; }
         public MediaWithCrops Avatar { get; set; }
+        public bool HideProfile { get; set; }
     }
 }
