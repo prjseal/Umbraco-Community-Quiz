@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Quiz.Site.Models;
 using Quiz.Site.Services;
+using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Security;
+using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Web.Common.Security;
 
 namespace Quiz.Site.Components
 {
@@ -10,18 +13,22 @@ namespace Quiz.Site.Components
     {
         private readonly IAccountService _accountService;
         private readonly IDataTypeValueService _dataTypeValueService;
+        private readonly IMemberService _memberService;
 
-        public EditProfileViewComponent(IAccountService accountService, IDataTypeValueService dataTypeValueService)
+
+        public EditProfileViewComponent(IAccountService accountService, IDataTypeValueService dataTypeValueService, IMemberService memberService)
         {
             _accountService = accountService;
             _dataTypeValueService = dataTypeValueService;
+            _memberService = memberService;
         }
 
         public IViewComponentResult Invoke(MemberIdentityUser user)
         {
-            var member = _accountService.GetMemberModelFromUser(user);
+            var member = _memberService.GetByEmail(user.Email);
+            var memberModel = _accountService.GetMemberModelFromMember(member);
 
-            var enrichedProfile = _accountService.GetEnrichedProfile(member);
+            var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
 
             var model = new EditProfileViewModel();
 

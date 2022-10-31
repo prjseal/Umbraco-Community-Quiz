@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Quiz.Site.Services;
+using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Security;
 
 namespace Quiz.Site.Components
@@ -14,11 +15,11 @@ namespace Quiz.Site.Components
             _accountService = accountService;
         }
 
-        public IViewComponentResult Invoke(MemberIdentityUser user)
+        public IViewComponentResult Invoke(IMember member)
         {
-            var member = _accountService.GetMemberModelFromUser(user);
+            var memberModel = _accountService.GetMemberModelFromMember(member);
 
-            var enrichedProfile = _accountService.GetEnrichedProfile(member);
+            var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
 
             return View(enrichedProfile);
         }
