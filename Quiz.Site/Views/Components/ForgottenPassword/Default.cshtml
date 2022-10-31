@@ -1,0 +1,29 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ForgottenPasswordRequestViewModel>
+
+@using Quiz.Site.Models
+@using Umbraco.Cms.Core.Hosting
+@inject IHostingEnvironment HostingEnvironment
+
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="row">
+        <div class="col-12 text-center">
+            <p class="mb-5">Signed in as @User.Identity.Name</p>
+        </div>
+    </div>
+}
+else
+{
+    using (Html.BeginUmbracoForm("ForgottenPasswordRequest", "AuthSurface", FormMethod.Post))
+    {
+        <label asp-for="@Model.Email"></label>
+        <div class="mb-3">
+            <input asp-for="@Model.Email" class="form-control" placeholder="Email" aria-label="Email" />
+            <span asp-validation-for="@Model.Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <button class="btn btn-primary btn-block btn-lg" type="submit">Forgotten Password</button>
+        </div>
+    }
+}

@@ -10,5 +10,10 @@
             public const string NotificationTable = "Notification";
             public const string ReadNotificationTable = "ReadNotification";
         }
+
+        public static class TokenReasons
+        {
+            public const string ForgottenPasswordRequest = "fpr";
+        }
     }
 }
