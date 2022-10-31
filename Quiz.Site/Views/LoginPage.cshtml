@@ -16,7 +16,19 @@
                                 @if (!User.Identity.IsAuthenticated)
                                 {
                                     <h4 class="mb-0 font-weight-bolder">Login</h4>
+
+                                    if(TempData.TryGetValue("PasswordReset", out var passwordHasReset)
+                                            && passwordHasReset is bool passwordHasResetBool && passwordHasResetBool)
+                                    {
+                                        TempData.Remove("PasswordReset");
+                                        <p class="text-success">Your password has successfully been reset.</p>
+                                    }
+
                                     @await Component.InvokeAsync("Login")
+                                    if(Model.Siblings<ForgottenPasswordPage>().FirstOrDefault() is ForgottenPasswordPage forgottenPasswordPage)
+                                    {
+                                        <p class="my-4">Can't login? <a href="@forgottenPasswordPage.Url()">Forgotten Password</a></p>
+                                    }
                                     <p class="my-4">Don't have an account yet? <a href="/register/">Register here</a></p>
                                 }
                                 else

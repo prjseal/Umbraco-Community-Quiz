@@ -1,0 +1,36 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<PasswordResetFormModel>
+
+@using Quiz.Site.Models
+
+@if (Model == null)
+{
+    <div class="row">
+        <div class="col-12 text-center">
+            <p class="mb-5">Oops, something went wrong.</p>
+        </div>
+    </div>
+}
+else
+{
+    using (Html.BeginUmbracoForm("ResetPassword", "ProfileSurface", FormMethod.Post))
+    {
+        <p class="text-error">
+            @Html.ValidationMessage("General")
+        </p>
+        @Html.Hidden(nameof(PasswordResetFormModel.RequestRef), Model.RequestRef)        
+        <label asp-for="@Model.Password"></label>
+        <div class="mb-3">
+            <input asp-for="@Model.Password" type="password" class="form-control" placeholder="Password" aria-label="Password" />
+            <span asp-validation-for="@Model.Password" class="text-danger"></span>
+        </div>
+        <label asp-for="@Model.PasswordConfirmation"></label>
+        <div class="mb-3">
+            <input asp-for="@Model.PasswordConfirmation" type="password" class="form-control" placeholder="Confirm Password" aria-label="Confirm Password">
+            <span asp-validation-for="@Model.PasswordConfirmation" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <button class="btn btn-primary btn-block btn-lg" type="submit">Reset Password</button>
+        </div>
+    }
+}

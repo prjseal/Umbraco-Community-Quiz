@@ -17,6 +17,11 @@
                                 {
                                     <h4 class="mb-0 font-weight-bolder">Login</h4>
                                     @await Component.InvokeAsync("Login")
+                                    
+                                    if(Model.FirstChild<ForgottenPasswordPage>() is ForgottenPasswordPage forgottenPassword)
+                                    {
+                                        <p class="my-4"><a href="@forgottenPassword.Url()">Can't remember your password?</a></p>    
+                                    }
                                     <p class="my-4">Don't have an account yet? <a href="/register/">Register here</a></p>
                                 }
                                 else

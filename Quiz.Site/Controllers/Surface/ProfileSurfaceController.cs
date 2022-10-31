@@ -123,6 +123,45 @@ namespace Quiz.Site.Controllers.Surface
             return RedirectToCurrentUmbracoPage();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(PasswordResetFormModel model, [FromQuery(Name = "u")] string userEmail, [FromQuery(Name = "t")] string token)
+        {
+            
+            var existingMember = await _memberManager.FindByEmailAsync(userEmail);
+
+            if(existingMember == null)
+                ModelState.AddModelError("General", "Invalid reset request EXUNF");
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var t = await _memberManager.GeneratePasswordResetTokenAsync(existingMember);
+                    var res = await _memberManager.ResetPasswordAsync(existingMember, t, model.Password);
+                    if(res.Succeeded)
+                    {
+                        TempData.Add("PasswordReset", true);
+                        var loginPage = CurrentPage.Siblings<LoginPage>().FirstOrDefault();
+                        
+                        return loginPage != null ? RedirectToUmbracoPage(loginPage) : RedirectToCurrentUmbracoPage();
+                    }
+                    else
+                        ModelState.AddModelError("General", res.Errors.FirstOrDefault()?.Description);
+                }
+                catch (System.Exception ex)
+                {
+                    _logger.LogError(ex, "An error occurred resetting a users password");
+                    ModelState.AddModelError("General", "Oops, an error occured while resetting your password");
+                    return CurrentUmbracoPage();
+                }
+            }
+
+            return CurrentUmbracoPage();
+
+            
+            
+        }
+
         public async Task<bool> SendAlreadyRegisteredEmail(RegisterViewModel model)
         {
             try
