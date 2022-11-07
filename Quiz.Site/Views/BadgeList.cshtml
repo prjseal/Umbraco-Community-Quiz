@@ -1,6 +1,10 @@
 ﻿@using Umbraco.Cms.Web.Common.PublishedModels;
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<BadgeListPage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+
 @{
-	Layout = null;
+	Layout = "DashboardMaster.cshtml";
+	var badges = Model.ChildrenOfType(contentTypeAlias: BadgePage.ModelTypeAlias);
 }
+
+@await Component.InvokeAsync("AllBadges", new { badgeListPage = Model })

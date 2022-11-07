@@ -1,0 +1,72 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<BadgeListPage>
+@using Quiz.Site.Extensions
+@using Quiz.Site.Models
+@using Quiz.Site.Enums
+@using Umbraco.Cms.Core
+
+@{
+    var allBadges = Model.Children != null ? Model.Children<BadgePage>() : Enumerable.Empty<BadgePage>();
+
+    var defaultMediaItem = Umbraco.Media(Udi.Create("media", new Guid("65da644d-3fba-41c8-8173-2a924d96bba4")));
+    var fallbackImageUrl = defaultMediaItem.GetCropUrl(50, 50);
+}
+
+<div class="card">
+    <div class="row">
+        <h3 class="px-5 mt-3">Badges</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-flush" id="datatable-search">
+            <thead class="thead-light">
+                <tr>
+                    <th>Badge</th>
+                    <th>Awarded For</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (allBadges != null && allBadges.Any())
+                {
+                    var index = 1;
+                    foreach (var badge in allBadges)
+                    {
+                        <tr>
+                            <td>
+                                @if(!badge.Colour.IsNullOrWhiteSpace())
+                                {
+                                    <style>
+                                        .svg-@badge.Key path{
+                                            fill: @badge.Colour
+                                        }
+                                    </style>
+                                }
+                                <div class="d-flex mt-3">
+                                    <div class="ms-3 svg-@badge.Key" style="width: 50px; height: auto;">
+                                        @if(badge.Image != null)
+                                        {
+                                            <our-svg media-item="@badge.Image"></our-svg>
+                                        }
+                                        else
+                                        {
+                                            <img src="@fallbackImageUrl" alt="@badge.Name" />
+                                        }
+                                    </div>
+                                    <h6 class="ms-3 my-auto">@badge.Name</h6>
+                                </div>
+                            </td>
+                            <td class="font-weight-bold">
+                                <div class="d-flex mt-3">
+                                    <div class="my-2 px-3">@badge.Description</div>
+                                </div>
+                            </td>
+                        </tr>
+                        index++;
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="4" class="text-xs font-weight-bold px-4 py-3">There aren't any badges yet.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
