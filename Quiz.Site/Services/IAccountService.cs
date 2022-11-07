@@ -12,8 +12,6 @@ namespace Quiz.Site.Services
 
         ProfileViewModel GetEnrichedProfile(IPublishedContent member);
 
-        ContentModels.Member GetMemberModelFromUser(MemberIdentityUser user);
-
         ContentModels.Member GetMemberModelFromMember(IMember member);
 
         ContentModels.Member GetMemberModelFromId(int memberId);

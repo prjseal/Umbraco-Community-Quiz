@@ -4,6 +4,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="App_Plugins\UsedQuestions\usedQuestions.html" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Konstrukt" Version="1.5.2" />
@@ -32,6 +35,9 @@
 
   <ItemGroup>
     <None Include="App_Plugins\UsedQuestions\backoffice\icons\usedQuestions.svg" />
+    <None Include="App_Plugins\UsedQuestions\package.manifest" />
+    <None Include="App_Plugins\UsedQuestions\usedQuestions.controller.js" />
+    <None Include="App_Plugins\UsedQuestions\usedQuestions.resource.js" />
   </ItemGroup>
 
   <!-- Keep this as false if ModelsBuilder mode is InMemoryAuto -->

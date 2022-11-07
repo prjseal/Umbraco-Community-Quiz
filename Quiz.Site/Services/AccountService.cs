@@ -71,16 +71,6 @@ namespace Quiz.Site.Services
             return user != null ? _memberService.GetByUsername(user.UserName) : null;
         }
 
-        //public ContentModels.Member GetMemberModelFromUser(MemberIdentityUser user)
-        //{
-        //    using (var umbracoContext = _umbracoContextFactory.EnsureUmbracoContext())
-        //    {
-        //        var member = user != null ? _memberService.GetByUsername(user.UserName) : null;
-        //        if (member == null) return null;
-        //        return umbracoContext.UmbracoContext.PublishedSnapshot.Members.Get(member) as ContentModels.Member;
-        //    }
-        //}
-
         public ContentModels.Member GetMemberModelFromMember(IMember member)
         {
             using (var umbracoContext = _umbracoContextFactory.EnsureUmbracoContext())
