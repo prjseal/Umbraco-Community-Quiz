@@ -1,45 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Quiz.Site.Models;
-using Quiz.Site.Services;
-using Umbraco.Cms.Core.Models.PublishedContent;
-using Umbraco.Cms.Core.Security;
-using Umbraco.Cms.Core.Services;
 
 namespace Quiz.Site.Components
 {
     [ViewComponent(Name = "ProfileResults")]
     public class ProfileResultsViewComponent : ViewComponent
     {
-        private readonly IAccountService _accountService;
-        private readonly IQuizResultRepository _quizResultRepository;
-        private readonly IMemberService _memberService;
-
-        public ProfileResultsViewComponent(IAccountService accountService, IQuizResultRepository quizResultRepository,
-            IMemberService memberService)
+        public IViewComponentResult Invoke(ProfileResultsViewModel model)
         {
-            _accountService = accountService;
-            _quizResultRepository = quizResultRepository;
-            _memberService = memberService;
-        }
-
-        public IViewComponentResult Invoke(MemberIdentityUser user)
-        {
-            var member = _memberService.GetByEmail(user.Email);
-            var memberModel = _accountService.GetMemberModelFromMember(member);
-            var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
-
-            ProfileResultsViewModel model = new ProfileResultsViewModel();
-
-            var playerRecord = _quizResultRepository.GetPlayerRecordByMemberId(member.Id);
-
-            if (playerRecord != null)
-            {
-                playerRecord.Badges = enrichedProfile?.Badges?.Count() ?? 0;
-                model.PlayerRecord = playerRecord;
-            }
-
-            model.Profile = enrichedProfile;
-
             return View(model);
         }
     }

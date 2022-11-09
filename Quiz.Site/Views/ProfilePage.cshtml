@@ -1,14 +1,13 @@
-﻿@using Umbraco.Cms.Web.Common.PublishedModels;
-@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.ProfilePage>
-@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+﻿@using Quiz.Site.Models.ContentModels
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ProfilePageContentModel>
 @using Umbraco.Cms.Core.Security
 
 @inject IMemberManager memberManager
 
 @{
 	Layout = "DashboardMaster.cshtml";
-	var member = await memberManager.GetCurrentMemberAsync();
 }
 
-@await Component.InvokeAsync("ProfileResults", member)
-@await Component.InvokeAsync("MyBadges", member)
+@await Component.InvokeAsync("ProfileResults", Model.ProfileResults)
+@await Component.InvokeAsync("MyBadges", Model.ProfileResults.Profile)

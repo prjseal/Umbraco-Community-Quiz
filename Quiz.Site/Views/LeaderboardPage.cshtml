@@ -3,13 +3,6 @@
 @using Umbraco.Cms.Core
 
 @{
-	if(User.Identity != null && !User.Identity.IsAuthenticated)
-    {
-        this.Context.Response.Redirect("/");        
-        IgnoreBody();
-        return;
-    }
-
     var defaultMediaItem = Umbraco.Media(Udi.Create("media", new Guid("65da644d-3fba-41c8-8173-2a924d96bba4")));
     var fallbackImageUrl = defaultMediaItem.GetCropUrl(100, 100);
 

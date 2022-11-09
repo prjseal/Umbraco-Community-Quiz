@@ -15,12 +15,6 @@ namespace Quiz.Site.Controllers
 
         public override IActionResult Index()
         {
-            if (!User.Identity.IsAuthenticated)
-            {
-                var loginPage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(LoginPage.ModelTypeAlias);
-                
-                return Redirect(loginPage?.Url() ?? "/");
-            }
             return CurrentTemplate(CurrentPage);
         }
     }
