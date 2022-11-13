@@ -17,7 +17,8 @@ public class RegisterNotificationsComposer : IComposer
         builder.AddNotificationHandler<QuizCompletedNotification, PerfectScoreBadgeNotificationHandler>();
         builder.AddNotificationHandler<QuestionCreatedNotification, TeacherBadgeNotificationHandler>();
         builder.AddNotificationHandler<ProfileUpdatedNotification, UpdatedProfileBadgeNotificationHandler>();
-        
+        builder.AddNotificationHandler<QuizCompletedNotification, EarlyBirdBadgeNotificationHandler>();
+
         builder.AddNotificationHandler<BadgeAssignedNotification, BadgeAssignedNotificationHandler>();
     }
 }

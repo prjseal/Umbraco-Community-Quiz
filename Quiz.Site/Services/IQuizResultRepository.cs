@@ -25,4 +25,6 @@ public interface IQuizResultRepository
     IEnumerable<PlayerRecord> GetPlayerRecords();
 
     PlayerRecord GetPlayerRecordByMemberId(int memberId);
+
+    QuizResult GetFirstResultForThisQuiz(string quizId);
 }

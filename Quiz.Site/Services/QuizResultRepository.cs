@@ -137,4 +137,16 @@ public class QuizResultRepository : IQuizResultRepository
             return result;
         }
     }
+
+    public QuizResult GetFirstResultForThisQuiz(string quizId)
+    {
+        using (var scope = _scopeProvider.CreateScope())
+        {
+            var db = scope.Database;
+            var record = db.Query<QuizResult>("SELECT * FROM QuizResult WHERE [quizId] = @quizId ORDER BY datecreated", new { quizId }).FirstOrDefault();
+            scope.Complete();
+
+            return record;
+        }
+    }
 }

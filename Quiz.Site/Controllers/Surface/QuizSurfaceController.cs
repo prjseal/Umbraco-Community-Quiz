@@ -125,7 +125,7 @@ namespace Quiz.Site.Controllers.Surface
             var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
             var badges = enrichedProfile?.Badges ?? Enumerable.Empty<BadgePage>();
 
-            await _eventAggregator.PublishAsync(new QuizCompletedNotification(memberItem, quizResult.Total, quizResult.Score, badges));
+            await _eventAggregator.PublishAsync(new QuizCompletedNotification(memberItem, quizResult.Total, quizResult.Score, badges, quizUdi.ToString()));
             
             if (_memoryCache.TryGetValue(CacheKey.LeaderBoard, out _))
             {
