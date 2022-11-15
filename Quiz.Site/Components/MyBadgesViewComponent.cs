@@ -9,7 +9,7 @@ namespace Quiz.Site.Components
         public IViewComponentResult Invoke(ProfileViewModel profileModel)
         {
             var model = new MyBadgesViewModel();
-            model.Badges = profileModel.Badges;
+            model.Badges = profileModel.Badges.Reverse();
             return View(model);
         }
     }

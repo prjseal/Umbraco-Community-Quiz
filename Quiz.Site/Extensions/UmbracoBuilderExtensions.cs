@@ -53,14 +53,16 @@ public static class UmbracoBuilderExtensions
                             )
                         )
                     )
-                    .AddCollection<QuizResult>(x => x.Id, "Quiz Result", "Quiz Results", "A quiz result entity", "icon-calculator", "icon-calculator", collectionConfig => collectionConfig
-                    .AddCard("Perfect Scores", "icon-check", p => p.Score == p.Total, cardConfig => {
-                        cardConfig.SetColor("blue");
-                    })
+                    .AddCollection<QuizResult>(x => x.Id, "Quiz Result", "Quiz Results", "A quiz result entity", 
+                        "icon-calculator", "icon-calculator", collectionConfig => collectionConfig
+                        .AddCard("Perfect Scores", "icon-check", p => p.Score == p.Total, cardConfig => {
+                            cardConfig.SetColor("blue");
+                        })
                         .SetNameProperty(p => p.Name)
                         .ListView(listViewConfig => listViewConfig
                             .AddField(p => p.Score).SetHeading("Score")
                             .AddField(p => p.Total).SetHeading("Total")
+                            .AddField(p => p.DateCreated).SetHeading("Date Created")
                         )
                         .AddDataView("All", p => p.Score == p.Total
                                             || (p.Score < p.Total && p.Score > 0)

@@ -75,6 +75,8 @@ namespace Quiz.Site.Controllers
 
             resultsModel.Profile = enrichedProfile;
 
+            resultsModel.QuizResults = _quizResultRepository.GetAllByMemberId(member.Id);
+
             var model = new ProfilePageContentModel(CurrentPage);
             model.ProfileResults = resultsModel;
 

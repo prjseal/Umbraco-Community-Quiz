@@ -9,4 +9,6 @@ public class ProfileResultsViewModel
     public ProfileViewModel Profile { get; set; }
 
     public PlayerRecord PlayerRecord { get; set; }
+
+    public IEnumerable<QuizResult> QuizResults { get; set; }
 }
