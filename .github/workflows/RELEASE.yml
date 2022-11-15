@@ -65,8 +65,8 @@ jobs:
             server-computer-name: ${{ secrets.UMBHOST_SERVER_COMPUTER_NAME }}
             server-username: ${{ secrets.UMBHOST_USERNAME }}
             server-password: ${{ secrets.UMBHOST_PASSWORD }}
-            source-path: '_build'
-            source-fileName: quiz.site.zip
+            source-path: 'Quiz.Site/_build'
+            source-fileName: Quiz.Site.zip
             
         - name: Tag Build
           uses: tvdias/github-tagger@v0.0.1
