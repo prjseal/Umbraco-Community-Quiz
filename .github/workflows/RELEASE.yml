@@ -45,6 +45,7 @@ jobs:
             files: 'Quiz.Site/appsettings.json'
           env:
             ConnectionStrings.umbracoDbDSN: ${{ secrets.UMBHOST_DATABASE_CONNECTION_STRING }}
+            ConnectionStrings.umbracoDbDSN_ProviderName: "Microsoft.Data.SqlClient"
             Umbraco.CMS.Global.Smtp.From: ${{ secrets.SMTP_FROM }}
             Umbraco.CMS.Global.Smtp.Host: ${{ secrets.SMTP_HOST }}
             Umbraco.CMS.Global.Smtp.Password: ${{ secrets.SMTP_PASSWORD }}
