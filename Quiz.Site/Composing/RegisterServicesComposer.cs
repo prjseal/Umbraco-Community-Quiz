@@ -20,6 +20,7 @@ public class RegisterServicesComposer : IComposer
         builder.Services.AddTransient<IReadNotificationRepository, ReadNotificationRepository>();
         builder.Services.AddTransient<IhCaptchaService, hCaptchaService>();
         builder.Services.AddTransient<IEmailBodyService, EmailBodyService>();
+        builder.Services.AddTransient<ILeaderboardService, LeaderboardService>();
 
         ConfigureDynamicImageService(builder);            
     }

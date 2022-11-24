@@ -20,6 +20,7 @@ public class RegisterNotificationsComposer : IComposer
         builder.AddNotificationHandler<QuizCompletedNotification, EarlyBirdBadgeNotificationHandler>();
         builder.AddNotificationHandler<QuizCompletedNotification, UmbracoNinjaBadgeNotificationHandler>();
         builder.AddNotificationHandler<QuizCompletedNotification, HighFiveYouRockBadgeNotificationHandler>();
+        builder.AddNotificationHandler<QuizCompletedNotification, PolePositionBadgeNotificationHandler>();
 
         builder.AddNotificationHandler<BadgeAssignedNotification, BadgeAssignedNotificationHandler>();
     }
