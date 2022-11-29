@@ -31,5 +31,8 @@ namespace Quiz.Site.Models
 
         [Column("total")]
         public int Total { get; set; }
+
+        [Column("answers")]
+        public string Answers { get; set; }
     }
 }

@@ -11,16 +11,14 @@ public class QuizCompletedNotification : INotification
     public int QuizTotal { get; }
 
     public int QuizScore { get; }
-    public IEnumerable<BadgePage> Badges { get; }
 
     public string CompletedQuizUdi { get; set; }
 
-    public QuizCompletedNotification(IMember completedBy, int quizTotal, int quizScore, IEnumerable<BadgePage> badges, string completedQuizUdi)
+    public QuizCompletedNotification(IMember completedBy, int quizTotal, int quizScore, string completedQuizUdi)
     {
         CompletedBy = completedBy;
         QuizTotal = quizTotal;
         QuizScore = quizScore;
-        Badges = badges;
         CompletedQuizUdi = completedQuizUdi;
     }
 }

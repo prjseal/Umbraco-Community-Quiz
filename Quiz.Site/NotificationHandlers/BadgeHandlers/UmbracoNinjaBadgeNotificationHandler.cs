@@ -2,6 +2,7 @@ using Quiz.Site.Models.Badges;
 using Quiz.Site.Notifications.Quiz;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core.Events;
+using Umbraco.Cms.Web.Common.PublishedModels;
 
 namespace Quiz.Site.NotificationHandlers.BadgeHandlers;
 
@@ -9,11 +10,14 @@ public class UmbracoNinjaBadgeNotificationHandler : INotificationHandler<QuizCom
 {
     private readonly IBadgeService _badgeService;
     private readonly IQuizResultRepository _quizResultRepository;
+    private readonly IAccountService _accountService;
 
-    public UmbracoNinjaBadgeNotificationHandler(IBadgeService badgeService, IQuizResultRepository quizResultRepository)
+    public UmbracoNinjaBadgeNotificationHandler(IBadgeService badgeService, IQuizResultRepository quizResultRepository,
+        IAccountService accountService)
     {
         _badgeService = badgeService;
         _quizResultRepository = quizResultRepository;
+        _accountService = accountService;
     }
 
     public void Handle(QuizCompletedNotification notification)
@@ -31,7 +35,11 @@ public class UmbracoNinjaBadgeNotificationHandler : INotificationHandler<QuizCom
 
             if (sumOfScore < sumOfTotal) return;
 
-            _badgeService.AddBadgeToMember(notification.CompletedBy, notification.Badges, new UmbracoNinjaBadge());
+            var memberModel = _accountService.GetMemberModelFromMember(notification.CompletedBy);
+            var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
+            var badges = enrichedProfile?.Badges ?? Enumerable.Empty<BadgePage>();
+
+            _badgeService.AddBadgeToMember(notification.CompletedBy, badges, new UmbracoNinjaBadge());
         }
     }
 }

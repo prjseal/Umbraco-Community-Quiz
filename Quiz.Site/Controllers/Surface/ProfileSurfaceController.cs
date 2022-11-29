@@ -3,9 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Quiz.Site.Enums;
-using Quiz.Site.Extensions;
 using Quiz.Site.Models;
-using Quiz.Site.Notifications;
 using Quiz.Site.Notifications.Profile;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core;
@@ -62,17 +60,17 @@ namespace Quiz.Site.Controllers.Surface
             IMemoryCache memoryCache
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
-            _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
-            _memberSignInManager = memberSignInManager ?? throw new ArgumentNullException(nameof(memberSignInManager));
-            _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
-            _globalSettings = globalSettings?.Value ?? throw new ArgumentNullException(nameof(globalSettings));
-            _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
-            _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
-            _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
-            _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
-            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+            _memberManager = memberManager;
+            _memberSignInManager = memberSignInManager;
+            _memberService = memberService;
+            _logger = logger;
+            _emailSender = emailSender;
+            _globalSettings = globalSettings?.Value;
+            _accountService = accountService;
+            _badgeService = badgeService;
+            _notificationRepository = notificationRepository;
+            _eventAggregator = eventAggregator;
+            _memoryCache = memoryCache;
         }
 
         [HttpPost]
@@ -221,14 +219,10 @@ namespace Quiz.Site.Controllers.Surface
             }
 
             _logger.LogInformation("Member Model is Not Null");
-
-            var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
             
             _accountService.UpdateProfile(model, member);
 
-            var badges = enrichedProfile?.Badges ?? Enumerable.Empty<BadgePage>();
-
-            await _eventAggregator.PublishAsync(new ProfileUpdatedNotification(member, enrichedProfile, badges));
+            await _eventAggregator.PublishAsync(new ProfileUpdatedNotification(member));
 
             if (_memoryCache.TryGetValue(CacheKey.LeaderBoard, out _))
             {

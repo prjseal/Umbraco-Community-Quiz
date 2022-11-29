@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Quiz.Site.Enums;
-using Quiz.Site.Extensions;
 using Quiz.Site.Models;
-using Quiz.Site.Notifications;
 using Quiz.Site.Notifications.Question;
 using Quiz.Site.Services;
 using System.Security.Cryptography;
@@ -58,16 +56,16 @@ namespace Quiz.Site.Controllers.Surface
             IEventAggregator eventAggregator
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
-            _questionRepository = questionRepository ?? throw new ArgumentNullException(nameof(questionRepository));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
-            _globalSettings = globalSettings?.Value ?? throw new ArgumentNullException(nameof(globalSettings));
+            _questionRepository = questionRepository;
+            _logger = logger;
+            _emailSender = emailSender;
+            _globalSettings = globalSettings?.Value;
             _memberManager = memberManager;
             _memberService = memberService;
             _accountService = accountService;
-            _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
-            _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
-            _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
+            _badgeService = badgeService;
+            _notificationRepository = notificationRepository;
+            _eventAggregator = eventAggregator;
         }
 
         [HttpPost]
@@ -119,10 +117,7 @@ namespace Quiz.Site.Controllers.Surface
 
             _questionRepository.Create(question);
 
-            var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
-            var badges = enrichedProfile?.Badges ?? Enumerable.Empty<BadgePage>();
-
-            await _eventAggregator.PublishAsync(new QuestionCreatedNotification(member, badges));
+            await _eventAggregator.PublishAsync(new QuestionCreatedNotification(member));
 
             var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);
 

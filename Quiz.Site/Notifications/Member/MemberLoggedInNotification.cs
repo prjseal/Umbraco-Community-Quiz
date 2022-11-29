@@ -7,11 +7,9 @@ namespace Quiz.Site.Notifications;
 public class MemberLoggedInNotification : INotification
 {
     public IMember LoggedInMember { get; }
-    public IEnumerable<BadgePage> Badges { get; }
 
-    public MemberLoggedInNotification(IMember loggedInMember, IEnumerable<BadgePage> badges)
+    public MemberLoggedInNotification(IMember loggedInMember)
     {
         LoggedInMember = loggedInMember;
-        Badges = badges;
     }
 }

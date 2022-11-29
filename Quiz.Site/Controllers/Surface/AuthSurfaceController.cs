@@ -1,16 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Quiz.Site.Extensions;
+using Microsoft.Extensions.Options;
 using Quiz.Site.Filters;
 using Quiz.Site.Models;
+using Quiz.Site.Models.EmailViewModels;
 using Quiz.Site.Notifications;
-using Quiz.Site.Notifications.Member;
 using Quiz.Site.Services;
+using System.Web;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Logging;
-using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Mail;
 using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Models.Email;
+using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
@@ -19,14 +22,7 @@ using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Web.Common.PublishedModels;
 using Umbraco.Cms.Web.Common.Security;
 using Umbraco.Cms.Web.Website.Controllers;
-using Notification = Quiz.Site.Models.Notification;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
-using Umbraco.Cms.Core.Mail;
-using Microsoft.Extensions.Options;
-using Umbraco.Cms.Core.Configuration.Models;
-using Umbraco.Cms.Core.Models.Email;
-using Quiz.Site.Models.EmailViewModels;
-using System.Web;
 
 namespace Quiz.Site.Controllers.Surface
 {
@@ -77,17 +73,17 @@ namespace Quiz.Site.Controllers.Surface
             this.appCaches = appCaches;
             this.profilingLogger = profilingLogger;
             this.publishedUrlProvider = publishedUrlProvider;
-            _memberSignInManager = memberSignInManager ?? throw new ArgumentNullException(nameof(memberSignInManager));
-            _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
-            _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
-            _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
-            _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
+            _memberSignInManager = memberSignInManager;
+            _memberManager = memberManager;
+            _memberService = memberService;
+            _accountService = accountService;
+            _badgeService = badgeService;
             this._emailSender = emailSender;
-            _globalSettings = globalSettings?.Value ?? throw new ArgumentNullException(nameof(globalSettings));
+            _globalSettings = globalSettings?.Value;
             this._emailBodyService = emailBodyService;
-            _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
-            _eventAggregator = eventAggregator ?? throw new ArgumentNullException(nameof(eventAggregator));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _notificationRepository = notificationRepository;
+            _eventAggregator = eventAggregator;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -109,11 +105,7 @@ namespace Quiz.Site.Controllers.Surface
             else
             {
                 var member = _memberService.GetByUsername(model.Username);
-                var memberModel = _accountService.GetMemberModelFromMember(member);
-                var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
-                var badges = enrichedProfile?.Badges ?? Enumerable.Empty<BadgePage>();
-
-                await _eventAggregator.PublishAsync(new MemberLoggedInNotification(member, badges));
+                await _eventAggregator.PublishAsync(new MemberLoggedInNotification(member));
             }
 
             var profilePage = CurrentPage.AncestorOrSelf<HomePage>().FirstChildOfType(ProfilePage.ModelTypeAlias);

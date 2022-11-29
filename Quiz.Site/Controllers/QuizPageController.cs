@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
 using Quiz.Site.Models.ContentModels;
 using Quiz.Site.Services;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Strings;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Web.Common.Controllers;
 using Umbraco.Cms.Web.Common.PublishedModels;
@@ -20,6 +23,9 @@ namespace Quiz.Site.Controllers
         private readonly IMemberService _memberService;
         private readonly IQuestionService _questionService;
         private readonly IQuizResultService _quizResultService;
+        private readonly IMemoryCache _memoryCache;
+        private readonly IShortStringHelper _shortStringHelper;
+        private readonly IQuizResultRepository _quizResultRepository;
 
         public QuizPageController(IQuestionRepository questionRepository,
             ILogger<ProfilePageController> logger,
@@ -28,7 +34,10 @@ namespace Quiz.Site.Controllers
             IMemberManager memberManager,
             IMemberService memberService,
             IQuestionService questionService,
-            IQuizResultService quizResultService)
+            IMemoryCache memoryCache,
+            IQuizResultService quizResultService,
+            IShortStringHelper shortStringHelper,
+            IQuizResultRepository quizResultRepository)
             : base(logger, compositeViewEngine, umbracoContextAccessor)
         {
             _questionRepository = questionRepository;
@@ -36,6 +45,9 @@ namespace Quiz.Site.Controllers
             _memberService = memberService;
             _questionService = questionService;
             _quizResultService = quizResultService;
+            _memoryCache = memoryCache;
+            _shortStringHelper = shortStringHelper;
+            _quizResultRepository = quizResultRepository;
         }
 
         public override IActionResult Index()
@@ -52,30 +64,41 @@ namespace Quiz.Site.Controllers
             var quizId = quizPage.Id;
             var userEmail = User.Identity.GetEmail();
             var memberItem = _memberService.GetByEmail(userEmail);
+            var quizUdi = quizPage.GetUdiObject();
 
-            var completedPreviously = _quizResultService.HasCompletedThisQuizBefore(memberItem.Id, quizPage.GetUdiObject().ToString());
-            var completedQuiz = TempData["CompletedQuiz"] != null ? JsonConvert.DeserializeObject<QuizViewModel>(TempData["CompletedQuiz"].ToString()) : null;
+            var completedQuiz = _quizResultRepository.GetByMemberIdAndQuizId(memberItem.Id, quizUdi.ToString());
+            var completedPreviously = completedQuiz != null;
 
             var quiz = new QuizViewModel();
 
-            if (completedQuiz is null)
+            quiz.CompletedPreviously = completedPreviously;
+            quiz.QuizId = quizPage.Id;
+            quiz.MemberId = memberItem.Id;
+
+            var questionIds = quizPage?.Questions?.Select(x => int.Parse(x)).ToArray();
+            var quizQuestionsCacheId = quizPage.Name.ToUrlSegment(_shortStringHelper);
+
+            if (!_memoryCache.TryGetValue(quizQuestionsCacheId, out List<QuizQuestionViewModel> questions))
             {
-                quiz.CompletedPreviously = completedPreviously;
-                quiz.QuizId = quizPage.Id;
-                quiz.MemberId = memberItem.Id;
+                questions = _questionService.GetListOfQuestions(questionIds);
 
-                var questionIds = quizPage?.Questions?.Select(x => int.Parse(x)).ToArray();
-
-                quiz.Questions = _questionService.GetListOfQuestions(questionIds);
-
-                if (completedPreviously)
+                _memoryCache.Set(quizQuestionsCacheId, questions, new MemoryCacheEntryOptions()
                 {
-                    SetAllCorrectAnswers(quiz.Questions);
-                }
+                    SlidingExpiration = TimeSpan.FromHours(1),
+                    Priority = CacheItemPriority.High,
+                });
             }
-            else
+            
+            quiz.Questions = questions;
+
+            if (completedPreviously)
             {
-                quiz = completedQuiz;
+                List<AnswerModel> answersModel = null;
+                if(!string.IsNullOrWhiteSpace(completedQuiz.Answers))
+                {
+                    answersModel = JsonConvert.DeserializeObject<List<AnswerModel>>(completedQuiz.Answers);
+                }
+                SetAllCorrectAnswers(quiz.Questions, answersModel);
             }
 
             var model = new QuizPageContentModel(CurrentPage);
@@ -84,14 +107,28 @@ namespace Quiz.Site.Controllers
             return CurrentTemplate(model);
         }
 
-        private static void SetAllCorrectAnswers(List<QuizQuestionViewModel> questionsToVerify)
+        private static void SetAllCorrectAnswers(List<QuizQuestionViewModel> questionsToVerify, 
+            List<AnswerModel> answers)
         {
             int questionCount = questionsToVerify?.Count ?? 0;
-            for (var q = 0; q < questionCount; q++)
+
+            if(answers != null && answers.Any())
             {
-                var selectedAnswerIndexAsInt = questionsToVerify[q].CorrectAnswerPosition.Value;
-                questionsToVerify[q].IsCorrect = true;
-                questionsToVerify[q].Answers[selectedAnswerIndexAsInt].Selected = true;
+                for (var q = 0; q < questionCount; q++)
+                {
+                    var answerModel = answers[q];
+                    questionsToVerify[q].IsCorrect = answerModel.IsCorrect;
+                    questionsToVerify[q].Answers[answerModel.SubmittedAnswer].Selected = true;
+                }
+            }
+            else
+            {
+                for (var q = 0; q < questionCount; q++)
+                {
+                    var selectedAnswerIndexAsInt = questionsToVerify[q].CorrectAnswerPosition.Value;
+                    questionsToVerify[q].IsCorrect = true;
+                    questionsToVerify[q].Answers[selectedAnswerIndexAsInt].Selected = true;
+                }
             }
         }
     }

@@ -7,12 +7,10 @@ namespace Quiz.Site.Notifications.Member
     public class MemberRegisteredNotification : INotification
     {
         public IMember RegisteredMember { get; }
-        public IEnumerable<BadgePage> Badges {get;}
 
-        public MemberRegisteredNotification(IMember registeredMember, IEnumerable<BadgePage> badges)
+        public MemberRegisteredNotification(IMember registeredMember)
         {
             RegisteredMember = registeredMember;
-            Badges = badges;
         }
     }
 }

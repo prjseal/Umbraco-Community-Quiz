@@ -7,11 +7,9 @@ namespace Quiz.Site.Notifications.Question;
 public class QuestionCreatedNotification : INotification
 {
     public IMember CreatedBy { get; }
-    public IEnumerable<BadgePage> Badges { get; }
 
-    public QuestionCreatedNotification(IMember createdBy, IEnumerable<BadgePage> badges)
+    public QuestionCreatedNotification(IMember createdBy)
     {
         CreatedBy = createdBy;
-        Badges = badges;
     }
 }

@@ -28,17 +28,7 @@
                                 }
                                 else
                                 {
-                                    var success = TempData["Success"] as bool?;
-                                    var completedQuizString = TempData["CompletedQuiz"] != null ? TempData["CompletedQuiz"].ToString() : "";
-                                    var completedQuiz = JsonConvert.DeserializeObject<QuizViewModel>(completedQuizString);
-                                    if(completedQuiz != null && success.HasValue && success.Value)
-                                    {
-                                        @await Component.InvokeAsync("Quiz", completedQuiz)
-                                    }
-                                    else
-                                    {
-                                        @await Component.InvokeAsync("Quiz", Model.Quiz)
-                                    }
+                                    @await Component.InvokeAsync("Quiz", Model.Quiz)
                                 }
                             </div>
                         </div>

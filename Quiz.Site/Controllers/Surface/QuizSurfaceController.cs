@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Quiz.Site.Enums;
 using Quiz.Site.Extensions;
 using Quiz.Site.Models;
-using Quiz.Site.Notifications;
 using Quiz.Site.Notifications.Quiz;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core.Cache;
@@ -16,6 +16,7 @@ using Umbraco.Cms.Core.Mail;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Strings;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Web.Common.PublishedModels;
@@ -37,6 +38,7 @@ namespace Quiz.Site.Controllers.Surface
         private readonly INotificationRepository _notificationRepository;
         private readonly IMemoryCache _memoryCache;
         private readonly IEventAggregator _eventAggregator;
+        private readonly IShortStringHelper _shortStringHelper;
 
         public QuizSurfaceController(
             //these are required by the base controller
@@ -58,21 +60,23 @@ namespace Quiz.Site.Controllers.Surface
             IBadgeService badgeService,
             INotificationRepository notificationRepository,
             IMemoryCache memoryCache,
-            IEventAggregator eventAggregator
+            IEventAggregator eventAggregator,
+            IShortStringHelper shortStringHelper
             ) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
         {
-            _memberManager = memberManager ?? throw new ArgumentNullException(nameof(memberManager));
-            _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
-            _globalSettings = globalSettings?.Value ?? throw new ArgumentNullException(nameof(globalSettings));
-            _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
-            _questionService = questionService ?? throw new ArgumentNullException(nameof(questionService));
-            _quizResultRepository = quizResultRepository ?? throw new ArgumentNullException(nameof(quizResultRepository));
-            _badgeService = badgeService ?? throw new ArgumentNullException(nameof(badgeService));
-            _notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
-            _memoryCache = memoryCache ?? throw new ArgumentException(nameof(memoryCache));
-            _eventAggregator = eventAggregator ?? throw new ArgumentException(nameof(eventAggregator));
+            _memberManager = memberManager;
+            _memberService = memberService;
+            _logger = logger;
+            _emailSender = emailSender;
+            _globalSettings = globalSettings?.Value;
+            _accountService = accountService;
+            _questionService = questionService;
+            _quizResultRepository = quizResultRepository;
+            _badgeService = badgeService;
+            _notificationRepository = notificationRepository;
+            _memoryCache = memoryCache;
+            _eventAggregator = eventAggregator;
+            _shortStringHelper = shortStringHelper;
         }
 
         [HttpPost]
@@ -81,72 +85,140 @@ namespace Quiz.Site.Controllers.Surface
         {
             if (!ModelState.IsValid)
             {
+                    this._logger.LogInformation("Quiz form state invalid");
                 await _eventAggregator.PublishAsync(new QuizCompletingFailedNotification("ModelState Invalid"));
                 return CurrentUmbracoPage();
             }
 
+                this._logger.LogInformation("Quiz form state is valid");
+
+
+                this._logger.LogInformation("Getting quiz page by id " + model.QuizId);
             var quizContentPage = base.UmbracoContext.Content.GetById(model.QuizId);
+
+            if (quizContentPage == null) throw new Exception("Quiz content page is null");
+
             var quizPage = (QuizPage)quizContentPage;
             var questionIds = quizPage?.Questions?.Select(x => int.Parse(x)).ToArray();
 
-            var questionsToVerify = _questionService.GetListOfQuestions(questionIds);
+            if(questionIds == null || !questionIds.Any()) throw new Exception("No questions found for this quiz");
+
+            var quizQuestionsCacheId = quizPage.Name.ToUrlSegment(_shortStringHelper);
+
+                this._logger.LogInformation("Quiz questions cache id " + quizQuestionsCacheId);
+
+            if (!_memoryCache.TryGetValue(quizQuestionsCacheId, out List<QuizQuestionViewModel> questionsToVerify))
+            {
+                this._logger.LogInformation("Quiz questions not in the cache for id " + quizQuestionsCacheId);
+                questionsToVerify = _questionService.GetListOfQuestions(questionIds);
+
+                _memoryCache.Set(quizQuestionsCacheId, questionsToVerify, new MemoryCacheEntryOptions()
+                {
+                    SlidingExpiration = TimeSpan.FromHours(1),
+                    Priority = CacheItemPriority.High,
+                });
+            }
+            else
+            {
+                this._logger.LogInformation("Quiz questions returned from the cache. Cache id " + quizQuestionsCacheId);
+            }
 
             int questionCount = model.Questions.Count;
+
+                this._logger.LogInformation("Quiz question count " + questionCount);
+
             int correctCount = 0;
-            VerifyQuestions(model, questionsToVerify, out correctCount);
+            var answers = VerifyQuestions(model, questionsToVerify, out correctCount);
+
+                this._logger.LogInformation("Correct answers count " + correctCount);
 
             var member = await _memberManager.GetCurrentMemberAsync();
-            var memberItem = _memberService.GetByEmail(member.Email);
-            var memberModel = _accountService.GetMemberModelFromMember(memberItem);
 
-            var quiz = new QuizViewModel();
-            quiz.QuizId = quizPage.Id;
-            quiz.MemberId = memberItem.Id;
-            quiz.Questions = questionsToVerify;
+            if (member == null) throw new Exception("Unable to get current member");
+
+                this._logger.LogInformation("Current member found " + member.Email);
+
+            var memberItem = _memberService.GetByEmail(member.Email);
+
+            if (memberItem == null) throw new Exception("Member item is null for email " + member.Email);
+
+                this._logger.LogInformation("Current member item id " + memberItem.Id);
 
             var quizUdi = quizPage.GetUdiObject();
 
+            if (quizUdi == null) throw new Exception("Quiz UDI is null");
+
+            string answersModel = null;
+            if(answers != null && answers.Any())
+            {
+                answersModel = JsonConvert.SerializeObject(answers);
+            }
+
             var quizResult = new QuizResult()
             {
-                Name = memberItem.Name + " - " + quizPage.Name, 
+                Name = memberItem.Name + " - " + quizPage.Name,
                 MemberId = memberItem.Id,
                 QuizId = quizUdi.ToString(),
                 Score = correctCount,
-                Total = questionCount
+                Total = questionCount,
+                Answers = answersModel
             };
+
+            this._logger.LogInformation("Getting existing record");
 
             var existingRecord = _quizResultRepository.GetByMemberIdAndQuizId(memberItem.Id, quizUdi.ToString());
 
-            if(existingRecord == null || existingRecord.Id <= 0)
+            if (existingRecord == null || existingRecord.Id <= 0)
             {
+                this._logger.LogInformation("Creating new quiz record");
                 _quizResultRepository.Create(quizResult);
             }
+            else
+            {
+                this._logger.LogInformation("Existing record id " + existingRecord.Id);
+            }
 
-            var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
-            var badges = enrichedProfile?.Badges ?? Enumerable.Empty<BadgePage>();
+            this._logger.LogInformation("Sending quiz completed notification");
 
-            await _eventAggregator.PublishAsync(new QuizCompletedNotification(memberItem, quizResult.Total, quizResult.Score, badges, quizUdi.ToString()));
-            
+            await _eventAggregator.PublishAsync(new QuizCompletedNotification(memberItem, quizResult.Total, quizResult.Score, quizUdi.ToString()));
+
+            this._logger.LogInformation("Back from quiz completed notification");
+
             if (_memoryCache.TryGetValue(CacheKey.LeaderBoard, out _))
             {
+                this._logger.LogInformation("Clearing leaderboard cache");
                 _memoryCache.Remove(CacheKey.LeaderBoard);
+            }
+            else
+            {
+                this._logger.LogInformation("Leaderboard was not cached");
             }
 
             TempData["QuizSubmitSuccess"] = true;
-            TempData["CompletedQuiz"] = JsonConvert.SerializeObject(quiz);
+
+            this._logger.LogInformation("Redirecting to current page");
 
             return RedirectToCurrentUmbracoPage();
         }
 
-        private static void VerifyQuestions(QuizViewModel model, List<QuizQuestionViewModel> questionsToVerify, out int correctCount)
+        private List<AnswerModel> VerifyQuestions(QuizViewModel model, List<QuizQuestionViewModel> questionsToVerify, out int correctCount)
         {
+            List<AnswerModel> answers = new List<AnswerModel>();
             int questionCount = model.Questions.Count;
             correctCount = 0;
             for (var q = 0; q < questionCount; q++)
             {
                 var selectedAnswerIndex = model.Questions[q].Answer;
                 var selectedAnswerIndexAsInt = int.Parse(selectedAnswerIndex);
-                var isCorrect = questionsToVerify[q].CorrectAnswerPosition == selectedAnswerIndexAsInt;
+                var correctAnswerIndex = questionsToVerify[q].CorrectAnswerPosition;
+                var isCorrect = correctAnswerIndex == selectedAnswerIndexAsInt;
+
+                answers.Add(new AnswerModel()
+                {
+                    CorrectAnswer = correctAnswerIndex.Value,
+                    SubmittedAnswer = selectedAnswerIndexAsInt
+                });
+
                 questionsToVerify[q].IsCorrect = isCorrect;
                 questionsToVerify[q].Answers[selectedAnswerIndexAsInt].Selected = true;
                 if (isCorrect)
@@ -154,6 +226,7 @@ namespace Quiz.Site.Controllers.Surface
                     correctCount++;
                 }
             }
+            return answers;
         }
 
         private static void SetAllCorrectAnswers(List<QuizQuestionViewModel> questionsToVerify)

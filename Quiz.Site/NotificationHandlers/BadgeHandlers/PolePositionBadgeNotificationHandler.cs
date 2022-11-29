@@ -4,6 +4,7 @@ using Quiz.Site.Models.Badges;
 using Quiz.Site.Notifications.Quiz;
 using Quiz.Site.Services;
 using Umbraco.Cms.Core.Events;
+using Umbraco.Cms.Web.Common.PublishedModels;
 
 namespace Quiz.Site.NotificationHandlers.BadgeHandlers;
 
@@ -13,14 +14,16 @@ public class PolePositionBadgeNotificationHandler : INotificationHandler<QuizCom
     private readonly IQuizResultRepository _quizResultRepository;
     private readonly ILeaderboardService _leaderboardService;
     private readonly IMemoryCache _memoryCache;
+    private readonly IAccountService _accountService;
 
     public PolePositionBadgeNotificationHandler(IBadgeService badgeService, IQuizResultRepository quizResultRepository, 
-        ILeaderboardService leaderboardService, IMemoryCache memoryCache)
+        ILeaderboardService leaderboardService, IMemoryCache memoryCache, IAccountService accountService)
     {
         _badgeService = badgeService;
         _quizResultRepository = quizResultRepository;
         _leaderboardService = leaderboardService;
         _memoryCache = memoryCache;
+        _accountService = accountService;
     }
 
     public async void Handle(QuizCompletedNotification notification)
@@ -32,7 +35,11 @@ public class PolePositionBadgeNotificationHandler : INotificationHandler<QuizCom
             var firstPerson = playerRecords.FirstOrDefault();
             if (firstPerson != null && firstPerson.MemberId == notification.CompletedBy.Id.ToString())
             {
-                _badgeService.AddBadgeToMember(notification.CompletedBy, notification.Badges, new PolePositionBadge());
+                var memberModel = _accountService.GetMemberModelFromMember(notification.CompletedBy);
+                var enrichedProfile = _accountService.GetEnrichedProfile(memberModel);
+                var badges = enrichedProfile?.Badges ?? Enumerable.Empty<BadgePage>();
+
+                _badgeService.AddBadgeToMember(notification.CompletedBy, badges, new PolePositionBadge());
             }
         }
 

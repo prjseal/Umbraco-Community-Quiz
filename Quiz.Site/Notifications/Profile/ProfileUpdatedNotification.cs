@@ -8,13 +8,9 @@ namespace Quiz.Site.Notifications.Profile;
 public class ProfileUpdatedNotification : INotification
 {
     public IMember UpdatedBy { get; }
-    public ProfileViewModel? ProfileViewModel { get; }
-    public IEnumerable<BadgePage> Badges { get; }
 
-    public ProfileUpdatedNotification(IMember updatedBy, ProfileViewModel profile, IEnumerable<BadgePage> badges)
+    public ProfileUpdatedNotification(IMember updatedBy)
     {
         UpdatedBy = updatedBy;
-        ProfileViewModel = profile;
-        Badges = badges;
     }
 }
