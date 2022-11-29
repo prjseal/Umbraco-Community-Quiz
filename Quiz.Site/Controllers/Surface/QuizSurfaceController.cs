@@ -106,21 +106,7 @@ namespace Quiz.Site.Controllers.Surface
 
                 this._logger.LogInformation("Quiz questions cache id " + quizQuestionsCacheId);
 
-            if (!_memoryCache.TryGetValue(quizQuestionsCacheId, out List<QuizQuestionViewModel> questionsToVerify))
-            {
-                this._logger.LogInformation("Quiz questions not in the cache for id " + quizQuestionsCacheId);
-                questionsToVerify = _questionService.GetListOfQuestions(questionIds);
-
-                _memoryCache.Set(quizQuestionsCacheId, questionsToVerify, new MemoryCacheEntryOptions()
-                {
-                    SlidingExpiration = TimeSpan.FromHours(1),
-                    Priority = CacheItemPriority.High,
-                });
-            }
-            else
-            {
-                this._logger.LogInformation("Quiz questions returned from the cache. Cache id " + quizQuestionsCacheId);
-            }
+            List<QuizQuestionViewModel> questionsToVerify = _questionService.GetListOfQuestions(questionIds);
 
             int questionCount = model.Questions.Count;
 

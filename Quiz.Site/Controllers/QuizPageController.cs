@@ -78,18 +78,7 @@ namespace Quiz.Site.Controllers
             var questionIds = quizPage?.Questions?.Select(x => int.Parse(x)).ToArray();
             var quizQuestionsCacheId = quizPage.Name.ToUrlSegment(_shortStringHelper);
 
-            if (!_memoryCache.TryGetValue(quizQuestionsCacheId, out List<QuizQuestionViewModel> questions))
-            {
-                questions = _questionService.GetListOfQuestions(questionIds);
-
-                _memoryCache.Set(quizQuestionsCacheId, questions, new MemoryCacheEntryOptions()
-                {
-                    SlidingExpiration = TimeSpan.FromHours(1),
-                    Priority = CacheItemPriority.High,
-                });
-            }
-            
-            quiz.Questions = questions;
+            quiz.Questions = _questionService.GetListOfQuestions(questionIds);
 
             if (completedPreviously)
             {
